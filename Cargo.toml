@@ -4,3 +4,7 @@ version = "0.1.0"
 edition = "2024"
 
 [dependencies]
+areia = { git = "https://github.com/xqhare/areia" }
+mawu = { git = "https://github.com/xqhare/mawu" }
+nabu = { git = "https://github.com/xqhare/nabu" }
+athena = { git = "https://github.com/xqhare/athena", features = ["process"] }
