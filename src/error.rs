@@ -1,10 +1,12 @@
 use mawu::errors::MawuError;
+use nabu::error::NabuError;
 
 #[derive(Debug, Clone, PartialEq)]
 pub enum ArgosError {
     EnvironmentError(String),
     SetupProcessError(String),
     SetupRepoError(String),
+    SetupRepoConfigError(String),
     JsonError(String),
     GitError(String),
     XffValueError(String),
@@ -20,6 +22,12 @@ impl std::fmt::Display for ArgosError {
 impl From<MawuError> for ArgosError {
     fn from(e: MawuError) -> Self {
         ArgosError::JsonError(e.to_string())
+    }
+}
+
+impl From<NabuError> for ArgosError {
+    fn from(e: NabuError) -> Self {
+        ArgosError::XffError(e.to_string())
     }
 }
 
@@ -41,6 +49,7 @@ impl std::error::Error for ArgosError {
             ArgosError::XffError(e) => e,
             ArgosError::SetupRepoError(e) => e,
             ArgosError::GitError(e) => e,
+            ArgosError::SetupRepoConfigError(e) => e,
         }
     }
 }

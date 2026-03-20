@@ -31,6 +31,11 @@ fn continously_integrate(env: &mut Environment) -> ArgosResult<()> {
             continue;
         } else {
             failed_repos.push(repo);
+            // TODO: Pipeline failed somehow. Now I need to figure out if the failure
+            // is already logged (by yet unwritten logic) or not and thus still needs
+            // to be logged.
+            //
+            // lets hope future me solved this inside the pipeline by the time I get here
         }
     }
     Ok(())

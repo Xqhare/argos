@@ -4,6 +4,7 @@ use crate::{
     repo::{integrate::integrate_repo, setup::setup_repo},
 };
 
+mod config;
 mod integrate;
 mod setup;
 
@@ -21,7 +22,7 @@ pub fn continously_integrate_repo(
         return Ok(true);
     };
     // TODO: read config, run CI stuff and things - Also remember the failed repo check for dependencies
-    if !integrate_repo(env, &repo_env)? {
+    if !integrate_repo(env, &repo_env, failed_repos)? {
         return Ok(false);
     };
 

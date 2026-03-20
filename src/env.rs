@@ -12,6 +12,9 @@ pub struct RepoEnvironment {
     pub repo_git_url: String,
     pub repo_path: PathBuf,
     pub repo_tracking: PathBuf,
+    pub repo_config_dir_path: PathBuf,
+    pub repo_basic_config_path: PathBuf,
+    pub repo_advanced_config_path: PathBuf,
 }
 
 impl RepoEnvironment {
@@ -19,11 +22,17 @@ impl RepoEnvironment {
         let repo_git_url = format!("{}{}.git", env.git_root_url, repo);
         let repo_path = env.argos_root_path.join(repo);
         let repo_tracking = env.argos_repo_tracking_path.join(format!("{}.xff", repo));
+        let repo_config_dir_path = repo_path.join("ArgosCI");
+        let repo_basic_config_path = repo_config_dir_path.join("argus.json");
+        let repo_advanced_config_path = repo_config_dir_path.join("config.json");
         RepoEnvironment {
             repo: repo.to_string(),
             repo_git_url,
             repo_path,
             repo_tracking,
+            repo_config_dir_path,
+            repo_basic_config_path,
+            repo_advanced_config_path,
         }
     }
 }
