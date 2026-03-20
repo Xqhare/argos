@@ -9,21 +9,25 @@ use crate::{
     error::{ArgosError, ArgosResult},
     utils::git::latest_git_hash,
 };
-pub fn was_updated(env: &Environment, repo: &str, repo_path: &Path) -> ArgosResult<bool> {
+pub fn was_updated(
+    env: &Environment,
+    repo: &str,
+    repo_path: &Path,
+    repo_tracking: &Path,
+) -> ArgosResult<bool> {
     let latest_hash = latest_git_hash(&repo_path)?;
-    let mut repo_metadata =
-        match nabu::serde::read(env.argos_repo_tracking_path.join(format!("{}.xff", repo))) {
-            Ok(xff) => {
-                if xff.is_object() {
-                    xff.into_object().unwrap()
-                } else {
-                    return Err(ArgosError::XffValueError(
-                        "Repo metadata XFF must be an object.".to_string(),
-                    ));
-                }
+    let mut repo_metadata = match nabu::serde::read(repo_tracking) {
+        Ok(xff) => {
+            if xff.is_object() {
+                xff.into_object().unwrap()
+            } else {
+                return Err(ArgosError::XffValueError(
+                    "Repo metadata XFF must be an object.".to_string(),
+                ));
             }
-            Err(e) => return Err(ArgosError::XffError(e.to_string())),
-        };
+        }
+        Err(e) => return Err(ArgosError::XffError(e.to_string())),
+    };
     let previous_hash = match repo_metadata.get("hash") {
         Some(x) => match x.as_string() {
             Some(x) => x,
