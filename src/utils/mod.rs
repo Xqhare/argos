@@ -1,22 +1,15 @@
 pub mod git;
 
-use std::path::Path;
-
 use nabu::XffValue;
 
 use crate::{
-    env::Environment,
+    env::RepoEnvironment,
     error::{ArgosError, ArgosResult},
     utils::git::latest_git_hash,
 };
-pub fn was_updated(
-    env: &Environment,
-    repo: &str,
-    repo_path: &Path,
-    repo_tracking: &Path,
-) -> ArgosResult<bool> {
-    let latest_hash = latest_git_hash(&repo_path)?;
-    let mut repo_metadata = match nabu::serde::read(repo_tracking) {
+pub fn was_updated(repo_env: &RepoEnvironment) -> ArgosResult<bool> {
+    let latest_hash = latest_git_hash(&repo_env.repo_path)?;
+    let mut repo_metadata = match nabu::serde::read(&repo_env.repo_tracking) {
         Ok(xff) => {
             if xff.is_object() {
                 xff.into_object().unwrap()
@@ -47,10 +40,7 @@ pub fn was_updated(
         return Ok(false);
     }
     repo_metadata.insert("hash", latest_hash);
-    nabu::serde::write(
-        env.argos_repo_tracking_path.join(format!("{}.xff", repo)),
-        XffValue::from(repo_metadata),
-    )
-    .map_err(|e| ArgosError::XffError(e.to_string()))?;
+    nabu::serde::write(&repo_env.repo_tracking, XffValue::from(repo_metadata))
+        .map_err(|e| ArgosError::XffError(e.to_string()))?;
     Ok(true)
 }

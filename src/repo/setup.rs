@@ -3,7 +3,7 @@ use std::path::Path;
 use nabu::{Object, XffValue};
 
 use crate::{
-    env::Environment,
+    env::{Environment, RepoEnvironment},
     error::{ArgosError, ArgosResult},
     utils::{
         git::{git_clone, git_pull, latest_git_hash},
@@ -11,27 +11,31 @@ use crate::{
     },
 };
 
-pub fn setup_repo(env: &Environment, repo: &str) -> ArgosResult<()> {
-    let repo_path = env.argos_root_path.join(repo);
-    let repo_git_url = format!("{}{}.git", env.git_root_url, repo);
-    let repo_tracking = env.argos_repo_tracking_path.join(format!("{}.xff", repo));
-
-    if repo_path.join(".git").exists() {
-        if !was_updated(env, repo, &repo_path, &repo_tracking)? {
-            return Ok(());
+/// Sets up a new or existing repo
+///
+/// # Arguments
+/// * `repo` - Repo name
+/// * `env` - Environment
+///
+/// # Returns
+/// Returns a boolean indicating if the repo was updated
+pub fn setup_repo(repo_env: &RepoEnvironment) -> ArgosResult<bool> {
+    if repo_env.repo_path.join(".git").exists() {
+        if !was_updated(&repo_env)? {
+            return Ok(false);
         }
-        git_pull(&repo_path)?;
+        git_pull(&repo_env.repo_path)?;
     } else {
-        setup_new_repo(&repo_path, &repo_git_url, &repo_tracking)?;
+        setup_new_repo(&repo_env)?;
     }
-    Ok(())
+    Ok(true)
 }
 
-fn setup_new_repo(repo_path: &Path, repo_git_url: &str, repo_tracking: &Path) -> ArgosResult<()> {
-    let _ = git_clone(&repo_git_url, &repo_path);
-    let latest_hash = latest_git_hash(&repo_path)?;
+fn setup_new_repo(repo_env: &RepoEnvironment) -> ArgosResult<()> {
+    let _ = git_clone(&repo_env.repo_git_url, &repo_env.repo_path);
+    let latest_hash = latest_git_hash(&repo_env.repo_path)?;
     let metadata = Object::from(vec![("hash".to_string(), XffValue::String(latest_hash))]);
-    nabu::serde::write(repo_tracking, XffValue::from(metadata))
+    nabu::serde::write(&repo_env.repo_tracking, XffValue::from(metadata))
         .map_err(|e| ArgosError::XffError(e.to_string()))?;
     Ok(())
 }

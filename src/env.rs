@@ -7,6 +7,27 @@ use athena::process::{IoNiceClass, SchedulerPolicy, set_ionice_value, set_schedu
 // I assume a correctly set up git config
 const GIT_ROOT_URL: &str = "ssh://git@serverle:2222/Xqhare/";
 
+pub struct RepoEnvironment {
+    pub repo: String,
+    pub repo_git_url: String,
+    pub repo_path: PathBuf,
+    pub repo_tracking: PathBuf,
+}
+
+impl RepoEnvironment {
+    pub fn new(repo: &str, env: &Environment) -> RepoEnvironment {
+        let repo_git_url = format!("{}{}.git", env.git_root_url, repo);
+        let repo_path = env.argos_root_path.join(repo);
+        let repo_tracking = env.argos_repo_tracking_path.join(format!("{}.xff", repo));
+        RepoEnvironment {
+            repo: repo.to_string(),
+            repo_git_url,
+            repo_path,
+            repo_tracking,
+        }
+    }
+}
+
 pub struct Environment {
     pub git_root_url: String,
     pub argos_root_path: PathBuf,
@@ -51,7 +72,7 @@ impl Environment {
 }
 
 fn setup_process() -> ArgosResult<()> {
-    if let Err(e) = set_scheduler(SchedulerPolicy::Idle, 0) {
+    if let Err(e) = set_scheduler(SchedulerPolicy::Idle, 19) {
         return Err(ArgosError::SetupProcessError(format!(
             "Failed to set scheduler: {}",
             e
