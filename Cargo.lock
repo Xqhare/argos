@@ -9,7 +9,7 @@ source = "git+https://github.com/xqhare/areia#32f0ab3f7adc21b69590f8692c3b791977
 
 [[package]]
 name = "argos"
-version = "0.1.0"
+version = "0.2.0"
 dependencies = [
  "areia",
  "athena",
@@ -42,7 +42,7 @@ dependencies = [
 [[package]]
 name = "nabu"
 version = "3.0.0"
-source = "git+https://github.com/xqhare/nabu#9f3bde1903f8fefbaeb1c54025924d05113b192a"
+source = "git+https://github.com/xqhare/nabu#a7368e3f91b71290d58d11576954608f1690eb43"
 dependencies = [
  "athena",
 ]
