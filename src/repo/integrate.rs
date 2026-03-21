@@ -22,7 +22,7 @@ pub fn integrate_repo(
     failed_repos: &[String],
 ) -> ArgosResult<bool> {
     let repo_config = repo_config(env, repo_env, failed_repos)?;
-    Ok(())
+    Ok(true)
 }
 
 fn repo_config(
@@ -31,4 +31,5 @@ fn repo_config(
     failed_repos: &[String],
 ) -> ArgosResult<()> {
     let repo_config = RepoConfig::new(repo_env);
+    Ok(())
 }

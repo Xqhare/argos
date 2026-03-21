@@ -83,11 +83,16 @@ If you want to provide more advanced configuration, you can create a file called
   },
   "clippy": {
     "args": ["--", "-D", "warnings"]
-  }
+  },
+  "all": Null
 }
 ```
 
 The `requires` field is a list of repo names that must pass before the current repo can be tested. You may only list dependencies required to run all commands. There is no way of specifiying that `test` and `build` need different dependencies for example.
+
+> Please note that supplying just a few commands with specific arguments, followed by "all" to enable all *other* commands with *default* behaviour is supported and expected behaviour.
+
+If using "all" in conjunction with other commands, please note that the value of the "all" key does not matter and is not read. The value of the "all" key is set to `Null` by convention.
 
 The `args` field is a list of strings that are passed directly to the command. This allows for fine-grained control over how your code is tested and built.
 
@@ -95,7 +100,7 @@ The `args` field is a list of strings that are passed directly to the command. T
 
 | Argument | Command | Description |
 | :--- | :--- | :--- |
-| `--locked` | Any | Ensures `Cargo.lock` is not updated during the CI run. |
+| --locked | Any (except `update`) | Ensures `Cargo.lock` is not updated during the CI run. |
 | `--all-features` | `build`, `clippy`, `test`, `doc` | Enables all features of the crate for the run. |
 | `--all-targets` | `build`, `clippy`, `test` | Ensures all targets (bins, libs, tests, examples, benches) are processed. **Note: This skips doc-tests.** |
 | `-D warnings` | `build`, `clippy`, `doc` | (Passed after `--`) Forces the CI to fail if any warnings are detected. |
