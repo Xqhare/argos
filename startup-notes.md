@@ -211,3 +211,32 @@ the dependent build.
 
 1. Docker it is then
 2. Instead of a fully custom, human readable toml/yaml like format, I will just use `Mawu` for JSON
+
+## Dependency sorting
+
+Ok, this is a big one.
+If a repo requires another repo, we need to make sure that the required repo is built before the depending repo.
+
+This will be hard, and everything I can do to make it simpler is on the table (performance is strictly secondary for now)
+
+1. Loop through all repos
+  - For each, check if `config.json` exists
+  - If yes, check if `requires` key exists and return its value
+  - If no, return empty array
+
+Now we should have a structure that looks like this:
+
+```json
+{
+  "repo1": ["repo2", "repo3"],
+  "repo2": [],
+  "repo3": ["repo4"],
+}
+```
+
+As rusts cargo does not allow cyclic dependencies, I can just ignore them for now.
+
+The structure I have produced, already looks ready to go for "Kahn's algorithm" (https://en.wikipedia.org/wiki/Topological_sorting#Kahn's_algorithm). Need to implement that inside athena though.
+
+I HAVE RETURNED WITH GREAT NEWS! Kahns is implemented in athena and ready to go, feature flag: sorting
+

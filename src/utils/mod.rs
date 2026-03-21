@@ -1,12 +1,61 @@
 pub mod git;
 
-use nabu::XffValue;
+use athena::sorting::kahns_managed;
+use nabu::{Array, XffValue};
 
 use crate::{
-    env::RepoEnvironment,
+    env::{Environment, RepoEnvironment},
     error::{ArgosError, ArgosResult},
     utils::git::latest_git_hash,
 };
+
+/// Takes in a list of repositories and returns a list sorted by their dependencies. First element
+/// is required by later elements
+pub fn sort_repo_list(repo_list: &Array, env: &Environment) -> ArgosResult<Array> {
+    let mut repo_owned_dependency_list: Vec<(String, Vec<String>)> = Vec::new();
+    for repo in repo_list {
+        let repo = repo.into_string().ok_or(ArgosError::XffValueError(
+            "Repo array must contain only strings as children.".to_string(),
+        ))?;
+        let repoconfig = RepoEnvironment::new(&repo, env);
+        let mut dependencies = Vec::new();
+        if repoconfig.repo_advanced_config_path.exists() {
+            let repoconfig = nabu::serde::read(&repoconfig.repo_advanced_config_path)
+                .map_err(|e| ArgosError::XffError(e.to_string()))?
+                .into_object()
+                .ok_or(ArgosError::XffValueError(
+                    "Repo config must be an object.".to_string(),
+                ))?;
+            if let Some(x) = repoconfig.get("requires") {
+                if let Some(x) = x.into_array() {
+                    for dependency in x {
+                        let tmp = dependency.into_string().ok_or(ArgosError::XffValueError(
+                            "Dependencies must be strings.".to_string(),
+                        ))?;
+                        dependencies.push(tmp);
+                    }
+                } else {
+                    return Err(ArgosError::XffValueError(
+                        "Dependencies must be an array.".to_string(),
+                    ));
+                }
+            }
+        }
+        repo_owned_dependency_list.push((repo, dependencies));
+    }
+
+    match kahns_managed(&repo_owned_dependency_list) {
+        Ok(x) => {
+            let out = x
+                .iter()
+                .map(|x: &String| XffValue::from(x.to_string()))
+                .collect();
+            Ok(out)
+        }
+        Err(e) => Err(ArgosError::XffError(e)),
+    }
+}
+
 pub fn was_updated(repo_env: &RepoEnvironment) -> ArgosResult<bool> {
     let latest_hash = latest_git_hash(&repo_env.repo_path)?;
     let mut repo_metadata = match nabu::serde::read(&repo_env.repo_tracking) {

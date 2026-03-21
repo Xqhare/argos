@@ -123,12 +123,34 @@ If `requires_ext` is set to `true`, please provide a `Dockerfile` to set up the 
 
 `ArgosCI`\
 ├── `argos.json`\
-├── `conf.json`\
+├── `config.json`\
 ├── `Dockerfile`\
 ├── `test`\
 │   └── `Dockerfile`\
 └── `build`\
 &nbsp;&nbsp;&nbsp;└── `Dockerfile`
+
+### Output
+
+The output is for the last run of Argos is saved in the `{runtimeDirectory}/argos_output.json` file.
+
+```json
+{
+  "repo_name": {
+    "all_succeeded": true,
+    "test": {
+      "success": true,
+      "output": "..."
+    },
+    "build": {
+      "success": true,
+      "output": "..."
+    }
+  }
+}
+```
+
+It is also saved per run in the `{runtimeDirectory}/argos_output/{repo_name}/{date_time}.json` and `{runtimeDirectory}/argos_output/{repo_name}/{date_time}.xff` format. The last 100 runs are saved.
 
 ---
 

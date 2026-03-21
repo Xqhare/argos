@@ -4,6 +4,7 @@ use crate::{
     env::Environment,
     error::{ArgosError, ArgosResult},
     repo::continously_integrate_repo,
+    utils::sort_repo_list,
 };
 
 mod env;
@@ -21,8 +22,9 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 
 fn continously_integrate(env: &mut Environment) -> ArgosResult<()> {
     let repo_list = read_repo_list(env)?;
+    let sorted_repo_list = sort_repo_list(&repo_list, env)?;
     let mut failed_repos: Vec<String> = Vec::new();
-    for repo in repo_list {
+    for repo in sorted_repo_list {
         let repo = repo.into_string().ok_or(ArgosError::XffValueError(
             "Repo array must contain only strings as children.".to_string(),
         ))?;

@@ -8,6 +8,7 @@ mod config;
 mod integrate;
 mod setup;
 
+// TODO: If I remove the error return here, I can capture the error and log it
 /// Continously integrates a repo
 ///
 /// Returns false if the integration of a repo failed; This may also error depending
@@ -21,8 +22,8 @@ pub fn continously_integrate_repo(
         // No new changes since last run
         return Ok(true);
     };
-    // TODO: read config, run CI stuff and things - Also remember the failed repo check for dependencies
-    if !integrate_repo(env, &repo_env, failed_repos)? {
+    let repo_config = config::RepoConfig::new(&repo_env)?;
+    if !integrate_repo(env, &repo_env, &repo_config, failed_repos)? {
         return Ok(false);
     };
 

@@ -17,19 +17,34 @@ use crate::{
 /// # Returns
 /// Returns false if the integration of a repo failed; May also error depending
 pub fn integrate_repo(
-    env: &Environment,
-    repo_env: &RepoEnvironment,
+    _env: &Environment,
+    _repo_env: &RepoEnvironment,
+    repo_config: &RepoConfig,
     failed_repos: &[String],
 ) -> ArgosResult<bool> {
-    let repo_config = repo_config(env, repo_env, failed_repos)?;
+    if !check_for_failed_dependencies(&repo_config.dependencies, failed_repos) {
+        return Ok(false);
+    }
+
+    // TODO: Consider how to deal with `cargo clean` sensibly
+    // Size Check: Use a recursive std::fs::read_dir to calculate folder size (or call du -s via Command since it's standard on Linux)
+    // Also run on failure to clean up possible stale symbols
     Ok(true)
 }
 
-fn repo_config(
-    env: &Environment,
-    repo_env: &RepoEnvironment,
+/// Checks for failed dependencies
+///
+/// Returns false if a dependency of this repo has failed
+fn check_for_failed_dependencies(
+    dependencies: &Option<Vec<String>>,
     failed_repos: &[String],
-) -> ArgosResult<()> {
-    let repo_config = RepoConfig::new(repo_env);
-    Ok(())
+) -> bool {
+    if let Some(deps) = dependencies {
+        for dependency in deps {
+            if failed_repos.contains(dependency) {
+                return false;
+            }
+        }
+    }
+    true
 }

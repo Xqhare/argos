@@ -7,6 +7,7 @@ pub enum ArgosError {
     SetupProcessError(String),
     SetupRepoError(String),
     SetupRepoConfigError(String),
+    IntegrateRepoError(String),
     JsonError(String),
     GitError(String),
     XffValueError(String),
@@ -50,6 +51,7 @@ impl std::error::Error for ArgosError {
             ArgosError::SetupRepoError(e) => e,
             ArgosError::GitError(e) => e,
             ArgosError::SetupRepoConfigError(e) => e,
+            ArgosError::IntegrateRepoError(e) => e,
         }
     }
 }
