@@ -17,7 +17,7 @@ pub fn continously_integrate_repo(
     repo: &str,
     failed_repos: &[String],
 ) -> ArgosResult<bool> {
-    let repo_env = RepoEnvironment::new(repo, env);
+    let repo_env = RepoEnvironment::new(repo, env)?;
     if !setup_repo(&repo_env)? {
         // No new changes since last run
         return Ok(true);
