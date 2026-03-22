@@ -10,7 +10,9 @@ The reason is simple: Just as his namesake, Argos will be left alone, and will w
 
 ## Usage
 
-Argos reads a list of repos from the `{runtimeDirectory}/repo_list.json` file.
+Argos reads a list of repos from the `{dataDirectory}/repo_list.json` file.
+
+> **Note on `{dataDirectory}`:** On Linux, this is typically `$XDG_DATA_HOME` or `~/.local/share`.
 
 This file is a JSON object containing the git url root and a list of repo names.
 To change the git root url, provide a `git_root` key in the repo config.
@@ -132,26 +134,33 @@ If `requires_ext` is set to `true`, please provide a `Dockerfile` to set up the 
 
 ### Output
 
-The output is for the last run of Argos is saved in the `{runtimeDirectory}/argos_output.json` file.
+The output for the latest run of each repository is saved in both human-readable and binary formats within the tracking directory.
 
-```json
-{
-  "repo_name": {
-    "all_succeeded": true,
-    "test": {
-      "success": true,
-      "output": "..."
-    },
-    "build": {
-      "success": true,
-      "output": "..."
-    }
-  }
-}
+- **JSON Report:** `{dataDirectory}/argos/repo_tracking/{repo}.json`
+- **XFF Data:** `{dataDirectory}/argos/repo_tracking/{repo}.xff`
+
+Historical data for the last 100 runs is maintained in repository-specific subdirectories:
+`{dataDirectory}/argos/repo_tracking/{repo}/{dateTime}.xff`
+
+## Directory Structure
+
+```text
+[Data Directory] (from areia::BaseDirs)
+└── argos_data_path
+    ├── repo_list.json (repo_list_path)
+    └── argos/ (argos_root_path)
+        ├── repo_tracking/ (argos_repo_tracking_path)
+        │   ├── {repo}/ - History of the last 100 runs
+        │   │   └── {dateTime}.xff
+        │   ├── {repo}.xff (repo_tracking_xff) - Latest run data
+        │   └── {repo}.json (repo_tracking_json) - Latest run report
+        └── {repo}/ (repo_path)
+            └── ArgosCI/ (repo_config_dir_path)
+                ├── argus.json (repo_basic_config_path)
+                └── config.json (repo_advanced_config_path)
 ```
-
-It is also saved per run in the `{runtimeDirectory}/argos_output/{repo_name}/{date_time}.json` and `{runtimeDirectory}/argos_output/{repo_name}/{date_time}.xff` format. The last 100 runs are saved.
 
 ---
 
 For more information on the start of Argos, see the [startup notes](startup-notes.md).
+
