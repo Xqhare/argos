@@ -5,6 +5,7 @@ edition = "2024"
 
 [dependencies]
 areia = { git = "https://github.com/xqhare/areia" }
+horae = { git = "https://github.com/xqhare/horae" }
 mawu = { git = "https://github.com/xqhare/mawu" }
 nabu = { git = "https://github.com/xqhare/nabu" }
 athena = { git = "https://github.com/xqhare/athena", features = ["process", "sorting"] }
