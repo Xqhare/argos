@@ -59,7 +59,7 @@ Supported commands are:
 - `test` - Runs `cargo test`
 - `build` - Runs `cargo build`
 - `doc` - Runs `cargo doc --no-deps` to ensure documentation builds correctly.
-- `doc-tests` - Runs `cargo test --doc`
+- `doc-test` - Runs `cargo test --doc`
 - `clippy` - Runs `cargo clippy` and tries to automatically fix the errors
 - `format` - Runs `cargo fmt`
 - `update` - Runs `cargo update`
