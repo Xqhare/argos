@@ -22,6 +22,8 @@ mod license;
 mod test;
 mod update;
 
+const TARGET_DIR_LIMIT: u64 = 2 * 1024 * 1024 * 1024; // 2 GB
+
 /// Integrates a repo
 ///
 /// # Arguments
@@ -79,10 +81,25 @@ pub fn integrate_repo(
 
     git_push(&repo_env.repo_path)?;
 
-    // TODO: Consider how to deal with `cargo clean` sensibly
-    // Size Check: Use a recursive std::fs::read_dir to calculate folder size (or call du -s via Command since it's standard on Linux)
-    // Also run on failure to clean up possible stale symbols?
-    if one_failed { Ok(false) } else { Ok(true) }
+    // Handle cleanup
+    let target_path = repo_env.repo_path.join("target");
+    let target_size = crate::utils::get_dir_size(&target_path).unwrap_or(0);
+
+    if one_failed || target_size > TARGET_DIR_LIMIT {
+        clean_repo(env, repo_env)?;
+    }
+
+    if one_failed {
+        Ok(false)
+    } else {
+        Ok(true)
+    }
+}
+
+/// Runs `cargo clean` on a repo
+pub fn clean_repo(env: &Environment, repo_env: &RepoEnvironment) -> ArgosResult<()> {
+    execute_in_docker("clean", Vec::new(), env, repo_env)?;
+    Ok(())
 }
 
 fn create_result(success: bool, output: &str) -> Object {

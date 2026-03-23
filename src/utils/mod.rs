@@ -92,10 +92,27 @@ pub fn was_updated(repo_env: &RepoEnvironment) -> ArgosResult<bool> {
     nabu::serde::write(&repo_env.repo_tracking_xff, XffValue::from(repo_metadata))
         .map_err(|e| ArgosError::XffError(e.to_string()))?;
     Ok(true)
-}
+    }
 
-/// Gets the uid and gid of the current user
-///
+    /// Recursively calculates the size of a directory in bytes
+    pub fn get_dir_size(path: &std::path::Path) -> std::io::Result<u64> {
+    let mut size = 0;
+    if path.is_dir() {
+        for entry in std::fs::read_dir(path)? {
+            let entry = entry?;
+            let path = entry.path();
+            if path.is_dir() {
+                size += get_dir_size(&path)?;
+            } else {
+                size += entry.metadata()?.len();
+            }
+        }
+    }
+    Ok(size)
+    }
+
+    /// Gets the uid and gid of the current user
+    ...
 /// Returns a string of the form `{uid}:{gid}`
 pub fn get_uid_gid() -> ArgosResult<String> {
     let output_uid = std::process::Command::new("id")
