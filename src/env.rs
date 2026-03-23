@@ -67,33 +67,34 @@ impl Environment {
             .map_err(|e| ArgosError::Environment(format!("Failed to get base directories: {e}")))?;
         let argos_data_path = base_dirs.data_dir().clone();
         let argos_root_path = argos_data_path.join("argos");
-
-        let repo_list_path = {
-            let out = argos_root_path.join("repo_list.json");
-            if out.exists() {
-                out
-            } else {
-                return Err(ArgosError::Environment(format!(
-                    "No repo list found at {}. Please create it to start the CI pipeline.",
-                    out.display()
-                )));
-            }
-        };
-
         let argos_repo_tracking_path = argos_root_path.join("repo_tracking");
         let argos_cargo_cache_path = argos_root_path.join("cargo_cache");
         let default_dockerfile_path = argos_root_path.join("Dockerfile.default");
 
         // Ensure root, tracking and cache directories exist
         create_dir_all(&argos_root_path).map_err(|e| {
-            ArgosError::Environment(format!("Failed to create argos root directory: {e}"))
+            ArgosError::EnvironmentError(format!("Failed to create argos root directory: {}", e))
         })?;
         create_dir_all(&argos_repo_tracking_path).map_err(|e| {
-            ArgosError::Environment(format!("Failed to create repo tracking directory: {e}"))
+            ArgosError::EnvironmentError(format!("Failed to create repo tracking directory: {}", e))
         })?;
         create_dir_all(&argos_cargo_cache_path).map_err(|e| {
-            ArgosError::Environment(format!("Failed to create cargo cache directory: {e}"))
+            ArgosError::EnvironmentError(format!("Failed to create cargo cache directory: {}", e))
         })?;
+
+        let repo_list_path = {
+            let out = argos_root_path.join("repo_list.json");
+            if !out.exists() {
+                let default_content = "{\n  \"repos\": []\n}";
+                std::fs::write(&out, default_content).map_err(|e| {
+                    ArgosError::EnvironmentError(format!("Failed to create default repo list: {}", e))
+                })?;
+            }
+            out
+        };
+
+        // Create default Dockerfile if it doesn't exist
+
 
         // Create default Dockerfile if it doesn't exist
         if !default_dockerfile_path.exists() {
