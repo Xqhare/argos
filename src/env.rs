@@ -60,6 +60,7 @@ pub struct Environment {
     pub repo_list_path: PathBuf,
     pub argos_repo_tracking_path: PathBuf,
     pub argos_cargo_cache_path: PathBuf,
+    pub default_dockerfile_path: PathBuf,
 }
 
 impl Environment {
@@ -84,6 +85,7 @@ impl Environment {
         let argos_root_path = argos_data_path.join("argos");
         let argos_repo_tracking_path = argos_root_path.join("repo_tracking");
         let argos_cargo_cache_path = argos_root_path.join("cargo_cache");
+        let default_dockerfile_path = argos_root_path.join("Dockerfile.default");
 
         // Ensure root, tracking and cache directories exist
         create_dir_all(&argos_root_path).map_err(|e| {
@@ -96,6 +98,20 @@ impl Environment {
             ArgosError::EnvironmentError(format!("Failed to create cargo cache directory: {}", e))
         })?;
 
+        // Create default Dockerfile if it doesn't exist
+        if !default_dockerfile_path.exists() {
+            let default_content = "# Default Argos Dockerfile\n\
+                                   # This file is used as a template and fallback for repositories\n\
+                                   # that do not provide their own ArgosCI/Dockerfile.\n\n\
+                                   FROM rust:latest\n\n\
+                                   # Set up a working directory\n\
+                                   WORKDIR /app\n\n\
+                                   # The actual command (cargo ...) is passed via docker run\n";
+            std::fs::write(&default_dockerfile_path, default_content).map_err(|e| {
+                ArgosError::EnvironmentError(format!("Failed to create default Dockerfile: {}", e))
+            })?;
+        }
+
         setup_process()?;
         Ok(Environment {
             git_root_url: GIT_ROOT_URL.to_string(),
@@ -104,6 +120,7 @@ impl Environment {
             argos_root_path,
             argos_data_path,
             argos_cargo_cache_path,
+            default_dockerfile_path,
         })
     }
 }

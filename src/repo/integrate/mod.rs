@@ -137,35 +137,11 @@ fn check_for_failed_dependencies(
 pub fn run_cargo_cmd(
     env: &Environment,
     repo_env: &RepoEnvironment,
-    repo_config: &RepoConfig,
+    _repo_config: &RepoConfig,
     command: &str,
     args: Vec<String>,
 ) -> ArgosResult<(bool, String)> {
-    let requires_ext = repo_config
-        .cmd_requires_ext
-        .as_ref()
-        .and_then(|obj| obj.get(command))
-        .and_then(|val| val.as_boolean())
-        .copied()
-        .unwrap_or(false);
-
-    if requires_ext {
-        execute_in_docker(command, args, env, repo_env)
-    } else {
-        let output = std::process::Command::new("cargo")
-            .arg(command)
-            .args(args)
-            .current_dir(&repo_env.repo_path)
-            .output()
-            .map_err(|e| ArgosError::IntegrateRepoTestError(e.to_string()))?;
-        if output.status.success() {
-            let output = String::from_utf8_lossy(&output.stdout).to_string();
-            Ok((true, output))
-        } else {
-            let error_reason = String::from_utf8_lossy(&output.stderr).to_string();
-            Ok((false, error_reason))
-        }
-    }
+    execute_in_docker(command, args, env, repo_env)
 }
 
 /// Executes a command in a docker container
@@ -175,7 +151,7 @@ pub fn execute_in_docker(
     env: &Environment,
     repo_env: &RepoEnvironment,
 ) -> ArgosResult<(bool, String)> {
-    let dockerfile = find_dockerfile(cargo_command, repo_env);
+    let dockerfile = find_dockerfile(cargo_command, env, repo_env);
     let image_tag = format!("argos-{}-{}", repo_env.repo, cargo_command);
 
     // 1. Build the image
@@ -243,11 +219,20 @@ pub fn execute_in_docker(
     }
 }
 
-fn find_dockerfile(command: &str, repo_env: &RepoEnvironment) -> std::path::PathBuf {
+fn find_dockerfile(
+    command: &str,
+    env: &Environment,
+    repo_env: &RepoEnvironment,
+) -> std::path::PathBuf {
     let specific = repo_env.repo_config_dir_path.join(command).join("Dockerfile");
     if specific.exists() {
         specific
     } else {
-        repo_env.repo_config_dir_path.join("Dockerfile")
+        let general = repo_env.repo_config_dir_path.join("Dockerfile");
+        if general.exists() {
+            general
+        } else {
+            env.default_dockerfile_path.clone()
+        }
     }
 }
