@@ -20,17 +20,17 @@ impl RepoConfig {
     pub fn new(repo_env: &RepoEnvironment) -> ArgosResult<Self> {
         if repo_env.repo_advanced_config_path.exists() {
             let advanced_config = try_read_json(&repo_env.repo_advanced_config_path)?;
-            deconstruct_advanced_config(advanced_config)
+            deconstruct_advanced_config(&advanced_config)
         } else if repo_env.repo_basic_config_path.exists() {
             let basic_config = try_read_json(&repo_env.repo_basic_config_path)?;
-            deconstruct_basic_config(basic_config)
+            deconstruct_basic_config(&basic_config)
         } else {
             Ok(fallback_constructor())
         }
     }
 }
 
-fn deconstruct_basic_config(basic_config: XffValue) -> ArgosResult<RepoConfig> {
+fn deconstruct_basic_config(basic_config: &XffValue) -> ArgosResult<RepoConfig> {
     if let Some(array) = basic_config.as_array() {
         let mut commands = vec![];
         let all_commands = all_commands();
@@ -65,7 +65,7 @@ fn deconstruct_basic_config(basic_config: XffValue) -> ArgosResult<RepoConfig> {
     }
 }
 
-fn deconstruct_advanced_config(advanced_config: XffValue) -> ArgosResult<RepoConfig> {
+fn deconstruct_advanced_config(advanced_config: &XffValue) -> ArgosResult<RepoConfig> {
     if let Some(config) = advanced_config.as_object() {
         let all_commands = all_commands();
         let mut commands = vec![];

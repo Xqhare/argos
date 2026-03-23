@@ -44,13 +44,10 @@ pub fn license_repo(
     _repo_config: &RepoConfig,
 ) -> ArgosResult<(bool, String)> {
     let license_file = find_license_file(repo_env)?;
-    let license_text = match std::fs::read_to_string(&license_file) {
-        Ok(text) => text,
-        Err(_) => {
-            return Err(ArgosError::IntegrateRepoLicense(
-                "Could not read license file".to_string(),
-            ));
-        }
+    let Ok(license_text) = std::fs::read_to_string(&license_file) else {
+        return Err(ArgosError::IntegrateRepoLicense(
+            "Could not read license file".to_string(),
+        ));
     };
     let (license_last_year, all_text_to_last_year, all_text_after_last_year) =
         parse_license_text(&license_text)?;

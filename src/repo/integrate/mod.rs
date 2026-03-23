@@ -41,7 +41,7 @@ pub fn integrate_repo(
     repo_config: &RepoConfig,
     failed_repos: &[String],
 ) -> ArgosResult<bool> {
-    if !check_for_failed_dependencies(&repo_config.dependencies, failed_repos) {
+    if !check_for_failed_dependencies(repo_config.dependencies.as_ref(), failed_repos) {
         return Ok(false);
     }
 
@@ -145,10 +145,9 @@ fn save_100_run_archive(results: &Object, repo_env: &RepoEnvironment) -> ArgosRe
         repo_env.repo_history_dir.join(now),
         XffValue::from(results.clone()),
     );
-    if save100.is_err() {
+    if let Err(e) = save100 {
         return Err(ArgosError::IntegrateRepo(format!(
-            "Failed to save results: {}",
-            save100.unwrap_err()
+            "Failed to save results: {e}",
         )));
     }
 
@@ -194,9 +193,10 @@ fn create_result(success: bool, output: &str) -> Object {
 fn get_repo_args(repo_config: &RepoConfig, command: &str) -> Vec<String> {
     if let Some(obj) = &repo_config.cmd_args
         && let Some(args) = obj.get(command)
-            && let Some(array) = args.as_array() {
-                return array.iter().map(std::string::ToString::to_string).collect();
-            }
+        && let Some(array) = args.as_array()
+    {
+        return array.iter().map(std::string::ToString::to_string).collect();
+    }
     Vec::new()
 }
 
@@ -204,7 +204,7 @@ fn get_repo_args(repo_config: &RepoConfig, command: &str) -> Vec<String> {
 ///
 /// Returns false if a dependency of this repo has failed
 fn check_for_failed_dependencies(
-    dependencies: &Option<Vec<String>>,
+    dependencies: Option<&Vec<String>>,
     failed_repos: &[String],
 ) -> bool {
     if let Some(deps) = dependencies {
@@ -385,8 +385,9 @@ fn find_dockerfile(
 fn get_repo_requires_ext(repo_config: &RepoConfig, command: &str) -> bool {
     if let Some(obj) = &repo_config.cmd_requires_ext
         && let Some(requires) = obj.get(command)
-            && let Some(boolean) = requires.as_boolean() {
-                return *boolean;
-            }
+        && let Some(boolean) = requires.as_boolean()
+    {
+        return *boolean;
+    }
     false
 }
