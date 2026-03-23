@@ -13,7 +13,7 @@ pub struct RepoConfig {
     // Just a k-v store for command:[args]
     pub cmd_args: Option<Object>,
     // Just a k-v store for booleans; command:[true/false]
-    pub cmd_rquires_ext: Option<Object>,
+    pub cmd_requires_ext: Option<Object>,
 }
 
 impl RepoConfig {
@@ -66,7 +66,7 @@ fn deconstruct_basic_config(basic_config: XffValue) -> ArgosResult<RepoConfig> {
             commands,
             dependencies: None,
             cmd_args: None,
-            cmd_rquires_ext: None,
+            cmd_requires_ext: None,
         })
     } else {
         Err(ArgosError::SetupRepoConfigError(
@@ -150,7 +150,7 @@ fn deconstruct_advanced_config(advanced_config: XffValue) -> ArgosResult<RepoCon
             commands,
             dependencies: Some(dependencies),
             cmd_args: Some(cmd_args),
-            cmd_rquires_ext: Some(cmd_rquires_ext),
+            cmd_requires_ext: Some(cmd_rquires_ext),
         })
     } else {
         Err(ArgosError::SetupRepoConfigError(
@@ -168,7 +168,7 @@ fn fallback_constructor() -> RepoConfig {
         commands: all_commands(),
         dependencies: None,
         cmd_args: None,
-        cmd_rquires_ext: None,
+        cmd_requires_ext: None,
     }
 }
 
