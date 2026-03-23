@@ -24,9 +24,7 @@ pub fn clippy_repo(
     repo_config: &RepoConfig,
 ) -> ArgosResult<(bool, String)> {
     let mut args = get_repo_args(repo_config, "clippy");
-    if !args.contains(&"--fix".to_string()) {
-        args.insert(0, "--fix".to_string());
-    } else {
+    if args.contains(&"--fix".to_string()) {
         if args[0] != "--fix" {
             let fix_pos = args.iter().position(|x| x == "--fix");
             if let Some(index) = fix_pos {
@@ -34,6 +32,8 @@ pub fn clippy_repo(
             }
             args.insert(0, "--fix".to_string());
         }
+    } else {
+        args.insert(0, "--fix".to_string());
     }
     run_test_and_commit(env, repo_env, repo_config, "clippy", args, "made clippy happy")
 }

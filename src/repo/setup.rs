@@ -19,12 +19,12 @@ use crate::{
 /// Returns a boolean indicating if the repo was updated
 pub fn setup_repo(repo_env: &RepoEnvironment) -> ArgosResult<bool> {
     if repo_env.repo_path.join(".git").exists() {
-        if !was_updated(&repo_env)? {
+        if !was_updated(repo_env)? {
             return Ok(false);
         }
         git_pull(&repo_env.repo_path)?;
     } else {
-        setup_new_repo(&repo_env)?;
+        setup_new_repo(repo_env)?;
     }
     Ok(true)
 }

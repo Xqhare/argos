@@ -21,7 +21,7 @@ pub fn continuously_integrate_repo(
     let repo_env = match RepoEnvironment::new(repo, env) {
         Ok(e) => e,
         Err(e) => {
-            eprintln!("Failed to create repo environment for {}: {}", repo, e);
+            eprintln!("Failed to create repo environment for {repo}: {e}");
             return false;
         }
     };

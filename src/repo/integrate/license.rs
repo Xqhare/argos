@@ -55,7 +55,9 @@ pub fn license_repo(
     let (license_last_year, all_text_to_last_year, all_text_after_last_year) =
         parse_license_text(&license_text)?;
     let last_commit_year = latest_git_commit_year(&repo_env.repo_path)?;
-    if last_commit_year != license_last_year {
+    if last_commit_year == license_last_year {
+        Ok((true, "License year is already up to date".to_string()))
+    } else {
         let license_text = build_license_text(
             &last_commit_year,
             &all_text_to_last_year,
@@ -64,8 +66,6 @@ pub fn license_repo(
         save_license_file(repo_env, &license_text)?;
         git_commit(&repo_env.repo_path, "License", "Updated license year")?;
         Ok((true, "Updated license year".to_string()))
-    } else {
-        Ok((true, "License year is already up to date".to_string()))
     }
 }
 
@@ -80,12 +80,11 @@ fn build_license_text(
         ", "
     };
     format!(
-        "{}{}{}{}",
-        all_text_to_last_year, separator, year, all_text_after_last_year
+        "{all_text_to_last_year}{separator}{year}{all_text_after_last_year}"
     )
 }
 
-/// Returns a tuple of (year, all_text_to_last_year, all_text_after_last_year)
+/// Returns a tuple of (year, `all_text_to_last_year`, `all_text_after_last_year`)
 ///
 /// E.g
 ///

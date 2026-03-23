@@ -43,8 +43,7 @@ fn deconstruct_basic_config(basic_config: XffValue) -> ArgosResult<RepoConfig> {
                     commands.push(command);
                 } else {
                     return Err(ArgosError::SetupRepoConfigError(format!(
-                        "Unknown command: {}",
-                        command
+                        "Unknown command: {command}"
                     )));
                 }
             } else {
@@ -92,11 +91,11 @@ fn deconstruct_advanced_config(advanced_config: XffValue) -> ArgosResult<RepoCon
                     }
                 }
                 continue;
-            };
+            }
             if key == "all" {
                 all = true;
                 continue;
-            };
+            }
             if all_commands.contains(&key.to_owned()) {
                 commands.push(key.to_string());
                 if let Some(inner_data) = value.as_object() {
@@ -117,16 +116,14 @@ fn deconstruct_advanced_config(advanced_config: XffValue) -> ArgosResult<RepoCon
                             cmd_requires_ext.insert(key, XffValue::from(*inner_value));
                         } else {
                             return Err(ArgosError::SetupRepoConfigError(format!(
-                                "Unknown inner key: {}",
-                                inner_key
+                                "Unknown inner key: {inner_key}"
                             )));
                         }
                     }
-                };
+                }
             } else {
                 return Err(ArgosError::SetupRepoConfigError(format!(
-                    "Unknown command: {}",
-                    key
+                    "Unknown command: {key}"
                 )));
             }
         }

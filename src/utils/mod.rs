@@ -48,7 +48,7 @@ pub fn sort_repo_list(repo_list: &Array, env: &Environment) -> ArgosResult<Array
         Ok(x) => {
             let out = x
                 .iter()
-                .map(|x: &String| XffValue::from(x.to_string()))
+                .map(|x: &String| XffValue::from(x.clone()))
                 .collect();
             Ok(out)
         }
@@ -129,6 +129,6 @@ pub fn get_uid_gid() -> ArgosResult<String> {
     let output_gid = String::from_utf8_lossy(&output_gid.stdout)
         .trim()
         .to_string();
-    let output = format!("{}:{}", output_uid, output_gid);
+    let output = format!("{output_uid}:{output_gid}");
     Ok(output)
 }

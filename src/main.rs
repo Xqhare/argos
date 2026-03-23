@@ -31,7 +31,7 @@ fn continuously_integrate(env: &mut Environment) -> ArgosResult<()> {
         let repo = repo.into_string().ok_or(ArgosError::XffValueError(
             "Repo array must contain only strings as children.".to_string(),
         ))?;
-        if !continuously_integrate_repo(&env, &repo, &failed_repos) {
+        if !continuously_integrate_repo(env, &repo, &failed_repos) {
             failed_repos.push(repo);
         }
     }
@@ -46,7 +46,7 @@ fn read_repo_list(env: &mut Environment) -> ArgosResult<Array> {
             env.git_root_url = git_root.into_string().ok_or(ArgosError::XffValueError(
                 "Supplied git root must be a string".to_string(),
             ))?;
-        };
+        }
         match repo_list.get("repos") {
             Some(repos) => match repos.into_array() {
                 Some(repos) => Ok(repos),
