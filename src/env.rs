@@ -3,7 +3,7 @@ use std::path::PathBuf;
 
 use crate::error::{ArgosError, ArgosResult};
 use areia::BaseDirs;
-use athena::process::{set_ionice_value, set_scheduler, IoNiceClass, SchedulerPolicy};
+use athena::process::{IoNiceClass, SchedulerPolicy, set_ionice_value, set_scheduler};
 
 // I assume a correctly set up git config
 const GIT_ROOT_URL: &str = "ssh://git@serverle:2222/Xqhare/";
@@ -28,7 +28,7 @@ impl RepoEnvironment {
         let repo_tracking_json = env.argos_repo_tracking_path.join(format!("{}.json", repo));
         let repo_history_dir = env.argos_repo_tracking_path.join(repo);
         let repo_config_dir_path = repo_path.join("ArgosCI");
-        let repo_basic_config_path = repo_config_dir_path.join("argus.json");
+        let repo_basic_config_path = repo_config_dir_path.join("argos.json");
         let repo_advanced_config_path = repo_config_dir_path.join("config.json");
 
         // Ensure history directory exists
@@ -88,10 +88,7 @@ impl Environment {
             ArgosError::EnvironmentError(format!("Failed to create argos root directory: {}", e))
         })?;
         create_dir_all(&argos_repo_tracking_path).map_err(|e| {
-            ArgosError::EnvironmentError(format!(
-                "Failed to create repo tracking directory: {}",
-                e
-            ))
+            ArgosError::EnvironmentError(format!("Failed to create repo tracking directory: {}", e))
         })?;
 
         setup_process()?;
