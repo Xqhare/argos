@@ -120,6 +120,7 @@ Historical data for the last 100 runs is maintained in:
     ├── cargo_cache/
     ├── repo_tracking/
     │   ├── {repo}.json
+    │   ├── {repo}.xff
     │   └── {repo}/
     │       └── {dateTime}.xff
     └── {repo}/ (Cloned repositories)

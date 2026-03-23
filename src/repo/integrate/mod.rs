@@ -1,4 +1,4 @@
-use nabu::Object;
+use nabu::{Object, XffValue};
 
 use crate::{
     env::{Environment, RepoEnvironment},
@@ -10,7 +10,7 @@ use crate::{
             format::format_repo, license::license_repo, test::test_repo, update::update_repo,
         },
     },
-    utils::git::git_push,
+    utils::{get_dir_size, git::git_push},
 };
 
 mod build;
@@ -77,27 +77,76 @@ pub fn integrate_repo(
         results.insert("first_failed_command".to_string(), output);
     }
 
-    // TODO: Save results inside 100 run archive and as latest run
+    save_results(repo_env, &results)?;
 
     git_push(&repo_env.repo_path)?;
 
     // Handle cleanup
     let target_path = repo_env.repo_path.join("target");
-    let target_size = crate::utils::get_dir_size(&target_path).unwrap_or(0);
+    let target_size = get_dir_size(&target_path).unwrap_or(0);
 
     if one_failed || target_size > TARGET_DIR_LIMIT {
         clean_repo(env, repo_env)?;
     }
 
-    if one_failed {
-        Ok(false)
+    if one_failed { Ok(false) } else { Ok(true) }
+}
+
+fn save_results(repo_env: &RepoEnvironment, results: &Object) -> ArgosResult<()> {
+    let save100 = save_100_run_archive(results, repo_env);
+    let savelate = save_latest_run(results, repo_env);
+    if save100.is_ok() && savelate.is_ok() {
+        Ok(())
     } else {
-        Ok(true)
+        Err(ArgosError::IntegrateRepoError(format!(
+            "Failed to save results: \n {} \n {}",
+            save100.unwrap_err(),
+            savelate.unwrap_err()
+        )))
+    }
+}
+
+// repo_env.repo_tracking_xff (repo_tracking/{repo}.xff)
+// repo_env.repo_tracking_json (repo_tracking/{repo}.json)
+fn save_latest_run(results: &Object, repo_env: &RepoEnvironment) -> ArgosResult<()> {
+    let json = mawu::write_pretty(
+        &repo_env.repo_tracking_json,
+        XffValue::from(results.clone()),
+        2,
+    );
+    let xff = nabu::serde::write(&repo_env.repo_tracking_xff, XffValue::from(results.clone()));
+
+    if json.is_ok() && xff.is_ok() {
+        Ok(())
+    } else {
+        Err(ArgosError::IntegrateRepoError(format!(
+            "Failed to save results: \n {} \n {}",
+            json.unwrap_err(),
+            xff.unwrap_err()
+        )))
+    }
+}
+
+// repo_env.repo_history_dir (repo_tracking/{repo}/)
+// Then use datetime as filename , xff only
+fn save_100_run_archive(results: &Object, repo_env: &RepoEnvironment) -> ArgosResult<()> {
+    let now = horae::Utc::now().to_string();
+    let save100 = nabu::serde::write(
+        &repo_env.repo_history_dir.join(now),
+        XffValue::from(results.clone()),
+    );
+    if save100.is_ok() {
+        Ok(())
+    } else {
+        Err(ArgosError::IntegrateRepoError(format!(
+            "Failed to save results: {}",
+            save100.unwrap_err()
+        )))
     }
 }
 
 /// Runs `cargo clean` on a repo
-pub fn clean_repo(env: &Environment, repo_env: &RepoEnvironment) -> ArgosResult<()> {
+fn clean_repo(env: &Environment, repo_env: &RepoEnvironment) -> ArgosResult<()> {
     execute_in_docker("clean", Vec::new(), env, repo_env)?;
     Ok(())
 }
@@ -180,7 +229,9 @@ pub fn execute_in_docker(
         .arg(&dockerfile)
         .arg(&repo_env.repo_path)
         .output()
-        .map_err(|e| ArgosError::IntegrateRepoError(format!("Failed to build docker image: {}", e)))?;
+        .map_err(|e| {
+            ArgosError::IntegrateRepoError(format!("Failed to build docker image: {}", e))
+        })?;
 
     if !build_status.status.success() {
         return Ok((
@@ -241,7 +292,10 @@ fn find_dockerfile(
     env: &Environment,
     repo_env: &RepoEnvironment,
 ) -> std::path::PathBuf {
-    let specific = repo_env.repo_config_dir_path.join(command).join("Dockerfile");
+    let specific = repo_env
+        .repo_config_dir_path
+        .join(command)
+        .join("Dockerfile");
     if specific.exists() {
         specific
     } else {
