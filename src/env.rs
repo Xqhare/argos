@@ -56,7 +56,6 @@ impl RepoEnvironment {
 pub struct Environment {
     pub git_root_url: String,
     pub argos_root_path: PathBuf,
-    pub argos_data_path: PathBuf,
     pub repo_list_path: PathBuf,
     pub argos_repo_tracking_path: PathBuf,
     pub argos_cargo_cache_path: PathBuf,
@@ -118,7 +117,6 @@ impl Environment {
             repo_list_path,
             argos_repo_tracking_path,
             argos_root_path,
-            argos_data_path,
             argos_cargo_cache_path,
             default_dockerfile_path,
         })

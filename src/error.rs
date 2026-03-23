@@ -5,16 +5,9 @@ use nabu::error::NabuError;
 pub enum ArgosError {
     EnvironmentError(String),
     SetupProcessError(String),
-    SetupRepoError(String),
     SetupRepoConfigError(String),
     IntegrateRepoError(String),
-    IntegrateRepoBuildError(String),
     IntegrateRepoTestError(String),
-    IntegrateRepoDocError(String),
-    IntegrateRepoDocTestError(String),
-    IntegrateRepoClippyError(String),
-    IntegrateRepoFormatError(String),
-    IntegrateRepoUpdateError(String),
     IntegrateRepoLicenseError(String),
     JsonError(String),
     GitError(String),
@@ -27,24 +20,9 @@ impl std::fmt::Display for ArgosError {
         match self {
             ArgosError::EnvironmentError(e) => write!(f, "Environment Error: {}", e),
             ArgosError::SetupProcessError(e) => write!(f, "Setup Process Error: {}", e),
-            ArgosError::SetupRepoError(e) => write!(f, "Setup Repo Error: {}", e),
             ArgosError::SetupRepoConfigError(e) => write!(f, "Setup Repo Config Error: {}", e),
             ArgosError::IntegrateRepoError(e) => write!(f, "Integrate Repo Error: {}", e),
-            ArgosError::IntegrateRepoBuildError(e) => write!(f, "Integrate Repo Build Error: {}", e),
             ArgosError::IntegrateRepoTestError(e) => write!(f, "Integrate Repo Test Error: {}", e),
-            ArgosError::IntegrateRepoDocError(e) => write!(f, "Integrate Repo Doc Error: {}", e),
-            ArgosError::IntegrateRepoDocTestError(e) => {
-                write!(f, "Integrate Repo Doc Test Error: {}", e)
-            }
-            ArgosError::IntegrateRepoClippyError(e) => {
-                write!(f, "Integrate Repo Clippy Error: {}", e)
-            }
-            ArgosError::IntegrateRepoFormatError(e) => {
-                write!(f, "Integrate Repo Format Error: {}", e)
-            }
-            ArgosError::IntegrateRepoUpdateError(e) => {
-                write!(f, "Integrate Repo Update Error: {}", e)
-            }
             ArgosError::IntegrateRepoLicenseError(e) => {
                 write!(f, "Integrate Repo License Error: {}", e)
             }
