@@ -87,10 +87,18 @@ pub fn integrate_repo(
     let target_size = get_dir_size(&target_path).unwrap_or(0);
 
     if one_failed || target_size > TARGET_DIR_LIMIT {
-        clean_repo(env, repo_env)?;
+        clean_repo(env, repo_env, repo_config)?;
     }
 
     if one_failed { Ok(false) } else { Ok(true) }
+}
+
+/// Saves a failed integration that occurred before the command pipeline started
+pub fn save_failed_integration(repo_env: &RepoEnvironment, error: &str) -> ArgosResult<()> {
+    let mut results = Object::new();
+    results.insert("all_succeeded".to_string(), false);
+    results.insert("setup_error".to_string(), error.to_string());
+    save_results(repo_env, &results)
 }
 
 fn save_results(repo_env: &RepoEnvironment, results: &Object) -> ArgosResult<()> {
@@ -161,8 +169,8 @@ fn save_100_run_archive(results: &Object, repo_env: &RepoEnvironment) -> ArgosRe
 }
 
 /// Runs `cargo clean` on a repo
-fn clean_repo(env: &Environment, repo_env: &RepoEnvironment) -> ArgosResult<()> {
-    execute_in_docker("clean", Vec::new(), env, repo_env)?;
+fn clean_repo(env: &Environment, repo_env: &RepoEnvironment, repo_config: &RepoConfig) -> ArgosResult<()> {
+    execute_in_docker("clean", Vec::new(), env, repo_env, repo_config)?;
     Ok(())
 }
 
@@ -259,11 +267,11 @@ pub fn run_test_and_commit(
 pub fn run_cargo_cmd(
     env: &Environment,
     repo_env: &RepoEnvironment,
-    _repo_config: &RepoConfig,
+    repo_config: &RepoConfig,
     command: &str,
     args: Vec<String>,
 ) -> ArgosResult<(bool, String)> {
-    execute_in_docker(command, args, env, repo_env)
+    execute_in_docker(command, args, env, repo_env, repo_config)
 }
 
 /// Executes a command in a docker container
@@ -272,8 +280,10 @@ pub fn execute_in_docker(
     cargo_args: Vec<String>,
     env: &Environment,
     repo_env: &RepoEnvironment,
+    repo_config: &RepoConfig,
 ) -> ArgosResult<(bool, String)> {
-    let dockerfile = find_dockerfile(cargo_command, env, repo_env);
+    let requires_ext = get_repo_requires_ext(repo_config, cargo_command);
+    let dockerfile = find_dockerfile(cargo_command, env, repo_env, requires_ext)?;
     let image_tag = format!("argos-{}-{}", repo_env.repo, cargo_command);
 
     // 1. Build the image
@@ -347,19 +357,38 @@ fn find_dockerfile(
     command: &str,
     env: &Environment,
     repo_env: &RepoEnvironment,
-) -> std::path::PathBuf {
+    requires_ext: bool,
+) -> ArgosResult<std::path::PathBuf> {
     let specific = repo_env
         .repo_config_dir_path
         .join(command)
         .join("Dockerfile");
     if specific.exists() {
-        specific
+        Ok(specific)
     } else {
         let general = repo_env.repo_config_dir_path.join("Dockerfile");
         if general.exists() {
-            general
+            Ok(general)
         } else {
-            env.default_dockerfile_path.clone()
+            if requires_ext {
+                return Err(ArgosError::IntegrateRepoError(format!(
+                    "Command {} requires an external Dockerfile, but none was found in the repository.",
+                    command
+                )));
+            }
+            Ok(env.default_dockerfile_path.clone())
         }
     }
+}
+
+/// Helper function to extract requires_ext for a command from RepoConfig
+fn get_repo_requires_ext(repo_config: &RepoConfig, command: &str) -> bool {
+    if let Some(obj) = &repo_config.cmd_requires_ext {
+        if let Some(requires) = obj.get(command) {
+            if let Some(boolean) = requires.as_boolean() {
+                return *boolean;
+            }
+        }
+    }
+    false
 }

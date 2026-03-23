@@ -8,9 +8,19 @@ Argos is named after the legendary faithful dog of Odysseus, who waits for his m
 
 The reason is simple: Just as his namesake, Argos will be left alone, and will wait for the seldom return of his master.
 
+## Prerequisites
+
+Argos expects the following tools to be available on the host system:
+
+- **Docker**: Used for executing all pipeline commands in isolation.
+- **Git**: Used for cloning, pulling, and committing changes.
+- **`id` utility**: Used to detect User and Group IDs for Docker user mapping.
+
+Additionally, ensure your host user has permissions to run Docker commands and that SSH keys are configured for Git operations if using SSH URLs.
+
 ## Usage
 
-Argos reads a list of repos from the `{dataDirectory}/repo_list.json` file.
+Argos reads a list of repos from the `{dataDirectory}/argos/repo_list.json` file.
 
 > **Note on `{dataDirectory}`:** On Linux, this is typically `$XDG_DATA_HOME` or `~/.local/share`.
 
@@ -81,7 +91,8 @@ For more control, use `config.json` inside the `ArgosCI` directory:
 {
   "requires": ["nabu", "athena"],
   "test": {
-    "args": ["--all-features", "--locked"]
+    "args": ["--all-features", "--locked"],
+    "requires_ext": true
   },
   "clippy": {
     "args": ["--", "-D", "warnings"]
@@ -92,6 +103,7 @@ For more control, use `config.json` inside the `ArgosCI` directory:
 
 - **requires**: A list of repositories that must pass their CI before this repository is integrated.
 - **args**: Custom arguments passed directly to the `cargo` command.
+- **requires_ext**: If `true`, the command **must** find a repository-specific Dockerfile in `ArgosCI/` or it will fail. This prevents silent fallbacks to the default system Dockerfile.
 - **all**: If present, runs all supported commands.
 
 ### Supported Commands
@@ -103,9 +115,15 @@ For more control, use `config.json` inside the `ArgosCI` directory:
 - `clippy` - Runs `cargo clippy --fix`
 - `format` - Runs `cargo fmt`
 - `update` - Runs `cargo update`
-- `license` (**Local**): Updates MIT license years based on git history.
+- `license` (**Local**): Updates MIT license years based on git history. Supports `LICENSE` and `LICENSE-MIT` files.
 
 > **Note on `clippy`, `format` and `update`**: These commands are run after the test pipeline. Changes are only committed and pushed if the tests pass after the modification.
+
+### Automatic Cleanup
+
+To prevent disk space exhaustion, Argos automatically runs `cargo clean` inside the Docker container for a repository if:
+- Any command in the integration pipeline fails.
+- The `target/` directory for that repository exceeds **2 GB**.
 
 ## Output
 

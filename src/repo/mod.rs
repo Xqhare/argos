@@ -1,34 +1,62 @@
 use crate::{
     env::{Environment, RepoEnvironment},
-    error::ArgosResult,
-    repo::{integrate::integrate_repo, setup::setup_repo},
+    repo::{
+        integrate::{integrate_repo, save_failed_integration},
+        setup::setup_repo,
+    },
 };
 
 mod config;
 mod integrate;
 mod setup;
 
-// TODO: If I remove the error return here, I can capture the error and log it
 /// Continously integrates a repo
 ///
-/// Returns false if the integration of a repo failed; This may also error depending
+/// Returns false if the integration of a repo failed
 pub fn continuously_integrate_repo(
     env: &Environment,
     repo: &str,
     failed_repos: &[String],
-) -> ArgosResult<bool> {
-    let repo_env = RepoEnvironment::new(repo, env)?;
-    if !setup_repo(&repo_env)? {
-        // No new changes since last run
-        return Ok(true);
+) -> bool {
+    let repo_env = match RepoEnvironment::new(repo, env) {
+        Ok(e) => e,
+        Err(e) => {
+            eprintln!("Failed to create repo environment for {}: {}", repo, e);
+            return false;
+        }
     };
-    let repo_config = config::RepoConfig::new(&repo_env)?;
-    if !integrate_repo(env, &repo_env, &repo_config, failed_repos)? {
-        return Ok(false);
+    match setup_repo(&repo_env) {
+        Ok(updated) => {
+            if !updated {
+                return true;
+            }
+        }
+        Err(e) => {
+            let _ = save_failed_integration(&repo_env, &e.to_string());
+            return false;
+        }
+    }
+    let repo_config = match config::RepoConfig::new(&repo_env) {
+        Ok(c) => c,
+        Err(e) => {
+            let _ = save_failed_integration(&repo_env, &e.to_string());
+            return false;
+        }
     };
+    match integrate_repo(env, &repo_env, &repo_config, failed_repos) {
+        Ok(success) => {
+            if !success {
+                return false;
+            }
+        }
+        Err(e) => {
+            let _ = save_failed_integration(&repo_env, &e.to_string());
+            return false;
+        }
+    }
 
     // Sleep for 1 minute - overkill, but if any other process wants I/O I yield to
     // them here
     std::thread::sleep(std::time::Duration::from_secs(60));
-    Ok(true)
+    true
 }

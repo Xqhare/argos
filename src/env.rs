@@ -69,9 +69,10 @@ impl Environment {
             ArgosError::EnvironmentError(format!("Failed to get base directories: {}", e))
         })?;
         let argos_data_path = base_dirs.data_dir().to_path_buf();
+        let argos_root_path = argos_data_path.join("argos");
 
         let repo_list_path = {
-            let out = argos_data_path.join("repo_list.json");
+            let out = argos_root_path.join("repo_list.json");
             if out.exists() {
                 out
             } else {
@@ -82,7 +83,6 @@ impl Environment {
             }
         };
 
-        let argos_root_path = argos_data_path.join("argos");
         let argos_repo_tracking_path = argos_root_path.join("repo_tracking");
         let argos_cargo_cache_path = argos_root_path.join("cargo_cache");
         let default_dockerfile_path = argos_root_path.join("Dockerfile.default");

@@ -28,16 +28,8 @@ fn continuously_integrate(env: &mut Environment) -> ArgosResult<()> {
         let repo = repo.into_string().ok_or(ArgosError::XffValueError(
             "Repo array must contain only strings as children.".to_string(),
         ))?;
-        let ci_repo = continuously_integrate_repo(&env, &repo, &failed_repos);
-        if ci_repo.is_ok_and(|v| v) {
-            continue;
-        } else {
+        if !continuously_integrate_repo(&env, &repo, &failed_repos) {
             failed_repos.push(repo);
-            // TODO: Pipeline failed somehow. Now I need to figure out if the failure
-            // is already logged (by yet unwritten logic) or not and thus still needs
-            // to be logged.
-            //
-            // lets hope future me solved this inside the pipeline by the time I get here
         }
     }
     Ok(())
