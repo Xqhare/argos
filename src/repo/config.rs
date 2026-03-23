@@ -81,7 +81,7 @@ fn deconstruct_advanced_config(advanced_config: XffValue) -> ArgosResult<RepoCon
         let mut commands = vec![];
         let mut dependencies = vec![];
         let mut cmd_args = Object::new();
-        let mut cmd_rquires_ext = Object::new();
+        let mut cmd_requires_ext = Object::new();
         let mut all = false;
         for (key, value) in config {
             // No chaining because of the compiler
@@ -123,7 +123,7 @@ fn deconstruct_advanced_config(advanced_config: XffValue) -> ArgosResult<RepoCon
                                     "Requires_ext is not a boolean".to_string(),
                                 )
                             })?;
-                            cmd_rquires_ext.insert(key, XffValue::from(*inner_value));
+                            cmd_requires_ext.insert(key, XffValue::from(*inner_value));
                         } else {
                             return Err(ArgosError::SetupRepoConfigError(format!(
                                 "Unknown inner key: {}",
@@ -150,7 +150,7 @@ fn deconstruct_advanced_config(advanced_config: XffValue) -> ArgosResult<RepoCon
             commands,
             dependencies: Some(dependencies),
             cmd_args: Some(cmd_args),
-            cmd_requires_ext: Some(cmd_rquires_ext),
+            cmd_requires_ext: Some(cmd_requires_ext),
         })
     } else {
         Err(ArgosError::SetupRepoConfigError(

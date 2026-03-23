@@ -1,5 +1,5 @@
 use crate::{
-    env::RepoEnvironment,
+    env::{Environment, RepoEnvironment},
     error::ArgosResult,
     repo::{
         config::RepoConfig,
@@ -13,12 +13,14 @@ use crate::{
 /// If possible, also runs `cargo clippy --fix`
 ///
 /// # Arguments
+/// * `env` - Environment
 /// * `repo_env` - Repo environment
 /// * `repo_config` - Repo config
 ///
 /// # Returns
 /// Returns a boolean indicating if the clippy was successful and a string containing the output
 pub fn clippy_repo(
+    env: &Environment,
     repo_env: &RepoEnvironment,
     repo_config: &RepoConfig,
 ) -> ArgosResult<(bool, String)> {
@@ -34,11 +36,11 @@ pub fn clippy_repo(
             args.insert(0, "--fix".to_string());
         }
     }
-    let (first_success, _) = test_repo(repo_env, repo_config)?;
+    let (first_success, _) = test_repo(env, repo_env, repo_config)?;
     if first_success {
-        let (success, output) = run_cargo_cmd(repo_env, "clippy", args)?;
+        let (success, output) = run_cargo_cmd(env, repo_env, repo_config, "clippy", args)?;
         if success {
-            if test_repo(repo_env, repo_config)?.0 {
+            if test_repo(env, repo_env, repo_config)?.0 {
                 // All good
                 git_commit(&repo_env.repo_path, "clippy --fix", "made clippy happy")?;
                 return Ok((true, output));

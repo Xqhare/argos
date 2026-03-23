@@ -1,5 +1,5 @@
 use crate::{
-    env::RepoEnvironment,
+    env::{Environment, RepoEnvironment},
     error::ArgosResult,
     repo::{
         config::RepoConfig,
@@ -10,12 +10,14 @@ use crate::{
 /// Runs `cargo doc --no-deps` on a repo
 ///
 /// # Arguments
+/// * `env` - Environment
 /// * `repo_env` - Repo environment
 /// * `repo_config` - Repo config
 ///
 /// # Returns
 /// Returns a boolean indicating if the doc was successful and a string containing the output
 pub fn doc_repo(
+    env: &Environment,
     repo_env: &RepoEnvironment,
     repo_config: &RepoConfig,
 ) -> ArgosResult<(bool, String)> {
@@ -25,5 +27,5 @@ pub fn doc_repo(
         args.push("--no-deps".to_string());
     }
 
-    run_cargo_cmd(repo_env, "doc", args)
+    run_cargo_cmd(env, repo_env, repo_config, "doc", args)
 }

@@ -93,3 +93,21 @@ pub fn was_updated(repo_env: &RepoEnvironment) -> ArgosResult<bool> {
         .map_err(|e| ArgosError::XffError(e.to_string()))?;
     Ok(true)
 }
+
+/// Gets the uid and gid of the current user
+///
+/// Returns a string of the form `{uid}:{gid}`
+pub fn get_uid_gid() -> ArgosResult<String> {
+    let output_uid = std::process::Command::new("id")
+        .arg("-u")
+        .output()
+        .map_err(|e| ArgosError::IntegrateRepoTestError(e.to_string()))?;
+    let output_uid = String::from_utf8_lossy(&output_uid.stdout).trim().to_string();
+    let output_gid = std::process::Command::new("id")
+        .arg("-g")
+        .output()
+        .map_err(|e| ArgosError::IntegrateRepoTestError(e.to_string()))?;
+    let output_gid = String::from_utf8_lossy(&output_gid.stdout).trim().to_string();
+    let output = format!("{}:{}", output_uid, output_gid);
+    Ok(output)
+}

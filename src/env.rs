@@ -59,6 +59,7 @@ pub struct Environment {
     pub argos_data_path: PathBuf,
     pub repo_list_path: PathBuf,
     pub argos_repo_tracking_path: PathBuf,
+    pub argos_cargo_cache_path: PathBuf,
 }
 
 impl Environment {
@@ -82,13 +83,17 @@ impl Environment {
 
         let argos_root_path = argos_data_path.join("argos");
         let argos_repo_tracking_path = argos_root_path.join("repo_tracking");
+        let argos_cargo_cache_path = argos_root_path.join("cargo_cache");
 
-        // Ensure root and tracking directories exist
+        // Ensure root, tracking and cache directories exist
         create_dir_all(&argos_root_path).map_err(|e| {
             ArgosError::EnvironmentError(format!("Failed to create argos root directory: {}", e))
         })?;
         create_dir_all(&argos_repo_tracking_path).map_err(|e| {
             ArgosError::EnvironmentError(format!("Failed to create repo tracking directory: {}", e))
+        })?;
+        create_dir_all(&argos_cargo_cache_path).map_err(|e| {
+            ArgosError::EnvironmentError(format!("Failed to create cargo cache directory: {}", e))
         })?;
 
         setup_process()?;
@@ -98,6 +103,7 @@ impl Environment {
             argos_repo_tracking_path,
             argos_root_path,
             argos_data_path,
+            argos_cargo_cache_path,
         })
     }
 }
