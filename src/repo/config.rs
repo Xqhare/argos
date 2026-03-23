@@ -18,24 +18,15 @@ pub struct RepoConfig {
 
 impl RepoConfig {
     pub fn new(repo_env: &RepoEnvironment) -> ArgosResult<Self> {
-        if !repo_env.repo_config_dir_path.exists() {
-            return Ok(fallback_constructor());
-        } else if let Ok(advanced_config) = try_read_json(&repo_env.repo_advanced_config_path) {
-            match deconstruct_advanced_config(advanced_config) {
-                Ok(config) => Ok(config),
-                Err(_) => basic_config_constructor(repo_env),
-            }
+        if repo_env.repo_advanced_config_path.exists() {
+            let advanced_config = try_read_json(&repo_env.repo_advanced_config_path)?;
+            deconstruct_advanced_config(advanced_config)
+        } else if repo_env.repo_basic_config_path.exists() {
+            let basic_config = try_read_json(&repo_env.repo_basic_config_path)?;
+            deconstruct_basic_config(basic_config)
         } else {
-            basic_config_constructor(repo_env)
+            Ok(fallback_constructor())
         }
-    }
-}
-
-fn basic_config_constructor(repo_env: &RepoEnvironment) -> ArgosResult<RepoConfig> {
-    if let Ok(basic_config) = try_read_json(&repo_env.repo_basic_config_path) {
-        deconstruct_basic_config(basic_config)
-    } else {
-        Ok(fallback_constructor())
     }
 }
 

@@ -24,8 +24,9 @@ pub fn git_clone(repo_git_url: &str, repo_path: &Path) -> ArgosResult<String> {
 pub fn git_pull(repo_path: &Path) -> ArgosResult<String> {
     let command = "pull";
     let output = std::process::Command::new("git")
-        .arg(command)
+        .arg("-C")
         .arg(repo_path)
+        .arg(command)
         .output()
         .map_err(|e| ArgosError::GitError(format!("Failed to {} repo: {}", command, e)))?;
     if !output.status.success() {

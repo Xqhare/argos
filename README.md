@@ -51,6 +51,13 @@ Argos searches for Dockerfiles in the following order:
 
 Argos automatically creates a `Dockerfile.default` based on `rust:latest` if it doesn't exist. You can find a template in the root of the Argos repository named `sample.Dockerfile`.
 
+## Process Prioritization
+
+To ensure that Argos does not interfere with the responsiveness of your home-lab or development environment, it automatically configures itself to run with **Idle** priority:
+
+- **CPU Scheduling**: Uses `SCHED_IDLE`, the lowest possible priority.
+- **I/O Priority**: Uses `IDLE` class, ensuring it only performs disk operations when the system is otherwise quiet.
+
 ## Repo specific configuration
 
 Every repo may provide further configuration for Argos. These must be stored in a directory called `ArgosCI` in the root of the repo.

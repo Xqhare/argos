@@ -63,9 +63,10 @@ pub fn license_repo(
         );
         save_license_file(repo_env, &license_text)?;
         git_commit(&repo_env.repo_path, "License", "Updated license year")?;
+        Ok((true, "Updated license year".to_string()))
+    } else {
+        Ok((true, "License year is already up to date".to_string()))
     }
-
-    Ok((true, "Updated license year".to_string()))
 }
 
 fn build_license_text(
@@ -73,9 +74,14 @@ fn build_license_text(
     all_text_to_last_year: &str,
     all_text_after_last_year: &str,
 ) -> String {
+    let separator = if all_text_to_last_year.contains('-') && !all_text_to_last_year.contains(',') {
+        "-"
+    } else {
+        ", "
+    };
     format!(
-        "{}, {} {}",
-        all_text_to_last_year, year, all_text_after_last_year
+        "{}{}{}{}",
+        all_text_to_last_year, separator, year, all_text_after_last_year
     )
 }
 
@@ -103,11 +109,21 @@ fn parse_license_text(license_text: &str) -> ArgosResult<(String, String, String
         ));
     }
 
+    // Find "Copyright (c)" or "Copyright"
+    let copyright_index = license_text
+        .to_lowercase()
+        .find("copyright")
+        .ok_or_else(|| {
+            ArgosError::IntegrateRepoLicenseError("Could not find 'Copyright' in license".to_string())
+        })?;
+
+    // Search for the last 4-digit year AFTER the "Copyright" mention
     let mut last_year = String::new();
     let mut last_year_end_byte_index = 0;
 
-    let chars: Vec<char> = license_text.chars().collect();
-    let char_indices: Vec<(usize, char)> = license_text.char_indices().collect();
+    let search_slice = &license_text[copyright_index..];
+    let chars: Vec<char> = search_slice.chars().collect();
+    let char_indices: Vec<(usize, char)> = search_slice.char_indices().collect();
 
     for i in 0..chars.len().saturating_sub(3) {
         if chars[i].is_ascii_digit()
@@ -116,11 +132,11 @@ fn parse_license_text(license_text: &str) -> ArgosResult<(String, String, String
             && chars[i + 3].is_ascii_digit()
         {
             last_year = chars[i..i + 4].iter().collect();
-            // The byte index of the character AFTER the 4-digit year
+            // The byte index relative to the start of search_slice
             last_year_end_byte_index = if i + 4 < char_indices.len() {
                 char_indices[i + 4].0
             } else {
-                license_text.len()
+                search_slice.len()
             };
         }
     }
@@ -131,8 +147,11 @@ fn parse_license_text(license_text: &str) -> ArgosResult<(String, String, String
         ));
     }
 
-    let all_text_to_last_year = license_text[..last_year_end_byte_index].to_string();
-    let all_text_after_last_year = license_text[last_year_end_byte_index..].to_string();
+    // Adjust last_year_end_byte_index to be relative to the start of license_text
+    let absolute_end_index = copyright_index + last_year_end_byte_index;
+
+    let all_text_to_last_year = license_text[..absolute_end_index].to_string();
+    let all_text_after_last_year = license_text[absolute_end_index..].to_string();
 
     Ok((last_year, all_text_to_last_year, all_text_after_last_year))
 }

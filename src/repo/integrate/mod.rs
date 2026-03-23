@@ -136,14 +136,28 @@ fn save_100_run_archive(results: &Object, repo_env: &RepoEnvironment) -> ArgosRe
         &repo_env.repo_history_dir.join(now),
         XffValue::from(results.clone()),
     );
-    if save100.is_ok() {
-        Ok(())
-    } else {
-        Err(ArgosError::IntegrateRepoError(format!(
+    if save100.is_err() {
+        return Err(ArgosError::IntegrateRepoError(format!(
             "Failed to save results: {}",
             save100.unwrap_err()
-        )))
+        )));
     }
+
+    // Prune to 100 files
+    let mut files = std::fs::read_dir(&repo_env.repo_history_dir)
+        .map_err(|e| ArgosError::IntegrateRepoError(format!("Failed to read history dir: {}", e)))?
+        .filter_map(|e| e.ok())
+        .map(|e| e.path())
+        .collect::<Vec<_>>();
+
+    if files.len() > 100 {
+        files.sort();
+        for file in files.iter().take(files.len() - 100) {
+            let _ = std::fs::remove_file(file);
+        }
+    }
+
+    Ok(())
 }
 
 /// Runs `cargo clean` on a repo
