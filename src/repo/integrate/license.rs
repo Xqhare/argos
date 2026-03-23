@@ -97,49 +97,48 @@ fn build_license_text(
 ///
 /// trailing commas are ignored
 fn parse_license_text(license_text: &str) -> ArgosResult<(String, String, String)> {
-    if is_mit_license(license_text) {
-        let mut found_pot_year = false;
-        let mut pot_year = String::new();
-        let mut length = 0;
-        for char in license_text.chars().rev() {
-            if found_pot_year && pot_year.len() == 4 {
-                if char == ',' || char == ' ' || char == '-' {
-                    break;
-                } else {
-                    found_pot_year = false;
-                }
-            }
-            if char.is_digit(10) && !found_pot_year {
-                found_pot_year = true;
-                pot_year.push(char);
-            } else if char.is_digit(10) && found_pot_year && pot_year.len() < 4 {
-                pot_year.push(char);
-            } else if char.is_digit(10) && found_pot_year && pot_year.len() == 4 {
-                found_pot_year = false;
-            }
-            length += 1;
-        }
-        if !found_pot_year {
-            return Err(ArgosError::IntegrateRepoLicenseError(
-                "Could not find license year".to_string(),
-            ));
-        }
-        let all_text_to_last_year = license_text[..length].to_string();
-        let all_text_after_last_year = license_text[length..].to_string();
-        Ok((pot_year, all_text_to_last_year, all_text_after_last_year))
-    } else {
-        Err(ArgosError::IntegrateRepoLicenseError(
+    if !is_mit_license(license_text) {
+        return Err(ArgosError::IntegrateRepoLicenseError(
             "License is not MIT".to_string(),
-        ))
+        ));
     }
+
+    let mut last_year = String::new();
+    let mut last_year_end_byte_index = 0;
+
+    let chars: Vec<char> = license_text.chars().collect();
+    let char_indices: Vec<(usize, char)> = license_text.char_indices().collect();
+
+    for i in 0..chars.len().saturating_sub(3) {
+        if chars[i].is_ascii_digit()
+            && chars[i + 1].is_ascii_digit()
+            && chars[i + 2].is_ascii_digit()
+            && chars[i + 3].is_ascii_digit()
+        {
+            last_year = chars[i..i + 4].iter().collect();
+            // The byte index of the character AFTER the 4-digit year
+            last_year_end_byte_index = if i + 4 < char_indices.len() {
+                char_indices[i + 4].0
+            } else {
+                license_text.len()
+            };
+        }
+    }
+
+    if last_year.is_empty() {
+        return Err(ArgosError::IntegrateRepoLicenseError(
+            "Could not find license year".to_string(),
+        ));
+    }
+
+    let all_text_to_last_year = license_text[..last_year_end_byte_index].to_string();
+    let all_text_after_last_year = license_text[last_year_end_byte_index..].to_string();
+
+    Ok((last_year, all_text_to_last_year, all_text_after_last_year))
 }
 
 fn is_mit_license(license_text: &str) -> bool {
-    if license_text.starts_with("MIT License") {
-        true
-    } else {
-        false
-    }
+    license_text.starts_with("MIT License")
 }
 
 fn find_license_file(repo_env: &RepoEnvironment) -> ArgosResult<PathBuf> {
@@ -161,4 +160,27 @@ fn save_license_file(repo_env: &RepoEnvironment, license_text: &str) -> ArgosRes
     std::fs::write(license_file, license_text)
         .map_err(|e| ArgosError::IntegrateRepoLicenseError(e.to_string()))?;
     Ok(())
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_parse_license_text() {
+        let text = "MIT License\n\nCopyright (c) 2022, 2024, 2025\n\nSome license text";
+        let (year, to, after) = parse_license_text(text).unwrap();
+        assert_eq!(year, "2025");
+        assert_eq!(to, "MIT License\n\nCopyright (c) 2022, 2024, 2025");
+        assert_eq!(after, "\n\nSome license text");
+    }
+
+    #[test]
+    fn test_parse_license_text_hyphen() {
+        let text = "MIT License\n\nCopyright (c) 2022-2025\n\nSome license text";
+        let (year, to, after) = parse_license_text(text).unwrap();
+        assert_eq!(year, "2025");
+        assert_eq!(to, "MIT License\n\nCopyright (c) 2022-2025");
+        assert_eq!(after, "\n\nSome license text");
+    }
 }

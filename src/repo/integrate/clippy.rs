@@ -3,9 +3,8 @@ use crate::{
     error::ArgosResult,
     repo::{
         config::RepoConfig,
-        integrate::{get_repo_args, run_cargo_cmd, test::test_repo},
+        integrate::{get_repo_args, run_test_and_commit},
     },
-    utils::git::git_commit,
 };
 
 /// Runs `cargo clippy` on a repo
@@ -36,23 +35,5 @@ pub fn clippy_repo(
             args.insert(0, "--fix".to_string());
         }
     }
-    let (first_success, _) = test_repo(env, repo_env, repo_config)?;
-    if first_success {
-        let (success, output) = run_cargo_cmd(env, repo_env, repo_config, "clippy", args)?;
-        if success {
-            if test_repo(env, repo_env, repo_config)?.0 {
-                // All good
-                git_commit(&repo_env.repo_path, "clippy --fix", "made clippy happy")?;
-                return Ok((true, output));
-            } else {
-                // Not all tests pass after clippy fix
-                return Ok((false, output));
-            }
-        } else {
-            // Not all good after running clippy fix
-            return Ok((false, output));
-        }
-    } else {
-        return Ok((false, "First testing pass failed - aborted.".to_string()));
-    }
+    run_test_and_commit(env, repo_env, repo_config, "clippy", args, "made clippy happy")
 }

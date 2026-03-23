@@ -24,7 +24,35 @@ pub enum ArgosError {
 
 impl std::fmt::Display for ArgosError {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "{:?}", self)
+        match self {
+            ArgosError::EnvironmentError(e) => write!(f, "Environment Error: {}", e),
+            ArgosError::SetupProcessError(e) => write!(f, "Setup Process Error: {}", e),
+            ArgosError::SetupRepoError(e) => write!(f, "Setup Repo Error: {}", e),
+            ArgosError::SetupRepoConfigError(e) => write!(f, "Setup Repo Config Error: {}", e),
+            ArgosError::IntegrateRepoError(e) => write!(f, "Integrate Repo Error: {}", e),
+            ArgosError::IntegrateRepoBuildError(e) => write!(f, "Integrate Repo Build Error: {}", e),
+            ArgosError::IntegrateRepoTestError(e) => write!(f, "Integrate Repo Test Error: {}", e),
+            ArgosError::IntegrateRepoDocError(e) => write!(f, "Integrate Repo Doc Error: {}", e),
+            ArgosError::IntegrateRepoDocTestError(e) => {
+                write!(f, "Integrate Repo Doc Test Error: {}", e)
+            }
+            ArgosError::IntegrateRepoClippyError(e) => {
+                write!(f, "Integrate Repo Clippy Error: {}", e)
+            }
+            ArgosError::IntegrateRepoFormatError(e) => {
+                write!(f, "Integrate Repo Format Error: {}", e)
+            }
+            ArgosError::IntegrateRepoUpdateError(e) => {
+                write!(f, "Integrate Repo Update Error: {}", e)
+            }
+            ArgosError::IntegrateRepoLicenseError(e) => {
+                write!(f, "Integrate Repo License Error: {}", e)
+            }
+            ArgosError::JsonError(e) => write!(f, "JSON Error: {}", e),
+            ArgosError::GitError(e) => write!(f, "Git Error: {}", e),
+            ArgosError::XffValueError(e) => write!(f, "XFF Value Error: {}", e),
+            ArgosError::XffError(e) => write!(f, "XFF Error: {}", e),
+        }
     }
 }
 
@@ -40,35 +68,9 @@ impl From<NabuError> for ArgosError {
     }
 }
 
-// I need this for the main functions return type
-// Fucked if I know what I'm doing (cause and source) especially
 impl std::error::Error for ArgosError {
-    fn cause(&self) -> Option<&dyn std::error::Error> {
-        None
-    }
     fn source(&self) -> Option<&(dyn std::error::Error + 'static)> {
         None
-    }
-    fn description(&self) -> &str {
-        match self {
-            ArgosError::EnvironmentError(e) => e,
-            ArgosError::SetupProcessError(e) => e,
-            ArgosError::JsonError(e) => e,
-            ArgosError::XffValueError(e) => e,
-            ArgosError::XffError(e) => e,
-            ArgosError::SetupRepoError(e) => e,
-            ArgosError::GitError(e) => e,
-            ArgosError::SetupRepoConfigError(e) => e,
-            ArgosError::IntegrateRepoError(e) => e,
-            ArgosError::IntegrateRepoBuildError(e) => e,
-            ArgosError::IntegrateRepoTestError(e) => e,
-            ArgosError::IntegrateRepoDocError(e) => e,
-            ArgosError::IntegrateRepoDocTestError(e) => e,
-            ArgosError::IntegrateRepoClippyError(e) => e,
-            ArgosError::IntegrateRepoFormatError(e) => e,
-            ArgosError::IntegrateRepoUpdateError(e) => e,
-            ArgosError::IntegrateRepoLicenseError(e) => e,
-        }
     }
 }
 

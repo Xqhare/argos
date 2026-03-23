@@ -3,15 +3,16 @@ use nabu::{Object, XffValue};
 use crate::{
     env::{Environment, RepoEnvironment},
     error::{ArgosError, ArgosResult},
-    repo::{
+    repo:: {
         config::RepoConfig,
         integrate::{
             build::build_repo, clippy::clippy_repo, doc::doc_repo, doc_test::doc_test_repo,
             format::format_repo, license::license_repo, test::test_repo, update::update_repo,
         },
     },
-    utils::{get_dir_size, git::git_push},
-};
+    utils::{get_dir_size, git::{git_push, git_commit}},
+    };
+
 
 mod build;
 mod clippy;
@@ -189,6 +190,47 @@ fn check_for_failed_dependencies(
         }
     }
     true
+}
+
+/// Runs a cargo command and commits on success after ensuring all tests pass.
+///
+/// # Arguments
+/// * `env` - Environment
+/// * `repo_env` - Repo environment
+/// * `repo_config` - Repo config
+/// * `cargo_command` - Cargo command
+/// * `args` - Command arguments
+/// * `commit_msg` - Git commit message
+///
+/// # Returns
+/// Returns a boolean indicating if the command was successful and a string containing the output
+pub fn run_test_and_commit(
+    env: &Environment,
+    repo_env: &RepoEnvironment,
+    repo_config: &RepoConfig,
+    cargo_command: &str,
+    args: Vec<String>,
+    commit_msg: &str,
+) -> ArgosResult<(bool, String)> {
+    let (first_success, _) = test_repo(env, repo_env, repo_config)?;
+    if !first_success {
+        return Ok((false, "First testing pass failed - aborted.".to_string()));
+    }
+
+    let (success, output) = run_cargo_cmd(env, repo_env, repo_config, cargo_command, args)?;
+    if success {
+        if test_repo(env, repo_env, repo_config)?.0 {
+            // All good
+            git_commit(&repo_env.repo_path, cargo_command, commit_msg)?;
+            Ok((true, output))
+        } else {
+            // Not all tests pass after running command
+            Ok((false, output))
+        }
+    } else {
+        // Command failed
+        Ok((false, output))
+    }
 }
 
 /// Runs `cargo {command}` on a repo

@@ -3,9 +3,8 @@ use crate::{
     error::ArgosResult,
     repo::{
         config::RepoConfig,
-        integrate::{get_repo_args, run_cargo_cmd, test::test_repo},
+        integrate::{get_repo_args, run_test_and_commit},
     },
-    utils::git::git_commit,
 };
 
 /// Runs `cargo update` on a repo
@@ -16,30 +15,12 @@ use crate::{
 /// * `repo_config` - Repo config
 ///
 /// # Returns
-/// Returns a boolean indicating if the updateting was successful and a string containing the output
+/// Returns a boolean indicating if the updating was successful and a string containing the output
 pub fn update_repo(
     env: &Environment,
     repo_env: &RepoEnvironment,
     repo_config: &RepoConfig,
 ) -> ArgosResult<(bool, String)> {
     let args = get_repo_args(repo_config, "update");
-    let (first_success, _) = test_repo(env, repo_env, repo_config)?;
-    if first_success {
-        let (success, output) = run_cargo_cmd(env, repo_env, repo_config, "update", args)?;
-        if success {
-            if test_repo(env, repo_env, repo_config)?.0 {
-                // All good
-                git_commit(&repo_env.repo_path, "update", "ran cargo update")?;
-                return Ok((true, output));
-            } else {
-                // Not all tests pass after update
-                return Ok((false, output));
-            }
-        } else {
-            // Not all good after running update
-            return Ok((false, output));
-        }
-    } else {
-        return Ok((false, "First testing pass failed - aborted.".to_string()));
-    }
+    run_test_and_commit(env, repo_env, repo_config, "update", args, "ran cargo update")
 }
