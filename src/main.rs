@@ -3,7 +3,7 @@ use nabu::Array;
 use crate::{
     env::Environment,
     error::{ArgosError, ArgosResult},
-    repo::continously_integrate_repo,
+    repo::continuously_integrate_repo,
     utils::sort_repo_list,
 };
 
@@ -16,11 +16,11 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     // Set up and check environment
     let mut env = Environment::new()?;
     // Continously integrate
-    continously_integrate(&mut env)?;
+    continuously_integrate(&mut env)?;
     Ok(())
 }
 
-fn continously_integrate(env: &mut Environment) -> ArgosResult<()> {
+fn continuously_integrate(env: &mut Environment) -> ArgosResult<()> {
     let repo_list = read_repo_list(env)?;
     let sorted_repo_list = sort_repo_list(&repo_list, env)?;
     let mut failed_repos: Vec<String> = Vec::new();
@@ -28,7 +28,7 @@ fn continously_integrate(env: &mut Environment) -> ArgosResult<()> {
         let repo = repo.into_string().ok_or(ArgosError::XffValueError(
             "Repo array must contain only strings as children.".to_string(),
         ))?;
-        let ci_repo = continously_integrate_repo(&env, &repo, &failed_repos);
+        let ci_repo = continuously_integrate_repo(&env, &repo, &failed_repos);
         if ci_repo.is_ok_and(|v| v) {
             continue;
         } else {
