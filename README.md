@@ -6,7 +6,7 @@ Argos is a custom home-lab CI pipeline.
 
 Argos is named after the legendary faithful dog of Odysseus, who waits for his masters return to Ithaca for 20 years. Upon seing his master return home, Argos dies.
 
-The reason is simple: Just as his namesake, Argos will be left alone, and will wait for the seldom return of his master.
+The reason is simple: Just as his namesake, Argos will be left alone, faithfully doing what it was designed to do and wait for the seldom return of its master.
 
 ## Prerequisites
 
@@ -135,7 +135,21 @@ The output for the latest run of each repository is saved in:
 Historical data for the last 100 runs is maintained in:
 `{dataDirectory}/argos/repo_tracking/{repo}/{dateTime}.xff`
 
-## Directory Structure
+## Argos Directory Structure inside a repository
+
+The example below contains all the files Argos can read from inside a repository.
+
+```text
+[Repository Root]
+└── ArgosCI/
+    ├── argos.json
+    ├── config.json
+    ├── Dockerfile
+    └── {command}/
+        └── Dockerfile
+```
+
+## Argos Directory Structure
 
 ```text
 [Data Directory] (usually ~/.local/share)
