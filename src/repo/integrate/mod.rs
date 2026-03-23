@@ -49,7 +49,7 @@ pub fn integrate_repo(
     let mut first_failed_output: Option<String> = None;
     let mut results = Object::new();
 
-    for command in repo_config.commands.iter() {
+    for command in &repo_config.commands {
         let (success, output) = match command.as_str() {
             "build" => build_repo(env, repo_env, repo_config)?,
             "test" => test_repo(env, repo_env, repo_config)?,
@@ -61,17 +61,16 @@ pub fn integrate_repo(
             "license" => license_repo(repo_env, repo_config)?,
             _ => {
                 return Err(ArgosError::IntegrateRepo(format!(
-                    "Unknown command: {}",
-                    command
+                    "Unknown command: {command}"
                 )));
             }
         };
 
         let out = create_result(success, &output);
-        results.insert(command.to_string(), out);
+        results.insert(command.clone(), out);
         if !success && !one_failed {
             one_failed = true;
-            first_failed_output = Some(output.to_string());
+            first_failed_output = Some(output.clone());
         }
     }
 
@@ -143,7 +142,7 @@ fn save_latest_run(results: &Object, repo_env: &RepoEnvironment) -> ArgosResult<
 fn save_100_run_archive(results: &Object, repo_env: &RepoEnvironment) -> ArgosResult<()> {
     let now = horae::Utc::now().to_string();
     let save100 = nabu::serde::write(
-        &repo_env.repo_history_dir.join(now),
+        repo_env.repo_history_dir.join(now),
         XffValue::from(results.clone()),
     );
     if save100.is_err() {
@@ -155,8 +154,8 @@ fn save_100_run_archive(results: &Object, repo_env: &RepoEnvironment) -> ArgosRe
 
     // Prune to 100 files
     let mut files = std::fs::read_dir(&repo_env.repo_history_dir)
-        .map_err(|e| ArgosError::IntegrateRepo(format!("Failed to read history dir: {}", e)))?
-        .filter_map(|e| e.ok())
+        .map_err(|e| ArgosError::IntegrateRepo(format!("Failed to read history dir: {e}")))?
+        .filter_map(std::result::Result::ok)
         .map(|e| e.path())
         .collect::<Vec<_>>();
 
@@ -191,15 +190,13 @@ fn create_result(success: bool, output: &str) -> Object {
     out
 }
 
-/// Helper function to extract args for a command from RepoConfig
+/// Helper function to extract args for a command from `RepoConfig`
 fn get_repo_args(repo_config: &RepoConfig, command: &str) -> Vec<String> {
-    if let Some(obj) = &repo_config.cmd_args {
-        if let Some(args) = obj.get(command) {
-            if let Some(array) = args.as_array() {
-                return array.iter().map(|x| x.to_string()).collect();
+    if let Some(obj) = &repo_config.cmd_args
+        && let Some(args) = obj.get(command)
+            && let Some(array) = args.as_array() {
+                return array.iter().map(std::string::ToString::to_string).collect();
             }
-        }
-    }
     Vec::new()
 }
 
@@ -301,7 +298,7 @@ pub fn execute_in_docker(
         .arg(&dockerfile)
         .arg(&repo_env.repo_path)
         .output()
-        .map_err(|e| ArgosError::IntegrateRepo(format!("Failed to build docker image: {}", e)))?;
+        .map_err(|e| ArgosError::IntegrateRepo(format!("Failed to build docker image: {e}")))?;
 
     if !build_status.status.success() {
         return Ok((
@@ -376,8 +373,7 @@ fn find_dockerfile(
         } else {
             if requires_ext {
                 return Err(ArgosError::IntegrateRepo(format!(
-                    "Command {} requires an external Dockerfile, but none was found in the repository.",
-                    command
+                    "Command {command} requires an external Dockerfile, but none was found in the repository."
                 )));
             }
             Ok(env.default_dockerfile_path.clone())
@@ -385,14 +381,12 @@ fn find_dockerfile(
     }
 }
 
-/// Helper function to extract requires_ext for a command from RepoConfig
+/// Helper function to extract `requires_ext` for a command from `RepoConfig`
 fn get_repo_requires_ext(repo_config: &RepoConfig, command: &str) -> bool {
-    if let Some(obj) = &repo_config.cmd_requires_ext {
-        if let Some(requires) = obj.get(command) {
-            if let Some(boolean) = requires.as_boolean() {
+    if let Some(obj) = &repo_config.cmd_requires_ext
+        && let Some(requires) = obj.get(command)
+            && let Some(boolean) = requires.as_boolean() {
                 return *boolean;
             }
-        }
-    }
     false
 }
