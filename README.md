@@ -112,7 +112,7 @@ For more control, use `config.json` inside the `ArgosCI` directory:
 - `build` - Runs `cargo build`
 - `doc` - Runs `cargo doc --no-deps`
 - `doc-test` - Runs `cargo test --doc`
-- `clippy` - Runs `cargo clippy --fix`
+- `clippy` - Runs `cargo clippy --fix`. Note: This command always enforces `clippy::all` and `clippy::pedantic` lints.
 - `format` - Runs `cargo fmt`
 - `update` - Runs `cargo update`
 - `license` (**Local**): Updates MIT license years based on git history. Supports `LICENSE` and `LICENSE-MIT` files.
