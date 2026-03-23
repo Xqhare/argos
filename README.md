@@ -20,7 +20,7 @@ Additionally, ensure your host user has permissions to run Docker commands and t
 
 ## Usage
 
-Argos reads a list of repos from the `{dataDirectory}/argos/repo_list.json` file.
+Argos reads a list of repos from the `{dataDirectory}/argos/repo_list.json` file. If this file does not exist, Argos will automatically create it with a default empty configuration during its first run.
 
 > **Note on `{dataDirectory}`:** On Linux, this is typically `$XDG_DATA_HOME` or `~/.local/share`.
 
