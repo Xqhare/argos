@@ -12,7 +12,7 @@ mod setup;
 /// Continously integrates a repo
 ///
 /// Returns false if the integration of a repo failed; This may also error depending
-pub fn continously_integrate_repo(
+pub fn continuously_integrate_repo(
     env: &Environment,
     repo: &str,
     failed_repos: &[String],
