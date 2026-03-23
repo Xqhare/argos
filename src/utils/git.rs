@@ -10,9 +10,9 @@ pub fn git_clone(repo_git_url: &str, repo_path: &Path) -> ArgosResult<String> {
         .arg(repo_git_url)
         .arg(repo_path)
         .output()
-        .map_err(|e| ArgosError::GitError(format!("Failed to {command} repo: {e}")))?;
+        .map_err(|e| ArgosError::Git(format!("Failed to {command} repo: {e}")))?;
     if !output.status.success() {
-        return Err(ArgosError::GitError(format!(
+        return Err(ArgosError::Git(format!(
             "Failed to {} repo: {}",
             command,
             String::from_utf8_lossy(&output.stderr)
@@ -28,9 +28,9 @@ pub fn git_pull(repo_path: &Path) -> ArgosResult<String> {
         .arg(repo_path)
         .arg(command)
         .output()
-        .map_err(|e| ArgosError::GitError(format!("Failed to {command} repo: {e}")))?;
+        .map_err(|e| ArgosError::Git(format!("Failed to {command} repo: {e}")))?;
     if !output.status.success() {
-        return Err(ArgosError::GitError(format!(
+        return Err(ArgosError::Git(format!(
             "Failed to {} repo: {}",
             command,
             String::from_utf8_lossy(&output.stderr)
@@ -46,16 +46,16 @@ pub fn latest_git_hash(repo_path: &Path) -> ArgosResult<String> {
         .arg(repo_path)
         .arg("fetch")
         .output()
-        .map_err(|e| ArgosError::GitError(format!("Failed to fetch repo: {e}")))?;
+        .map_err(|e| ArgosError::Git(format!("Failed to fetch repo: {e}")))?;
     let output = std::process::Command::new("git")
         .arg("-C")
         .arg(repo_path)
         .arg("rev-parse")
         .arg("origin/HEAD")
         .output()
-        .map_err(|e| ArgosError::GitError(format!("Failed to get latest hash: {e}")))?;
+        .map_err(|e| ArgosError::Git(format!("Failed to get latest hash: {e}")))?;
     if !output.status.success() {
-        return Err(ArgosError::GitError(format!(
+        return Err(ArgosError::Git(format!(
             "Failed to get latest hash: {}",
             String::from_utf8_lossy(&output.stderr)
         )));
@@ -71,9 +71,9 @@ pub fn latest_git_commit_year(repo_path: &Path) -> ArgosResult<String> {
         .arg("-1")
         .arg("--format=%ci")
         .output()
-        .map_err(|e| ArgosError::GitError(format!("Failed to get latest commit year: {e}")))?;
+        .map_err(|e| ArgosError::Git(format!("Failed to get latest commit year: {e}")))?;
     if !output.status.success() {
-        return Err(ArgosError::GitError(format!(
+        return Err(ArgosError::Git(format!(
             "Failed to get latest commit year: {}",
             String::from_utf8_lossy(&output.stderr)
         )));
@@ -108,9 +108,9 @@ pub fn git_commit(repo_path: &Path, command: &str, message: &str) -> ArgosResult
         .arg("-m")
         .arg(&message)
         .output()
-        .map_err(|e| ArgosError::GitError(format!("Failed to commit: {e}")))?;
+        .map_err(|e| ArgosError::Git(format!("Failed to commit: {e}")))?;
     if !output.status.success() {
-        return Err(ArgosError::GitError(format!(
+        return Err(ArgosError::Git(format!(
             "Failed to commit: {}",
             String::from_utf8_lossy(&output.stderr)
         )));
@@ -131,9 +131,9 @@ pub fn git_push(repo_path: &Path) -> ArgosResult<()> {
         .arg(repo_path)
         .arg("push")
         .output()
-        .map_err(|e| ArgosError::GitError(format!("Failed to push: {e}")))?;
+        .map_err(|e| ArgosError::Git(format!("Failed to push: {e}")))?;
     if !output.status.success() {
-        return Err(ArgosError::GitError(format!(
+        return Err(ArgosError::Git(format!(
             "Failed to push: {}",
             String::from_utf8_lossy(&output.stderr)
         )));

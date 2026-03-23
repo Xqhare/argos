@@ -47,7 +47,7 @@ pub fn license_repo(
     let license_text = match std::fs::read_to_string(&license_file) {
         Ok(text) => text,
         Err(_) => {
-            return Err(ArgosError::IntegrateRepoLicenseError(
+            return Err(ArgosError::IntegrateRepoLicense(
                 "Could not read license file".to_string(),
             ));
         }
@@ -79,9 +79,7 @@ fn build_license_text(
     } else {
         ", "
     };
-    format!(
-        "{all_text_to_last_year}{separator}{year}{all_text_after_last_year}"
-    )
+    format!("{all_text_to_last_year}{separator}{year}{all_text_after_last_year}")
 }
 
 /// Returns a tuple of (year, `all_text_to_last_year`, `all_text_after_last_year`)
@@ -103,7 +101,7 @@ fn build_license_text(
 /// trailing commas are ignored
 fn parse_license_text(license_text: &str) -> ArgosResult<(String, String, String)> {
     if !is_mit_license(license_text) {
-        return Err(ArgosError::IntegrateRepoLicenseError(
+        return Err(ArgosError::IntegrateRepoLicense(
             "License is not MIT".to_string(),
         ));
     }
@@ -113,7 +111,7 @@ fn parse_license_text(license_text: &str) -> ArgosResult<(String, String, String
         .to_lowercase()
         .find("copyright")
         .ok_or_else(|| {
-            ArgosError::IntegrateRepoLicenseError("Could not find 'Copyright' in license".to_string())
+            ArgosError::IntegrateRepoLicense("Could not find 'Copyright' in license".to_string())
         })?;
 
     // Search for the last 4-digit year AFTER the "Copyright" mention
@@ -141,7 +139,7 @@ fn parse_license_text(license_text: &str) -> ArgosResult<(String, String, String
     }
 
     if last_year.is_empty() {
-        return Err(ArgosError::IntegrateRepoLicenseError(
+        return Err(ArgosError::IntegrateRepoLicense(
             "Could not find license year".to_string(),
         ));
     }
@@ -167,7 +165,7 @@ fn find_license_file(repo_env: &RepoEnvironment) -> ArgosResult<PathBuf> {
     } else if basic.exists() {
         Ok(basic)
     } else {
-        Err(ArgosError::IntegrateRepoLicenseError(
+        Err(ArgosError::IntegrateRepoLicense(
             "Could not find license file".to_string(),
         ))
     }
@@ -176,7 +174,7 @@ fn find_license_file(repo_env: &RepoEnvironment) -> ArgosResult<PathBuf> {
 fn save_license_file(repo_env: &RepoEnvironment, license_text: &str) -> ArgosResult<()> {
     let license_file = find_license_file(repo_env)?;
     std::fs::write(license_file, license_text)
-        .map_err(|e| ArgosError::IntegrateRepoLicenseError(e.to_string()))?;
+        .map_err(|e| ArgosError::IntegrateRepoLicense(e.to_string()))?;
     Ok(())
 }
 

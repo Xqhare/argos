@@ -3,16 +3,18 @@ use nabu::{Object, XffValue};
 use crate::{
     env::{Environment, RepoEnvironment},
     error::{ArgosError, ArgosResult},
-    repo:: {
+    repo::{
         config::RepoConfig,
         integrate::{
             build::build_repo, clippy::clippy_repo, doc::doc_repo, doc_test::doc_test_repo,
             format::format_repo, license::license_repo, test::test_repo, update::update_repo,
         },
     },
-    utils::{get_dir_size, git::{git_push, git_commit}},
-    };
-
+    utils::{
+        get_dir_size,
+        git::{git_commit, git_push},
+    },
+};
 
 mod build;
 mod clippy;
@@ -47,7 +49,7 @@ pub fn integrate_repo(
     let mut first_failed_output: Option<String> = None;
     let mut results = Object::new();
 
-    for command in &repo_config.commands {
+    for command in repo_config.commands.iter() {
         let (success, output) = match command.as_str() {
             "build" => build_repo(env, repo_env, repo_config)?,
             "test" => test_repo(env, repo_env, repo_config)?,
@@ -58,17 +60,18 @@ pub fn integrate_repo(
             "update" => update_repo(env, repo_env, repo_config)?,
             "license" => license_repo(repo_env, repo_config)?,
             _ => {
-                return Err(ArgosError::IntegrateRepoError(format!(
-                    "Unknown command: {command}"
+                return Err(ArgosError::IntegrateRepo(format!(
+                    "Unknown command: {}",
+                    command
                 )));
             }
         };
 
         let out = create_result(success, &output);
-        results.insert(command.clone(), out);
+        results.insert(command.to_string(), out);
         if !success && !one_failed {
             one_failed = true;
-            first_failed_output = Some(output.clone());
+            first_failed_output = Some(output.to_string());
         }
     }
 
@@ -106,7 +109,7 @@ fn save_results(repo_env: &RepoEnvironment, results: &Object) -> ArgosResult<()>
     if save100.is_ok() && savelate.is_ok() {
         Ok(())
     } else {
-        Err(ArgosError::IntegrateRepoError(format!(
+        Err(ArgosError::IntegrateRepo(format!(
             "Failed to save results: \n {} \n {}",
             save100.unwrap_err(),
             savelate.unwrap_err()
@@ -127,7 +130,7 @@ fn save_latest_run(results: &Object, repo_env: &RepoEnvironment) -> ArgosResult<
     if json.is_ok() && xff.is_ok() {
         Ok(())
     } else {
-        Err(ArgosError::IntegrateRepoError(format!(
+        Err(ArgosError::IntegrateRepo(format!(
             "Failed to save results: \n {} \n {}",
             json.unwrap_err(),
             xff.unwrap_err()
@@ -140,11 +143,11 @@ fn save_latest_run(results: &Object, repo_env: &RepoEnvironment) -> ArgosResult<
 fn save_100_run_archive(results: &Object, repo_env: &RepoEnvironment) -> ArgosResult<()> {
     let now = horae::Utc::now().to_string();
     let save100 = nabu::serde::write(
-        repo_env.repo_history_dir.join(now),
+        &repo_env.repo_history_dir.join(now),
         XffValue::from(results.clone()),
     );
     if save100.is_err() {
-        return Err(ArgosError::IntegrateRepoError(format!(
+        return Err(ArgosError::IntegrateRepo(format!(
             "Failed to save results: {}",
             save100.unwrap_err()
         )));
@@ -152,8 +155,8 @@ fn save_100_run_archive(results: &Object, repo_env: &RepoEnvironment) -> ArgosRe
 
     // Prune to 100 files
     let mut files = std::fs::read_dir(&repo_env.repo_history_dir)
-        .map_err(|e| ArgosError::IntegrateRepoError(format!("Failed to read history dir: {e}")))?
-        .filter_map(std::result::Result::ok)
+        .map_err(|e| ArgosError::IntegrateRepo(format!("Failed to read history dir: {}", e)))?
+        .filter_map(|e| e.ok())
         .map(|e| e.path())
         .collect::<Vec<_>>();
 
@@ -168,7 +171,11 @@ fn save_100_run_archive(results: &Object, repo_env: &RepoEnvironment) -> ArgosRe
 }
 
 /// Runs `cargo clean` on a repo
-fn clean_repo(env: &Environment, repo_env: &RepoEnvironment, repo_config: &RepoConfig) -> ArgosResult<()> {
+fn clean_repo(
+    env: &Environment,
+    repo_env: &RepoEnvironment,
+    repo_config: &RepoConfig,
+) -> ArgosResult<()> {
     execute_in_docker("clean", Vec::new(), env, repo_env, repo_config)?;
     Ok(())
 }
@@ -184,13 +191,15 @@ fn create_result(success: bool, output: &str) -> Object {
     out
 }
 
-/// Helper function to extract args for a command from `RepoConfig`
+/// Helper function to extract args for a command from RepoConfig
 fn get_repo_args(repo_config: &RepoConfig, command: &str) -> Vec<String> {
-    if let Some(obj) = &repo_config.cmd_args
-        && let Some(args) = obj.get(command)
-            && let Some(array) = args.as_array() {
-                return array.iter().map(std::string::ToString::to_string).collect();
+    if let Some(obj) = &repo_config.cmd_args {
+        if let Some(args) = obj.get(command) {
+            if let Some(array) = args.as_array() {
+                return array.iter().map(|x| x.to_string()).collect();
             }
+        }
+    }
     Vec::new()
 }
 
@@ -292,9 +301,7 @@ pub fn execute_in_docker(
         .arg(&dockerfile)
         .arg(&repo_env.repo_path)
         .output()
-        .map_err(|e| {
-            ArgosError::IntegrateRepoError(format!("Failed to build docker image: {e}"))
-        })?;
+        .map_err(|e| ArgosError::IntegrateRepo(format!("Failed to build docker image: {}", e)))?;
 
     if !build_status.status.success() {
         return Ok((
@@ -311,11 +318,11 @@ pub fn execute_in_docker(
     let repo_path = repo_env
         .repo_path
         .to_str()
-        .ok_or_else(|| ArgosError::EnvironmentError("Invalid repo path".to_string()))?;
+        .ok_or_else(|| ArgosError::Environment("Invalid repo path".to_string()))?;
     let cache_path = env
         .argos_cargo_cache_path
         .to_str()
-        .ok_or_else(|| ArgosError::EnvironmentError("Invalid cache path".to_string()))?;
+        .ok_or_else(|| ArgosError::Environment("Invalid cache path".to_string()))?;
 
     let mut args = vec![
         "run".to_string(),
@@ -339,7 +346,7 @@ pub fn execute_in_docker(
     let output = std::process::Command::new("docker")
         .args(args)
         .output()
-        .map_err(|e| ArgosError::IntegrateRepoTestError(e.to_string()))?;
+        .map_err(|e| ArgosError::IntegrateRepoTest(e.to_string()))?;
 
     if output.status.success() {
         let output = String::from_utf8_lossy(&output.stdout).to_string();
@@ -368,8 +375,9 @@ fn find_dockerfile(
             Ok(general)
         } else {
             if requires_ext {
-                return Err(ArgosError::IntegrateRepoError(format!(
-                    "Command {command} requires an external Dockerfile, but none was found in the repository."
+                return Err(ArgosError::IntegrateRepo(format!(
+                    "Command {} requires an external Dockerfile, but none was found in the repository.",
+                    command
                 )));
             }
             Ok(env.default_dockerfile_path.clone())
@@ -377,12 +385,14 @@ fn find_dockerfile(
     }
 }
 
-/// Helper function to extract `requires_ext` for a command from `RepoConfig`
+/// Helper function to extract requires_ext for a command from RepoConfig
 fn get_repo_requires_ext(repo_config: &RepoConfig, command: &str) -> bool {
-    if let Some(obj) = &repo_config.cmd_requires_ext
-        && let Some(requires) = obj.get(command)
-            && let Some(boolean) = requires.as_boolean() {
+    if let Some(obj) = &repo_config.cmd_requires_ext {
+        if let Some(requires) = obj.get(command) {
+            if let Some(boolean) = requires.as_boolean() {
                 return *boolean;
             }
+        }
+    }
     false
 }

@@ -34,6 +34,6 @@ fn setup_new_repo(repo_env: &RepoEnvironment) -> ArgosResult<()> {
     let latest_hash = latest_git_hash(&repo_env.repo_path)?;
     let metadata = Object::from(vec![("hash".to_string(), XffValue::String(latest_hash))]);
     nabu::serde::write(&repo_env.repo_tracking_xff, XffValue::from(metadata))
-        .map_err(|e| ArgosError::XffError(e.to_string()))?;
+        .map_err(|e| ArgosError::Xff(e.to_string()))?;
     Ok(())
 }

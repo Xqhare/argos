@@ -42,12 +42,12 @@ fn deconstruct_basic_config(basic_config: XffValue) -> ArgosResult<RepoConfig> {
                 } else if all_commands.contains(&command) {
                     commands.push(command);
                 } else {
-                    return Err(ArgosError::SetupRepoConfigError(format!(
+                    return Err(ArgosError::SetupRepoConfig(format!(
                         "Unknown command: {command}"
                     )));
                 }
             } else {
-                return Err(ArgosError::SetupRepoConfigError(
+                return Err(ArgosError::SetupRepoConfig(
                     "Basic config is not a string array".to_string(),
                 ));
             }
@@ -59,7 +59,7 @@ fn deconstruct_basic_config(basic_config: XffValue) -> ArgosResult<RepoConfig> {
             cmd_requires_ext: None,
         })
     } else {
-        Err(ArgosError::SetupRepoConfigError(
+        Err(ArgosError::SetupRepoConfig(
             "Basic config is not an array".to_string(),
         ))
     }
@@ -79,13 +79,13 @@ fn deconstruct_advanced_config(advanced_config: XffValue) -> ArgosResult<RepoCon
             let key = key.as_str();
             if key == "requires" {
                 let value = value.as_array().ok_or_else(|| {
-                    ArgosError::SetupRepoConfigError("Requires is not an array".to_string())
+                    ArgosError::SetupRepoConfig("Requires is not an array".to_string())
                 })?;
                 for dep in value {
                     if let Some(dependency) = dep.into_string() {
                         dependencies.push(dependency);
                     } else {
-                        return Err(ArgosError::SetupRepoConfigError(
+                        return Err(ArgosError::SetupRepoConfig(
                             "Dependency is not a string".to_string(),
                         ));
                     }
@@ -104,25 +104,25 @@ fn deconstruct_advanced_config(advanced_config: XffValue) -> ArgosResult<RepoCon
                         let inner_key = inner_key.as_str();
                         if inner_key == "args" {
                             let inner_arg_value = inner_value.as_array().ok_or_else(|| {
-                                ArgosError::SetupRepoConfigError("Args is not an array".to_string())
+                                ArgosError::SetupRepoConfig("Args is not an array".to_string())
                             })?;
                             cmd_args.insert(key, XffValue::from(inner_arg_value.clone()));
                         } else if inner_key == "requires_ext" {
                             let inner_value = inner_value.as_boolean().ok_or_else(|| {
-                                ArgosError::SetupRepoConfigError(
+                                ArgosError::SetupRepoConfig(
                                     "Requires_ext is not a boolean".to_string(),
                                 )
                             })?;
                             cmd_requires_ext.insert(key, XffValue::from(*inner_value));
                         } else {
-                            return Err(ArgosError::SetupRepoConfigError(format!(
+                            return Err(ArgosError::SetupRepoConfig(format!(
                                 "Unknown inner key: {inner_key}"
                             )));
                         }
                     }
                 }
             } else {
-                return Err(ArgosError::SetupRepoConfigError(format!(
+                return Err(ArgosError::SetupRepoConfig(format!(
                     "Unknown command: {key}"
                 )));
             }
@@ -141,7 +141,7 @@ fn deconstruct_advanced_config(advanced_config: XffValue) -> ArgosResult<RepoCon
             cmd_requires_ext: Some(cmd_requires_ext),
         })
     } else {
-        Err(ArgosError::SetupRepoConfigError(
+        Err(ArgosError::SetupRepoConfig(
             "Advanced config is not an object".to_string(),
         ))
     }

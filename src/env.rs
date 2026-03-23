@@ -33,7 +33,7 @@ impl RepoEnvironment {
 
         // Ensure history directory exists
         create_dir_all(&repo_history_dir).map_err(|e| {
-            ArgosError::EnvironmentError(format!(
+            ArgosError::Environment(format!(
                 "Failed to create history directory for {repo}: {e}"
             ))
         })?;
@@ -63,9 +63,8 @@ pub struct Environment {
 
 impl Environment {
     pub fn new() -> ArgosResult<Environment> {
-        let base_dirs = BaseDirs::new().map_err(|e| {
-            ArgosError::EnvironmentError(format!("Failed to get base directories: {e}"))
-        })?;
+        let base_dirs = BaseDirs::new()
+            .map_err(|e| ArgosError::Environment(format!("Failed to get base directories: {e}")))?;
         let argos_data_path = base_dirs.data_dir().clone();
         let argos_root_path = argos_data_path.join("argos");
 
@@ -74,7 +73,7 @@ impl Environment {
             if out.exists() {
                 out
             } else {
-                return Err(ArgosError::EnvironmentError(format!(
+                return Err(ArgosError::Environment(format!(
                     "No repo list found at {}. Please create it to start the CI pipeline.",
                     out.display()
                 )));
@@ -87,13 +86,13 @@ impl Environment {
 
         // Ensure root, tracking and cache directories exist
         create_dir_all(&argos_root_path).map_err(|e| {
-            ArgosError::EnvironmentError(format!("Failed to create argos root directory: {e}"))
+            ArgosError::Environment(format!("Failed to create argos root directory: {e}"))
         })?;
         create_dir_all(&argos_repo_tracking_path).map_err(|e| {
-            ArgosError::EnvironmentError(format!("Failed to create repo tracking directory: {e}"))
+            ArgosError::Environment(format!("Failed to create repo tracking directory: {e}"))
         })?;
         create_dir_all(&argos_cargo_cache_path).map_err(|e| {
-            ArgosError::EnvironmentError(format!("Failed to create cargo cache directory: {e}"))
+            ArgosError::Environment(format!("Failed to create cargo cache directory: {e}"))
         })?;
 
         // Create default Dockerfile if it doesn't exist
@@ -106,7 +105,7 @@ impl Environment {
                                    WORKDIR /app\n\n\
                                    # The actual command (cargo ...) is passed via docker run\n";
             std::fs::write(&default_dockerfile_path, default_content).map_err(|e| {
-                ArgosError::EnvironmentError(format!("Failed to create default Dockerfile: {e}"))
+                ArgosError::Environment(format!("Failed to create default Dockerfile: {e}"))
             })?;
         }
 
@@ -124,12 +123,12 @@ impl Environment {
 
 fn setup_process() -> ArgosResult<()> {
     if let Err(e) = set_scheduler(SchedulerPolicy::Idle, 19) {
-        return Err(ArgosError::SetupProcessError(format!(
+        return Err(ArgosError::SetupProcess(format!(
             "Failed to set scheduler: {e}"
         )));
     }
     if let Err(e) = set_ionice_value(IoNiceClass::Idle, 0) {
-        return Err(ArgosError::SetupProcessError(format!(
+        return Err(ArgosError::SetupProcess(format!(
             "Failed to set ionice value: {e}"
         )));
     }

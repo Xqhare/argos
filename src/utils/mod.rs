@@ -14,28 +14,28 @@ use crate::{
 pub fn sort_repo_list(repo_list: &Array, env: &Environment) -> ArgosResult<Array> {
     let mut repo_owned_dependency_list: Vec<(String, Vec<String>)> = Vec::new();
     for repo in repo_list {
-        let repo = repo.into_string().ok_or(ArgosError::XffValueError(
+        let repo = repo.into_string().ok_or(ArgosError::XffValue(
             "Repo array must contain only strings as children.".to_string(),
         ))?;
         let repo_env = RepoEnvironment::new(&repo, env)?;
         let mut dependencies = Vec::new();
         if repo_env.repo_advanced_config_path.exists() {
             let config_data = nabu::serde::read(&repo_env.repo_advanced_config_path)
-                .map_err(|e| ArgosError::XffError(e.to_string()))?
+                .map_err(|e| ArgosError::Xff(e.to_string()))?
                 .into_object()
-                .ok_or(ArgosError::XffValueError(
+                .ok_or(ArgosError::XffValue(
                     "Repo config must be an object.".to_string(),
                 ))?;
             if let Some(x) = config_data.get("requires") {
                 if let Some(x) = x.into_array() {
                     for dependency in x {
-                        let tmp = dependency.into_string().ok_or(ArgosError::XffValueError(
+                        let tmp = dependency.into_string().ok_or(ArgosError::XffValue(
                             "Dependencies must be strings.".to_string(),
                         ))?;
                         dependencies.push(tmp);
                     }
                 } else {
-                    return Err(ArgosError::XffValueError(
+                    return Err(ArgosError::XffValue(
                         "Dependencies must be an array.".to_string(),
                     ));
                 }
@@ -52,7 +52,7 @@ pub fn sort_repo_list(repo_list: &Array, env: &Environment) -> ArgosResult<Array
                 .collect();
             Ok(out)
         }
-        Err(e) => Err(ArgosError::XffError(e)),
+        Err(e) => Err(ArgosError::Xff(e)),
     }
 }
 
@@ -63,26 +63,22 @@ pub fn was_updated(repo_env: &RepoEnvironment) -> ArgosResult<bool> {
             if xff.is_object() {
                 xff.into_object().unwrap()
             } else {
-                return Err(ArgosError::XffValueError(
+                return Err(ArgosError::XffValue(
                     "Repo metadata XFF must be an object.".to_string(),
                 ));
             }
         }
-        Err(e) => return Err(ArgosError::XffError(e.to_string())),
+        Err(e) => return Err(ArgosError::Xff(e.to_string())),
     };
     let previous_hash = match repo_metadata.get("hash") {
         Some(x) => match x.as_string() {
             Some(x) => x,
             None => {
-                return Err(ArgosError::XffValueError(
-                    "Hash must be a string.".to_string(),
-                ));
+                return Err(ArgosError::XffValue("Hash must be a string.".to_string()));
             }
         },
         None => {
-            return Err(ArgosError::XffValueError(
-                "Hash must be present.".to_string(),
-            ));
+            return Err(ArgosError::XffValue("Hash must be present.".to_string()));
         }
     };
     if &latest_hash == previous_hash {
@@ -90,7 +86,7 @@ pub fn was_updated(repo_env: &RepoEnvironment) -> ArgosResult<bool> {
     }
     repo_metadata.insert("hash", latest_hash);
     nabu::serde::write(&repo_env.repo_tracking_xff, XffValue::from(repo_metadata))
-        .map_err(|e| ArgosError::XffError(e.to_string()))?;
+        .map_err(|e| ArgosError::Xff(e.to_string()))?;
     Ok(true)
 }
 
@@ -114,18 +110,19 @@ pub fn get_dir_size(path: &std::path::Path) -> std::io::Result<u64> {
 /// Gets the uid and gid of the current user
 ///
 /// Returns a string of the form `{uid}:{gid}`
+#[allow(clippy::similar_names)]
 pub fn get_uid_gid() -> ArgosResult<String> {
     let output_uid = std::process::Command::new("id")
         .arg("-u")
         .output()
-        .map_err(|e| ArgosError::IntegrateRepoTestError(e.to_string()))?;
+        .map_err(|e| ArgosError::IntegrateRepoTest(e.to_string()))?;
     let output_uid = String::from_utf8_lossy(&output_uid.stdout)
         .trim()
         .to_string();
     let output_gid = std::process::Command::new("id")
         .arg("-g")
         .output()
-        .map_err(|e| ArgosError::IntegrateRepoTestError(e.to_string()))?;
+        .map_err(|e| ArgosError::IntegrateRepoTest(e.to_string()))?;
     let output_gid = String::from_utf8_lossy(&output_gid.stdout)
         .trim()
         .to_string();
