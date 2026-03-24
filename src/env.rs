@@ -73,13 +73,13 @@ impl Environment {
 
         // Ensure root, tracking and cache directories exist
         create_dir_all(&argos_root_path).map_err(|e| {
-            ArgosError::EnvironmentError(format!("Failed to create argos root directory: {}", e))
+            ArgosError::Environment(format!("Failed to create argos root directory: {e}"))
         })?;
         create_dir_all(&argos_repo_tracking_path).map_err(|e| {
-            ArgosError::EnvironmentError(format!("Failed to create repo tracking directory: {}", e))
+            ArgosError::Environment(format!("Failed to create repo tracking directory: {e}"))
         })?;
         create_dir_all(&argos_cargo_cache_path).map_err(|e| {
-            ArgosError::EnvironmentError(format!("Failed to create cargo cache directory: {}", e))
+            ArgosError::Environment(format!("Failed to create cargo cache directory: {e}"))
         })?;
 
         let repo_list_path = {
@@ -87,14 +87,13 @@ impl Environment {
             if !out.exists() {
                 let default_content = "{\n  \"repos\": []\n}";
                 std::fs::write(&out, default_content).map_err(|e| {
-                    ArgosError::EnvironmentError(format!("Failed to create default repo list: {}", e))
+                    ArgosError::Environment(format!("Failed to create default repo list: {e}"))
                 })?;
             }
             out
         };
 
         // Create default Dockerfile if it doesn't exist
-
 
         // Create default Dockerfile if it doesn't exist
         if !default_dockerfile_path.exists() {
