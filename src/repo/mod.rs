@@ -13,11 +13,7 @@ mod setup;
 /// Continously integrates a repo
 ///
 /// Returns false if the integration of a repo failed
-pub fn continuously_integrate_repo(
-    env: &Environment,
-    repo: &str,
-    failed_repos: &[String],
-) -> bool {
+pub fn continuously_integrate_repo(env: &Environment, repo: &str, failed_repos: &[String]) -> bool {
     let repo_env = match RepoEnvironment::new(repo, env) {
         Ok(e) => e,
         Err(e) => {

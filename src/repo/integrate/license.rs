@@ -50,12 +50,12 @@ pub fn license_repo(
     let license_text = match std::fs::read_to_string(&license_file) {
         Ok(text) => text,
         Err(e) => {
-            return Ok((
-                false,
-                format!("Could not read license file: {e}"),
-            ));
+            return Ok((false, format!("Could not read license file: {e}")));
         }
     };
+    if !is_mit_license(&license_text) {
+        return Ok((true, "License is not MIT - skipping update".to_string()));
+    }
     let (license_last_year, all_text_to_last_year, all_text_after_last_year) =
         match parse_license_text(&license_text) {
             Ok(data) => data,

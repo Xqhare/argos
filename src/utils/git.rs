@@ -99,6 +99,19 @@ pub fn latest_git_commit_year(repo_path: &Path) -> ArgosResult<String> {
 /// # Returns
 /// Returns `Ok` if successful
 pub fn git_commit(repo_path: &Path, command: &str, message: &str) -> ArgosResult<()> {
+    // Check if there are changes to commit
+    let status = std::process::Command::new("git")
+        .arg("-C")
+        .arg(repo_path)
+        .arg("status")
+        .arg("--porcelain")
+        .output()
+        .map_err(|e| ArgosError::Git(format!("Failed to get git status: {e}")))?;
+
+    if status.stdout.is_empty() {
+        return Ok(());
+    }
+
     let message = format!("ArgosCI: {command}: {message}");
     let output = std::process::Command::new("git")
         .arg("-C")

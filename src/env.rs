@@ -106,13 +106,13 @@ impl Environment {
         };
 
         // Create default Dockerfile if it doesn't exist
-
-        // Create default Dockerfile if it doesn't exist
         if !default_dockerfile_path.exists() {
             let default_content = "# Default Argos Dockerfile\n\
                                    # This file is used as a template and fallback for repositories\n\
                                    # that do not provide their own ArgosCI/Dockerfile.\n\n\
                                    FROM rust:latest\n\n\
+                                   # Install clippy and rustfmt\n\
+                                   RUN rustup component add clippy rustfmt\n\n\
                                    # Set up a working directory\n\
                                    WORKDIR /app\n\n\
                                    # The actual command (cargo ...) is passed via docker run\n";

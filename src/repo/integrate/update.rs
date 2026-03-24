@@ -22,5 +22,12 @@ pub fn update_repo(
     repo_config: &RepoConfig,
 ) -> ArgosResult<(bool, String)> {
     let args = get_repo_args(repo_config, "update");
-    run_test_and_commit(env, repo_env, repo_config, "update", args, "ran cargo update")
+    run_test_and_commit(
+        env,
+        repo_env,
+        repo_config,
+        "update",
+        args,
+        "ran cargo update",
+    )
 }

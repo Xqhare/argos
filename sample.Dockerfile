@@ -5,6 +5,9 @@
 
 FROM rust:latest
 
+# Install clippy and rustfmt
+RUN rustup component add clippy rustfmt
+
 # Install any extra system dependencies here
 # RUN apt-get update && apt-get install -y libssl-dev pkg-config
 

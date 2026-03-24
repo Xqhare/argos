@@ -288,6 +288,7 @@ pub fn execute_in_docker(
     // 1. Build the image
     let build_status = std::process::Command::new("docker")
         .arg("build")
+        .arg("--pull")
         .arg("-t")
         .arg(&image_tag)
         .arg("-f")
