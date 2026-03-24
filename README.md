@@ -196,4 +196,4 @@ systemctl list-timers argos.timer
 
 ---
 
-For more information on the start of Argos, see the [startup notes](startup-notes.md).
+For more information on the start of Argos, see the [histroical startup notes](historical-startup-notes.md).
