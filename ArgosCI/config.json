@@ -1,4 +1,5 @@
 {
+  "all": true,
   "requires": ["athena", "areia", "horae", "mawu", "nabu"]
 }
 
