@@ -169,6 +169,31 @@ The example below contains all the files Argos can read from inside a repository
             └── Dockerfile
 ```
 
+## Systemd Integration
+
+Argos provides a systemd service and timer for automated execution.
+
+### Installation
+
+1.  **Copy the files**:
+    ```bash
+    sudo cp argos.service argos.timer /etc/systemd/system/
+    ```
+
+2.  **Configure the service**:
+    Edit `/etc/systemd/system/argos.service` and ensure `ExecStart` points to your `argos` binary. You should also uncomment and set `User=` and `Group=` to your local user if you are not running as root.
+
+3.  **Enable the timer**:
+    ```bash
+    sudo systemctl daemon-reload
+    sudo systemctl enable --now argos.timer
+    ```
+
+The default timer is set to run every day at **8:45 AM**. You can check the status and next scheduled run with:
+```bash
+systemctl list-timers argos.timer
+```
+
 ---
 
 For more information on the start of Argos, see the [startup notes](startup-notes.md).
