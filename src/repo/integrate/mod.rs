@@ -105,14 +105,13 @@ pub fn save_failed_integration(repo_env: &RepoEnvironment, error: &str) -> Argos
 fn save_results(repo_env: &RepoEnvironment, results: &Object) -> ArgosResult<()> {
     let save100 = save_100_run_archive(results, repo_env);
     let savelate = save_latest_run(results, repo_env);
-    if save100.is_ok() && savelate.is_ok() {
-        Ok(())
-    } else {
-        Err(ArgosError::IntegrateRepo(format!(
-            "Failed to save results: \n {} \n {}",
-            save100.unwrap_err(),
-            savelate.unwrap_err()
-        )))
+    match (save100, savelate) {
+        (Ok(_), Ok(_)) => Ok(()),
+        (Err(e1), Ok(_)) => Err(e1),
+        (Ok(_), Err(e2)) => Err(e2),
+        (Err(e1), Err(e2)) => Err(ArgosError::IntegrateRepo(format!(
+            "Failed to save results: \n {e1} \n {e2}"
+        ))),
     }
 }
 
@@ -126,14 +125,11 @@ fn save_latest_run(results: &Object, repo_env: &RepoEnvironment) -> ArgosResult<
     );
     let xff = nabu::serde::write(&repo_env.repo_tracking_xff, XffValue::from(results.clone()));
 
-    if json.is_ok() && xff.is_ok() {
-        Ok(())
-    } else {
-        Err(ArgosError::IntegrateRepo(format!(
-            "Failed to save results: \n {} \n {}",
-            json.unwrap_err(),
-            xff.unwrap_err()
-        )))
+    match (json, xff) {
+        (Ok(_), Ok(_)) => Ok(()),
+        (Err(e1), Ok(_)) => Err(ArgosError::IntegrateRepo(format!("{e1}"))),
+        (Ok(_), Err(e2)) => Err(ArgosError::IntegrateRepo(format!("{e2}"))),
+        (Err(e1), Err(e2)) => Err(ArgosError::IntegrateRepo(format!("{e1} \n {e2}"))),
     }
 }
 
@@ -316,10 +312,14 @@ pub fn execute_in_docker(
         .repo_path
         .to_str()
         .ok_or_else(|| ArgosError::Environment("Invalid repo path".to_string()))?;
-    let cache_path = env
-        .argos_cargo_cache_path
+    let registry_path = env
+        .argos_cargo_registry_path
         .to_str()
-        .ok_or_else(|| ArgosError::Environment("Invalid cache path".to_string()))?;
+        .ok_or_else(|| ArgosError::Environment("Invalid registry cache path".to_string()))?;
+    let git_path = env
+        .argos_cargo_git_path
+        .to_str()
+        .ok_or_else(|| ArgosError::Environment("Invalid git cache path".to_string()))?;
 
     let mut args = vec![
         "run".to_string(),
@@ -329,7 +329,9 @@ pub fn execute_in_docker(
         "-v".to_string(),
         format!("{}:/app", repo_path),
         "-v".to_string(),
-        format!("{}:/usr/local/cargo", cache_path),
+        format!("{}:/usr/local/cargo/registry", registry_path),
+        "-v".to_string(),
+        format!("{}:/usr/local/cargo/git", git_path),
         "-w".to_string(),
         "/app".to_string(),
         "-e".to_string(),

@@ -58,7 +58,8 @@ pub struct Environment {
     pub argos_root_path: PathBuf,
     pub repo_list_path: PathBuf,
     pub argos_repo_tracking_path: PathBuf,
-    pub argos_cargo_cache_path: PathBuf,
+    pub argos_cargo_registry_path: PathBuf,
+    pub argos_cargo_git_path: PathBuf,
     pub default_dockerfile_path: PathBuf,
 }
 
@@ -70,6 +71,8 @@ impl Environment {
         let argos_root_path = argos_data_path.join("argos");
         let argos_repo_tracking_path = argos_root_path.join("repo_tracking");
         let argos_cargo_cache_path = argos_root_path.join("cargo_cache");
+        let argos_cargo_registry_path = argos_cargo_cache_path.join("registry");
+        let argos_cargo_git_path = argos_cargo_cache_path.join("git");
         let default_dockerfile_path = argos_root_path.join("Dockerfile.default");
 
         // Ensure root, tracking and cache directories exist
@@ -81,6 +84,12 @@ impl Environment {
         })?;
         create_dir_all(&argos_cargo_cache_path).map_err(|e| {
             ArgosError::Environment(format!("Failed to create cargo cache directory: {e}"))
+        })?;
+        create_dir_all(&argos_cargo_registry_path).map_err(|e| {
+            ArgosError::Environment(format!("Failed to create cargo registry directory: {e}"))
+        })?;
+        create_dir_all(&argos_cargo_git_path).map_err(|e| {
+            ArgosError::Environment(format!("Failed to create cargo git directory: {e}"))
         })?;
 
         let repo_list_path = {
@@ -118,7 +127,8 @@ impl Environment {
             repo_list_path,
             argos_repo_tracking_path,
             argos_root_path,
-            argos_cargo_cache_path,
+            argos_cargo_registry_path,
+            argos_cargo_git_path,
             default_dockerfile_path,
         })
     }

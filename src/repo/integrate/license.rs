@@ -43,14 +43,24 @@ pub fn license_repo(
     repo_env: &RepoEnvironment,
     _repo_config: &RepoConfig,
 ) -> ArgosResult<(bool, String)> {
-    let license_file = find_license_file(repo_env)?;
-    let Ok(license_text) = std::fs::read_to_string(&license_file) else {
-        return Err(ArgosError::IntegrateRepoLicense(
-            "Could not read license file".to_string(),
-        ));
+    let license_file = match find_license_file(repo_env) {
+        Ok(path) => path,
+        Err(e) => return Ok((false, e.to_string())),
+    };
+    let license_text = match std::fs::read_to_string(&license_file) {
+        Ok(text) => text,
+        Err(e) => {
+            return Ok((
+                false,
+                format!("Could not read license file: {e}"),
+            ));
+        }
     };
     let (license_last_year, all_text_to_last_year, all_text_after_last_year) =
-        parse_license_text(&license_text)?;
+        match parse_license_text(&license_text) {
+            Ok(data) => data,
+            Err(e) => return Ok((false, e.to_string())),
+        };
     let last_commit_year = latest_git_commit_year(&repo_env.repo_path)?;
     if last_commit_year == license_last_year {
         Ok((true, "License year is already up to date".to_string()))
@@ -151,7 +161,7 @@ fn parse_license_text(license_text: &str) -> ArgosResult<(String, String, String
 }
 
 fn is_mit_license(license_text: &str) -> bool {
-    license_text.starts_with("MIT License")
+    license_text.contains("MIT License")
 }
 
 fn find_license_file(repo_env: &RepoEnvironment) -> ArgosResult<PathBuf> {
