@@ -4,6 +4,7 @@ use std::path::PathBuf;
 use crate::error::{ArgosError, ArgosResult};
 use areia::BaseDirs;
 use athena::process::{IoNiceClass, SchedulerPolicy, set_ionice_value, set_scheduler};
+use nabu::{Array, Object, XffValue};
 
 // I assume a correctly set up git config
 const GIT_ROOT_URL: &str = "ssh://git@serverle:2222/Xqhare/";
@@ -85,8 +86,10 @@ impl Environment {
         let repo_list_path = {
             let out = argos_root_path.join("repo_list.json");
             if !out.exists() {
-                let default_content = "{\n  \"repos\": []\n}";
-                std::fs::write(&out, default_content).map_err(|e| {
+                let mut default_obj = Object::new();
+                default_obj.insert("git_root", XffValue::from(GIT_ROOT_URL));
+                default_obj.insert("repos", XffValue::from(Array::new()));
+                mawu::write_pretty(&out, XffValue::from(default_obj), 2).map_err(|e| {
                     ArgosError::Environment(format!("Failed to create default repo list: {e}"))
                 })?;
             }
