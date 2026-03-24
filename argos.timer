@@ -1,0 +1,10 @@
+[Unit]
+Description=Argos CI Pipeline trigger Timer
+
+[Timer]
+Unit=argos.service
+Persistent=true
+OnCalendar=*-*-* 8:45:00
+
+[Install]
+WantedBy=timers.target

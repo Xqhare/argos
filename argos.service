@@ -1,0 +1,13 @@
+[Unit]
+Description=Argos CI Pipeline
+
+[Service]
+Type=oneshot
+# Change the path below to the directory containing the executable
+ExecStart=/usr/bin/argos
+# To run as your local user, uncomment and set the lines below:
+# User=xqhare
+# Group=xqhare
+CPUSchedulingPolicy=idle
+Nice=19
+IOSchedulingClass=idle
