@@ -26,7 +26,7 @@ dependencies = [
 [[package]]
 name = "athena"
 version = "1.3.0"
-source = "git+https://github.com/xqhare/athena#077f1bc43db269f6d5662988de5c9245544602fb"
+source = "git+https://github.com/xqhare/athena#cb641d7e7d98b7023d0a3a60f412d3571fa3e61b"
 dependencies = [
  "aequa",
  "libc",
