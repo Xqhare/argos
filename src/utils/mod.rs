@@ -98,9 +98,9 @@ pub fn was_updated(repo_env: &RepoEnvironment) -> ArgosResult<bool> {
         };
         let now = horae::Utc::now();
         // Salt just to spread the repos out over time a bit - also for the fun of it
-        let salt = repo_env.repo.as_bytes().iter().sum();
+        let salt: u64 = repo_env.repo.as_bytes().iter().map(|x| *x as u64).sum();
         // Capped to 15k minutes ~ 10.5 days
-        let mut spreadder_mins: u64 = (60 * 24 * 7 + salt);
+        let mut spreadder_mins: u64 = (60 * 24 * 7) + salt;
         if spreadder_mins > 15000 {
             spreadder_mins %= 15000;
         }
