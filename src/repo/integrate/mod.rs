@@ -103,8 +103,19 @@ pub fn save_failed_integration(repo_env: &RepoEnvironment, error: &str) -> Argos
 }
 
 fn save_results(repo_env: &RepoEnvironment, results: &Object) -> ArgosResult<()> {
-    let save100 = save_100_run_archive(results, repo_env);
-    let savelate = save_latest_run(results, repo_env);
+    let mut results_with_metadata = results.clone();
+
+    // Read existing metadata to preserve hash
+    if let Ok(xff) = nabu::serde::read(&repo_env.repo_tracking_xff) {
+        if let Some(obj) = xff.into_object() {
+            if let Some(hash) = obj.get("hash") {
+                results_with_metadata.insert("hash".to_string(), hash.clone());
+            }
+        }
+    }
+
+    let save100 = save_100_run_archive(&results_with_metadata, repo_env);
+    let savelate = save_latest_run(&results_with_metadata, repo_env);
     match (save100, savelate) {
         (Ok(_), Ok(_)) => Ok(()),
         (Err(e1), Ok(_)) => Err(e1),
