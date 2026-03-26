@@ -3,9 +3,14 @@
 version = 4
 
 [[package]]
+name = "aequa"
+version = "0.1.0"
+source = "git+https://github.com/xqhare/aequa#aa5399a14c9c6905fb4730a6ad160d36cbc561e3"
+
+[[package]]
 name = "areia"
 version = "1.0.0"
-source = "git+https://github.com/xqhare/areia#32f0ab3f7adc21b69590f8692c3b79197706e961"
+source = "git+https://github.com/xqhare/areia#b81e0e3598e7cf4f05d8fc0bd3d44d1e79b8369d"
 
 [[package]]
 name = "argos"
@@ -21,15 +26,16 @@ dependencies = [
 [[package]]
 name = "athena"
 version = "1.3.0"
-source = "git+https://github.com/xqhare/athena#c86940d8921a8d9f34205ea27377ab12e502dbae"
+source = "git+https://github.com/xqhare/athena#077f1bc43db269f6d5662988de5c9245544602fb"
 dependencies = [
+ "aequa",
  "libc",
 ]
 
 [[package]]
 name = "horae"
 version = "1.1.1"
-source = "git+https://github.com/xqhare/horae#3e45c62686111087a380f891d41310f210abbd87"
+source = "git+https://github.com/xqhare/horae#ad74f00b841325d5b884fcfc47d68c2f2a87fc43"
 
 [[package]]
 name = "libc"
@@ -40,7 +46,7 @@ checksum = "b5b646652bf6661599e1da8901b3b9522896f01e736bad5f723fe7a3a27f899d"
 [[package]]
 name = "mawu"
 version = "1.0.0"
-source = "git+https://github.com/xqhare/mawu#92698e4790405fb5a9832a8c6ce58736f7ca912d"
+source = "git+https://github.com/xqhare/mawu#3847ae92d1fd9c8030b16bb607d5758d245053db"
 dependencies = [
  "athena",
 ]
@@ -48,7 +54,7 @@ dependencies = [
 [[package]]
 name = "nabu"
 version = "3.0.0"
-source = "git+https://github.com/xqhare/nabu#a7368e3f91b71290d58d11576954608f1690eb43"
+source = "git+https://github.com/xqhare/nabu#dee4e84d30ed2c6cb2ca3b9b9e4ba8f5924706d2"
 dependencies = [
  "athena",
 ]

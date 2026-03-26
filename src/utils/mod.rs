@@ -1,5 +1,7 @@
 pub mod git;
 
+use std::time::Duration;
+
 use athena::sorting::kahns_managed;
 use nabu::{Array, XffValue};
 
@@ -81,7 +83,32 @@ pub fn was_updated(repo_env: &RepoEnvironment) -> ArgosResult<bool> {
             return Err(ArgosError::XffValue("Hash must be present.".to_string()));
         }
     };
-    if &latest_hash == previous_hash {
+    let mut overwrite = false;
+    if let Some(date) = repo_metadata.get("last_run") {
+        let last_run = {
+            let tmp = match date.into_unix_timestamp() {
+                Some(x) => x,
+                None => {
+                    return Err(ArgosError::XffValue(
+                        "Last run must be a unix timestamp.".to_string(),
+                    ));
+                }
+            };
+            horae::Utc::from_timestamp(tmp)
+        };
+        let now = horae::Utc::now();
+        // Salt just to spread the repos out over time a bit - also for the fun of it
+        let salt = repo_env.repo.as_bytes().iter().sum();
+        // Capped to 15k minutes ~ 10.5 days
+        let mut spreadder_mins: u64 = (60 * 24 * 7 + salt);
+        if spreadder_mins > 15000 {
+            spreadder_mins %= 15000;
+        }
+        if last_run + Duration::from_mins(spreadder_mins) <= now {
+            overwrite = true;
+        }
+    }
+    if &latest_hash == previous_hash && !overwrite {
         return Ok(false);
     }
     repo_metadata.insert("hash", latest_hash);

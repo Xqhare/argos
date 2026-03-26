@@ -113,6 +113,10 @@ fn save_results(repo_env: &RepoEnvironment, results: &Object) -> ArgosResult<()>
             }
         }
     }
+    results_with_metadata.insert(
+        "last_run",
+        XffValue::from_unix_timestamp(horae::Utc::now().unix_timestamp()),
+    );
 
     let save100 = save_100_run_archive(&results_with_metadata, repo_env);
     let savelate = save_latest_run(&results_with_metadata, repo_env);
