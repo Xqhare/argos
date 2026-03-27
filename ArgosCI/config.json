@@ -1,5 +1,12 @@
 {
-  "all": true,
+  "test": {},
+  "build": {},
+  "doc": {},
+  "doc-test": {},
+  "clippy": {},
+  "format": {},
+  "update": {},
+  "license": {},
   "requires": ["athena", "areia", "horae", "mawu", "nabu"]
 }
 
