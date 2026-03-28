@@ -18,6 +18,12 @@ Argos expects the following tools to be available on the host system:
 
 Additionally, ensure your host user has permissions to run Docker commands and that SSH keys are configured for Git operations if using SSH URLs.
 
+## Roadmap
+
+- [ ] Add optional CLI commands for overriding
+    - Ignore the 1 minute sleep between repos
+    - Ignore the git commit hash check if a repo should be tested
+
 ## Usage
 
 Argos reads a list of repos from the `{dataDirectory}/argos/repo_list.json` file. If this file does not exist, Argos will automatically create it with a default empty configuration during its first run.
