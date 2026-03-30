@@ -96,13 +96,27 @@ pub fn was_updated(repo_env: &RepoEnvironment) -> ArgosResult<bool> {
             };
             horae::Utc::from_timestamp(tmp)
         };
+        // To spread the repo integration out over time if nothing has been committed
+        // License and Cargo update should trigger every once in a while
         let now = horae::Utc::now();
-        // Salt just to spread the repos out over time a bit - also for the fun of it
+        // Some maths: short name 4 letters, minimum byte = ASCII space, 32 = 4*32 = 128
+        // Same letter, max ASCII tide, 126 = 4*126 = 504
+        // 10 letters, min byte = 10*32 = 320
+        // 10 letters, max byte = 10*126 = 1260
+        //
+        // BUT: as soon as we leave ASCII space, the sums can get stupidly large, use an emoticon
+        // in the name and that alone can reach into the thousands
         let salt: u64 = repo_env.repo.as_bytes().iter().map(|x| *x as u64).sum();
-        // Capped to 15k minutes ~ 10.5 days
         let mut spreadder_mins: u64 = (60 * 24 * 7) + salt;
+        // Capped to 15k minutes ~ 10.5 days; Floor at 7.5k minutes ~ 5.25 days
         if spreadder_mins > 15000 {
-            spreadder_mins %= 15000;
+            let tmp = spreadder_mins % 15000;
+            if tmp < 7_500 {
+                // Worst case: 7_499 + 7_500 = 14_999 ~ 10.5 days | 0 + 7_500 = 7_500 ~ 5.25 days
+                spreadder_mins = tmp + 7_500;
+            } else {
+                spreadder_mins = tmp;
+            }
         }
         if last_run + Duration::from_mins(spreadder_mins) <= now {
             overwrite = true;
