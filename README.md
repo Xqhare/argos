@@ -115,6 +115,7 @@ For more control, use `config.json` inside the `ArgosCI` directory:
 ### Supported Commands
 
 - `test` - Runs `cargo test`
+- `examples-test` - Runs `cargo test --examples`
 - `build` - Runs `cargo build`
 - `doc` - Runs `cargo doc --no-deps`
 - `doc-test` - Runs `cargo test --doc`

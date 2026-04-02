@@ -7,7 +7,8 @@ use crate::{
         config::RepoConfig,
         integrate::{
             build::build_repo, clippy::clippy_repo, doc::doc_repo, doc_test::doc_test_repo,
-            format::format_repo, license::license_repo, test::test_repo, update::update_repo,
+            examples_test::examples_test_repo, format::format_repo, license::license_repo,
+            test::test_repo, update::update_repo,
         },
     },
     utils::{
@@ -20,6 +21,7 @@ mod build;
 mod clippy;
 mod doc;
 mod doc_test;
+mod examples_test;
 mod format;
 mod license;
 mod test;
@@ -53,6 +55,7 @@ pub fn integrate_repo(
         let (success, output) = match command.as_str() {
             "build" => build_repo(env, repo_env, repo_config)?,
             "test" => test_repo(env, repo_env, repo_config)?,
+            "examples-test" => examples_test_repo(env, repo_env, repo_config)?,
             "doc" => doc_repo(env, repo_env, repo_config)?,
             "doc-test" => doc_test_repo(env, repo_env, repo_config)?,
             "clippy" => clippy_repo(env, repo_env, repo_config)?,

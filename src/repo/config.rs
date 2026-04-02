@@ -163,6 +163,7 @@ fn fallback_constructor() -> RepoConfig {
 fn all_commands() -> Vec<String> {
     vec![
         "test".to_string(),
+        "examples-test".to_string(),
         "build".to_string(),
         "doc".to_string(),
         "doc-test".to_string(),
