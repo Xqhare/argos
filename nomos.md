@@ -3,3 +3,5 @@
 - [ ] Add optional CLI commands for overriding :: 
     * Ignore the 1 minute sleep between repos
     * Ignore the git commit hash check if a repo should be tested
+- [ ] (G) Fix automatic redeploy ::
+    * Should only be updating docker permissions (file perms for the repo)
