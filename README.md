@@ -20,9 +20,11 @@ Additionally, ensure your host user has permissions to run Docker commands and t
 
 ## Roadmap
 
-- [ ] Add optional CLI commands for overriding
-    - Ignore the 1 minute sleep between repos
-    - Ignore the git commit hash check if a repo should be tested
+`Argos` uses my [nomos](https://github.com/xqhare/nomos) project management system.
+
+The roadmap for this project can be found in the [nomos.md](nomos.md) file.
+
+All nomos files follow the syntax defined [here](https://github.com/Xqhare/nomos/blob/master/spec/).
 
 ## Usage
 
