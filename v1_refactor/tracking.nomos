@@ -18,6 +18,6 @@
 		* @src/repo/setup.rs let _ = git_clone(...) ignores clone errors, causing a confusing downstream error from latest_git_hash.
 		* @src/utils/git.rs git fetch exit status isn't checked, so SSH/network failures silently read the old origin/HEAD and look like "no updates".
 - [ ] Design Changes
-	- [ ] Move to a full CLI tool :: @tmp_rework/cli_design.md for more details
+	- [ ] Move to a full CLI tool :: @v1_refactor/cli_design.md for more details
 	- [ ] Ignore the 1 minute sleep between repos 
 	- [ ] Ignore the git commit hash check if a repo should be tested
