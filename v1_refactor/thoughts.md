@@ -24,47 +24,18 @@ The caches work, the internally needed data is in a good place (organisation wis
 
 ## Things to Rework / Change
 
-Firstly, a move to a real CLI tool would be awesome.
+A move to a real CLI tool would be awesome.
 
-```bash
-$ argos
-All passing: [True/False]
-Installed location : [PATH]
-Tracked Projects: [LIST PROJECT NAMES]
-```
-
-```bash
-$ argos add PROJECTNAME
-Repolist (@ PATH) updated to track "PROJECTNAME"
-Make sure its available at GITROOT
-
-$ argos remove PROJECTNAME
-Repolist (@ PATH) no longer tracks "PROJECTNAME"
-```
-
-```bash
-$ argos status
-[List of all projects, each project as]
-Project: [NAME]
-All passing: [TRUE/FALSE]
-Integrations: [LIST of TESTNAME:TRUE/FALSE]
-Failing: [LIST of TESTNAME:TEXTOUTPUT CMD]
-```
-
-```bash
-$ argos failing
-[List of all failing projects, each project as]
-Project: [NAME]
-Failing: [LIST of TESTNAME:TEXTOUTPUT CMD]
-```
-
-```bash
-$ argos report FILEPATH
-# Complete output for each project, FILEPATH as a DIR only; One file per project
-$ argos report FILEPATH --onefile
-# Complete output for each project, FILEPATH as a FILE only, one giant file for all projects
-```
+See cli_design.md
 
 ### Better error reporting
 
-output text captured does not really say what is failing.
+Output text captured does not really say what is failing.
+
+## Performance
+
+I have built in a sleep of one minute between repos to allow the homelab to work on more important work even while argos is running.
+
+While a nice consideration, it comes with drawbacks.
+
+I now think that relying on the CPU scheduler alone would already be more than sufficient .

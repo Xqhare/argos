@@ -1,7 +1,7 @@
-- [ ] (1) Make logs better
-- [ ] (1) Prod review :: get the data from serverle and take a look at it, whats happening, whats tracked, whats not tracked, what works, what doesnt?
-- [ ] Add optional CLI commands for overriding :: 
+- [/] (1) Make logs better
+- [x] (1) Prod review :: get the data from serverle and take a look at it, whats happening, whats tracked, whats not tracked, what works, what doesnt?
+- [/] Add optional CLI commands for overriding :: 
 	* Ignore the 1 minute sleep between repos
 	* Ignore the git commit hash check if a repo should be tested
-- [ ] (3) Fix automatic redeploy :: 
+- [ ] (3) Fix automatic redeploy :: +bug @home_lab
 	* Should only be updating docker permissions (file perms for the repo)
