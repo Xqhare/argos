@@ -1,0 +1,13 @@
+# Default Argos Dockerfile
+# This file is used as a template and fallback for repositories
+# that do not provide their own ArgosCI/Dockerfile.
+
+FROM rust:latest
+
+# Install clippy and rustfmt
+RUN rustup component add clippy rustfmt
+
+# Set up a working directory
+WORKDIR /app
+
+# The actual command (cargo ...) is passed via docker run

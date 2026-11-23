@@ -1,0 +1,38 @@
+{
+  "all_succeeded": false,
+  "build": {
+    "output": "",
+    "success": true
+  },
+  "clippy": {
+    "output": "",
+    "success": true
+  },
+  "doc": {
+    "output": "",
+    "success": true
+  },
+  "doc-test": {
+    "output": "\nrunning 18 tests\ntest src\/lib.rs - prelude::random_bool (line 344) ... ok\ntest src\/lib.rs - prelude::random_f32 (line 259) ... ok\ntest src\/lib.rs - prelude::random_from_range (line 380) ... ok\ntest src\/lib.rs - (line 20) ... ok\ntest src\/lib.rs - prelude::random_from_u64range (line 417) ... ok\ntest src\/lib.rs - prelude::random_from_i32range (line 497) ... ok\ntest src\/lib.rs - prelude::random_from_f32range (line 452) ... ok\ntest src\/lib.rs - prelude::random_i32 (line 233) ... ok\ntest src\/lib.rs - prelude::random_index (line 537) ... ok\ntest src\/lib.rs - prelude::random_i8 (line 207) ... ok\ntest src\/lib.rs - prelude::random_latin_char (line 320) ... ok\ntest src\/lib.rs - prelude::random_u16 (line 127) ... ok\ntest src\/lib.rs - prelude::random_u32 (line 153) ... ok\ntest src\/lib.rs - prelude::random_u64 (line 181) ... ok\ntest src\/lib.rs - prelude::random_u8 (line 101) ... ok\ntest src\/lib.rs - prelude::random_string (line 286) ... ok\ntest src\/lib.rs - prelude::random_with_ceiling (line 567) ... ok\ntest src\/lib.rs - prelude::random_with_floor (line 593) ... ok\n\ntest result: ok. 18 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.93s\n\nall doctests ran in 1.12s; merged doctests compilation took 0.20s\n",
+    "success": true
+  },
+  "first_failed_command": "First testing pass failed - aborted.",
+  "format": {
+    "output": "First testing pass failed - aborted.",
+    "success": false
+  },
+  "hash": "586a969bb4892ae3851fc133751090280953411d",
+  "last_run": 1774820318540,
+  "license": {
+    "output": "License is not MIT - skipping update",
+    "success": true
+  },
+  "test": {
+    "output": "\nrunning 19 tests\ntest tests::test_failure_states ... ok\ntest tests::test_random_bool ... ok\ntest tests::test_random_i32range ... ok\ntest tests::test_random_i32 ... ok\ntest tests::test_random_ceiling ... ok\ntest tests::test_random_range_0to0 ... ok\ntest tests::test_random_i8 ... ok\ntest tests::test_random_f32 ... ok\ntest tests::test_random_floor ... ok\ntest tests::test_random_f32range ... ok\ntest tests::test_random_range ... ok\ntest tests::test_random_index ... ok\ntest tests::test_random_u64 ... ok\ntest tests::test_random_u16 ... ok\ntest tests::test_random_u32 ... ok\ntest tests::test_random_u64range ... ok\ntest tests::test_random_str ... ok\ntest tests::test_random_u8 ... ok\ntest tests::test_random_latin_char ... ok\n\ntest result: ok. 19 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 41.62s\n\n\nrunning 18 tests\ntest src\/lib.rs - prelude::random_from_f32range (line 452) ... ok\ntest src\/lib.rs - prelude::random_from_range (line 380) ... ok\ntest src\/lib.rs - prelude::random_from_i32range (line 497) ... ok\ntest src\/lib.rs - prelude::random_bool (line 344) ... ok\ntest src\/lib.rs - prelude::random_i32 (line 233) ... ok\ntest src\/lib.rs - prelude::random_f32 (line 259) ... ok\ntest src\/lib.rs - (line 20) ... ok\ntest src\/lib.rs - prelude::random_from_u64range (line 417) ... ok\ntest src\/lib.rs - prelude::random_latin_char (line 320) ... ok\ntest src\/lib.rs - prelude::random_index (line 537) ... ok\ntest src\/lib.rs - prelude::random_u16 (line 127) ... ok\ntest src\/lib.rs - prelude::random_i8 (line 207) ... ok\ntest src\/lib.rs - prelude::random_u32 (line 153) ... ok\ntest src\/lib.rs - prelude::random_u64 (line 181) ... ok\ntest src\/lib.rs - prelude::random_u8 (line 101) ... ok\ntest src\/lib.rs - prelude::random_string (line 286) ... ok\ntest src\/lib.rs - prelude::random_with_ceiling (line 567) ... ok\ntest src\/lib.rs - prelude::random_with_floor (line 593) ... ok\n\ntest result: ok. 18 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.86s\n\nall doctests ran in 1.05s; merged doctests compilation took 0.19s\n",
+    "success": true
+  },
+  "update": {
+    "output": "",
+    "success": true
+  }
+}

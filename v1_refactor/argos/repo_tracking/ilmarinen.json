@@ -1,0 +1,37 @@
+{
+  "all_succeeded": true,
+  "build": {
+    "output": "",
+    "success": true
+  },
+  "clippy": {
+    "output": "",
+    "success": true
+  },
+  "doc": {
+    "output": "",
+    "success": true
+  },
+  "doc-test": {
+    "output": "\nrunning 0 tests\n\ntest result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s\n\n",
+    "success": true
+  },
+  "format": {
+    "output": "",
+    "success": true
+  },
+  "hash": "15811bc913cb67f766c5836b5ee16a8b5bfc8b2d",
+  "last_run": 1774819645545,
+  "license": {
+    "output": "License is not MIT - skipping update",
+    "success": true
+  },
+  "test": {
+    "output": "\nrunning 0 tests\n\ntest result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s\n\n\nrunning 1 test\ntest word_smith_main_test ... ok\n\ntest result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 31.79s\n\n\nrunning 0 tests\n\ntest result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s\n\n",
+    "success": true
+  },
+  "update": {
+    "output": "",
+    "success": true
+  }
+}

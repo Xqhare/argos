@@ -1,0 +1,37 @@
+{
+  "all_succeeded": true,
+  "build": {
+    "output": "",
+    "success": true
+  },
+  "clippy": {
+    "output": "",
+    "success": true
+  },
+  "doc": {
+    "output": "",
+    "success": true
+  },
+  "doc-test": {
+    "output": "\nrunning 1 test\ntest src\/lib.rs - (line 24) ... ok\n\ntest result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.11s\n\n",
+    "success": true
+  },
+  "format": {
+    "output": "",
+    "success": true
+  },
+  "hash": "7d257a7430c72fb193373b5f943e085723c9611f",
+  "last_run": 1774819733224,
+  "license": {
+    "output": "License is not MIT - skipping update",
+    "success": true
+  },
+  "test": {
+    "output": "\nrunning 9 tests\ntest lexers::json_lexer::number_lexer ... ok\ntest lexers::json_lexer::object_lexer ... ok\ntest mawu_value::creating_csv_array ... ok\ntest lexers::json_lexer::array_lexer ... ok\ntest lexers::json_lexer::string_lexer ... ok\ntest mawu_value::creating_csv_object ... ok\ntest mawu_value::new_array_object ... ok\ntest tests::write_csv ... ok\ntest tests::write_json_doc_files ... ok\n\ntest result: ok. 9 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s\n\n\nrunning 4 tests\ntest csv_tests::headed::my_own_random_large_data_set_84mb_1mil_rows ... ignored\ntest csv_tests::headless::read_and_write_data ... ok\ntest csv_tests::headed::write_and_read_data ... ok\ntest csv_tests::headed::random_data_no_license_customers100 ... ok\n\ntest result: ok. 3 passed; 0 failed; 1 ignored; 0 measured; 0 filtered out; finished in 0.00s\n\n\nrunning 17 tests\ntest json_tests::large_json_file_26mb ... ignored\ntest json_tests::microsoft_edge_valid_dummy_json_large ... ignored\ntest json_tests::my_own_random_data_26mb ... ignored\ntest json_tests::my_own_random_data_84mb ... ignored\ntest json_tests::implementor_dependent_numbers ... ok\ntest json_tests::nan_infinity_has_to_fail ... ok\ntest json_tests::rfc8259_valid_json ... ok\ntest json_tests::simple_valid_json ... ok\ntest json_tests::speed_test ... ignored\ntest json_tests::transformation_numbers ... ok\ntest json_tests::transformation_objects ... ok\ntest json_tests::valid_arrays ... ok\ntest json_tests::valid_objects ... ok\ntest json_tests::write_weird_shit ... ok\ntest json_tests::json_org_valid_json ... ok\ntest json_tests::microsoft_edge_invalid_dummy_json ... ok\ntest json_tests::microsoft_edge_valid_dummy_json_small ... ok\n\ntest result: ok. 12 passed; 0 failed; 5 ignored; 0 measured; 0 filtered out; finished in 0.17s\n\n\nrunning 1 test\ntest src\/lib.rs - (line 24) ... ok\n\ntest result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.11s\n\n",
+    "success": true
+  },
+  "update": {
+    "output": "",
+    "success": true
+  }
+}

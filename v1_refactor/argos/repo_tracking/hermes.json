@@ -1,0 +1,37 @@
+{
+  "all_succeeded": true,
+  "build": {
+    "output": "",
+    "success": true
+  },
+  "clippy": {
+    "output": "",
+    "success": true
+  },
+  "doc": {
+    "output": "",
+    "success": true
+  },
+  "doc-test": {
+    "output": "\nrunning 18 tests\ntest src\/..\/README.md - (line 23) - compile ... ok\ntest src\/..\/README.md - (line 42) - compile ... ok\ntest src\/..\/README.md - (line 60) - compile ... ok\ntest src\/lib.rs - Hermes::await_request (line 244) ... ok\ntest src\/lib.rs - Hermes::await_request_forever (line 221) ... ok\ntest src\/lib.rs - Hermes::get_request (line 125) ... ok\ntest src\/..\/README.md - (line 79) ... ok\ntest src\/lib.rs - Hermes::await_response_forever (line 437) ... ok\ntest src\/lib.rs - Hermes::free_resources (line 462) ... ok\ntest src\/lib.rs - Hermes::get_response (line 318) ... ok\ntest src\/lib.rs - Hermes::await_response (line 415) ... ok\ntest src\/lib.rs - Hermes::is_request_ready (line 103) ... ok\ntest src\/lib.rs - Hermes::is_response_ready (line 296) ... ok\ntest src\/lib.rs - Hermes::new (line 33) ... ok\ntest src\/lib.rs - Hermes::set_garbage_collection (line 503) ... ok\ntest src\/lib.rs - Hermes::respond (line 270) ... ok\ntest src\/lib.rs - Hermes::put_error (line 526) ... ok\ntest src\/lib.rs - Hermes::request (line 77) ... ok\n\ntest result: ok. 18 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s\n\nall doctests ran in 0.25s; merged doctests compilation took 0.24s\n",
+    "success": true
+  },
+  "format": {
+    "output": "",
+    "success": true
+  },
+  "hash": "347003627ff150aa53eaab8f579ec3726ee50c1c",
+  "last_run": 1774819258593,
+  "license": {
+    "output": "License year is already up to date",
+    "success": true
+  },
+  "test": {
+    "output": "\nrunning 0 tests\n\ntest result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s\n\n\nrunning 8 tests\ntest connection::default_timeout ... ignored, default timeout is 197 sec\ntest connection::new_hermes_empty_path ... ok\ntest connection::new_hermes_not_directory ... ok\ntest connection::new_hermes_valid_path ... ok\ntest bugs::bug1 ... ok\ntest req_res::general_request ... ok\ntest errors::basic_error_propagation ... ok\ntest req_res::req_res_simple ... ok\n\ntest result: ok. 7 passed; 0 failed; 1 ignored; 0 measured; 0 filtered out; finished in 0.00s\n\n\nrunning 7 tests\ntest external_server_test::combined_test_partner2 ... ok\ntest external_server_test::combined_test_partner1 ... ok\ntest internal_server_test::internal_server_test ... ok\ntest external_server_test::long_running_combined_test_partner2 ... ok\ntest external_server_test::long_running_combined_test_partner1 ... ok\ntest several_requests::several_requests_server ... ok\ntest several_requests::several_requests_client ... ok\n\ntest result: ok. 7 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 2.26s\n\n\nrunning 18 tests\ntest src\/..\/README.md - (line 23) - compile ... ok\ntest src\/..\/README.md - (line 42) - compile ... ok\ntest src\/..\/README.md - (line 60) - compile ... ok\ntest src\/lib.rs - Hermes::await_request (line 244) ... ok\ntest src\/lib.rs - Hermes::await_response_forever (line 437) ... ok\ntest src\/lib.rs - Hermes::await_request_forever (line 221) ... ok\ntest src\/lib.rs - Hermes::await_response (line 415) ... ok\ntest src\/lib.rs - Hermes::get_request (line 125) ... ok\ntest src\/lib.rs - Hermes::free_resources (line 462) ... ok\ntest src\/lib.rs - Hermes::get_response (line 318) ... ok\ntest src\/..\/README.md - (line 79) ... ok\ntest src\/lib.rs - Hermes::request (line 77) ... ok\ntest src\/lib.rs - Hermes::is_response_ready (line 296) ... ok\ntest src\/lib.rs - Hermes::is_request_ready (line 103) ... ok\ntest src\/lib.rs - Hermes::respond (line 270) ... ok\ntest src\/lib.rs - Hermes::put_error (line 526) ... ok\ntest src\/lib.rs - Hermes::set_garbage_collection (line 503) ... ok\ntest src\/lib.rs - Hermes::new (line 33) ... ok\n\ntest result: ok. 18 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s\n\nall doctests ran in 0.25s; merged doctests compilation took 0.24s\n",
+    "success": true
+  },
+  "update": {
+    "output": "",
+    "success": true
+  }
+}

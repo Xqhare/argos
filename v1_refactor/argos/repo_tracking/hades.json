@@ -1,0 +1,38 @@
+{
+  "all_succeeded": false,
+  "build": {
+    "output": "",
+    "success": true
+  },
+  "clippy": {
+    "output": "First testing pass failed - aborted.",
+    "success": false
+  },
+  "doc": {
+    "output": "",
+    "success": true
+  },
+  "doc-test": {
+    "output": "\nrunning 0 tests\n\ntest result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s\n\n",
+    "success": true
+  },
+  "first_failed_command": "First testing pass failed - aborted.",
+  "format": {
+    "output": "First testing pass failed - aborted.",
+    "success": false
+  },
+  "hash": "5bfab3b241db377855eec58c0053596e8591289f",
+  "last_run": 1774819214025,
+  "license": {
+    "output": "License year is already up to date",
+    "success": true
+  },
+  "test": {
+    "output": "\nrunning 0 tests\n\ntest result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s\n\n\nrunning 2 tests\ntest test_unix_flag_registration ... ok\ntest test_unix_signals_iterator ... ok\n\ntest result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.10s\n\n\nrunning 0 tests\n\ntest result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s\n\n",
+    "success": true
+  },
+  "update": {
+    "output": "First testing pass failed - aborted.",
+    "success": false
+  }
+}

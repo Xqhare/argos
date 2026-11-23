@@ -1,0 +1,37 @@
+{
+  "all_succeeded": true,
+  "build": {
+    "output": "",
+    "success": true
+  },
+  "clippy": {
+    "output": "",
+    "success": true
+  },
+  "doc": {
+    "output": "",
+    "success": true
+  },
+  "doc-test": {
+    "output": "\nrunning 15 tests\ntest src\/..\/README.md - (line 203) ... ok\ntest src\/..\/README.md - (line 122) ... ok\ntest src\/..\/README.md - (line 232) ... ok\ntest src\/..\/README.md - (line 179) ... ok\ntest src\/..\/README.md - (line 396) ... ok\ntest src\/..\/README.md - (line 311) ... ok\ntest src\/..\/README.md - (line 379) ... ok\ntest src\/lib.rs - serde (line 59) ... ok\ntest src\/lib.rs - serde::write (line 123) ... ok\ntest src\/lib.rs - serde::read (line 93) ... ok\ntest src\/lib.rs - tvec_to_xff_value (line 44) ... ok\ntest src\/lib.rs - serde::remove_file (line 187) ... ok\ntest src\/lib.rs - xff (line 22) ... ok\ntest src\/lib.rs - serde::write_legacy (line 155) ... ok\ntest src\/..\/README.md - (line 132) ... ok\n\ntest result: ok. 15 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s\n\nall doctests ran in 0.25s; merged doctests compilation took 0.25s\n",
+    "success": true
+  },
+  "format": {
+    "output": "",
+    "success": true
+  },
+  "hash": "422c46073e055d1bb64ba326a9d7888c3868442c",
+  "last_run": 1774819896459,
+  "license": {
+    "output": "License is not MIT - skipping update",
+    "success": true
+  },
+  "test": {
+    "output": "\nrunning 2 tests\ntest xff::v3_markers::tests::test_marker_parity ... ok\ntest xff::deserializer::deser_version_0_10 ... ok\n\ntest result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s\n\n\nrunning 1 test\ntest generate_v3_examples ... ok\n\ntest result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s\n\n\nrunning 4 tests\ntest test_metadata_basic ... ok\ntest test_v3_roundtrip_no_metadata ... ok\ntest test_v3_strict_metadata_enforcement ... ok\ntest test_v3_roundtrip_with_metadata ... ok\n\ntest result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s\n\n\nrunning 7 tests\ntest v0::serializer_deserializer_bare_bones ... ok\ntest v0::serializer_deserializer_basic ... ok\ntest v0::serializer_deserializer_cmd_chars ... ok\ntest v0::string_to_number ... ok\ntest v0::all_data ... ok\ntest v0::complex_data ... ok\ntest v0::create_simulated_data ... ok\n\ntest result: ok. 7 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.04s\n\n\nrunning 17 tests\ntest v1::escape_chars ... ok\ntest v1::complete_array ... ok\ntest v1::actual_data ... ok\ntest v1::object ... ok\ntest v1::primitive_values ... ok\ntest v1::hello_world ... ok\ntest v1::sim_data_bug ... ok\ntest v1::singeltons ... ok\ntest v1::zero_length_data_stores ... ok\ntest v1::zero_length_string ... ok\ntest v1::zero_length_key ... ok\ntest v1::nabu_bug ... ok\ntest v1::read_write_loop_array ... ok\ntest v1::random_strings ... ok\ntest v1::read_write_loop_object ... ok\ntest v1::create_simulated_data ... ok\ntest v1::data ... ok\n\ntest result: ok. 17 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 5.51s\n\n\nrunning 19 tests\ntest v2::escape_chars ... ok\ntest v2::complete_array ... ok\ntest v2::hello_world ... ok\ntest v2::primitive_values ... ok\ntest v2::object ... ok\ntest v2::nested_object ... ok\ntest v2::nested_vector ... ok\ntest v2::simple_vector ... ok\ntest v2::simple_object ... ok\ntest v2::actual_data ... ok\ntest v2::singeltons ... ok\ntest v2::zero_length_data ... ok\ntest v2::zero_length_string ... ok\ntest v2::zero_length_data_stores ... ok\ntest v2::read_write_loop_array ... ok\ntest v2::read_write_loop_object ... ok\ntest v2::create_simulated_data ... ok\ntest v2::read_sim_data ... ok\ntest v2::data ... ok\n\ntest result: ok. 19 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 5.50s\n\n\nrunning 4 tests\ntest test_v3_roundtrip_specialized ... ok\ntest test_v3_roundtrip_simple ... ok\ntest test_v3_roundtrip_complex ... ok\ntest test_v3_roundtrip_parent ... ok\n\ntest result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s\n\n\nrunning 2 tests\ntest generate_golden_reference ... ignored\ntest test_v3_golden_reference_stability ... ok\n\ntest result: ok. 1 passed; 0 failed; 1 ignored; 0 measured; 0 filtered out; finished in 0.00s\n\n\nrunning 15 tests\ntest src\/..\/README.md - (line 311) ... ok\ntest src\/..\/README.md - (line 203) ... ok\ntest src\/..\/README.md - (line 232) ... ok\ntest src\/..\/README.md - (line 179) ... ok\ntest src\/..\/README.md - (line 122) ... ok\ntest src\/..\/README.md - (line 396) ... ok\ntest src\/..\/README.md - (line 379) ... ok\ntest src\/lib.rs - serde (line 59) ... ok\ntest src\/lib.rs - serde::read (line 93) ... ok\ntest src\/lib.rs - serde::write (line 123) ... ok\ntest src\/lib.rs - tvec_to_xff_value (line 44) ... ok\ntest src\/lib.rs - xff (line 22) ... ok\ntest src\/lib.rs - serde::remove_file (line 187) ... ok\ntest src\/lib.rs - serde::write_legacy (line 155) ... ok\ntest src\/..\/README.md - (line 132) ... ok\n\ntest result: ok. 15 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s\n\nall doctests ran in 0.25s; merged doctests compilation took 0.24s\n",
+    "success": true
+  },
+  "update": {
+    "output": "",
+    "success": true
+  }
+}

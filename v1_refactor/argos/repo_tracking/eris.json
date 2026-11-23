@@ -1,0 +1,33 @@
+{
+  "all_succeeded": true,
+  "build": {
+    "output": "",
+    "success": true
+  },
+  "clippy": {
+    "output": "",
+    "success": true
+  },
+  "doc": {
+    "output": "",
+    "success": true
+  },
+  "format": {
+    "output": "",
+    "success": true
+  },
+  "hash": "030178a8aa11053a4ec847a95c1fd29058594592",
+  "last_run": 1774819015652,
+  "license": {
+    "output": "License is not MIT - skipping update",
+    "success": true
+  },
+  "test": {
+    "output": "\nrunning 0 tests\n\ntest result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s\n\n",
+    "success": true
+  },
+  "update": {
+    "output": "",
+    "success": true
+  }
+}

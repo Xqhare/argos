@@ -1,0 +1,23 @@
+- [ ] Bug fixes
+	- [ ] (3) Fix automatic redeploy
+		* Should only be updating docker permissions (file perms for the repo)
+	- [ ] Json file read as xff :: @src/utils/mod.rs 
+	- [ ] Silent dependency skip + permanent stale state :: @src/repo/integrate/mod.rs
+		* areia failed. When argos (which requires areia) ran right after, setup_new_repo wrote {"hash": "..."} to argos.xff, then `check_for_failed_dependencies` returned Ok(false) without calling `save_results`
+	- [ ] In `was_updated` when last_run is missing, overwrite stays false :: so on future runs latest_hash == previous_hash causes them to be skipped as "up to date" (and treated as passing) until they receive a new commit of their own.
+	- [ ] Test failure details go to stdout, but Argos only saves stderr on failure :: @src/repo/integrate/mod.rs
+		* cargo writes compilation progress and error: test failed, to rerun pass --test base to stderr, while Rust's test harness (libtest) writes the actual failing test names, panic messages, and assertion diffs to stdout.
+		*  Fix: Capture and store both stdout and stderr (either combined or as separate fields). Keeping stderr on success is also handy if you ever want compiler/clippy warnings.
+	- [ ] run_test_and_commit throws away the test output :: @src/repo/integrate/mod.rs
+		* First pass: let (first_success, _) = test_repo(...) discards the output and replaces it with "First testing pass failed aborted.". That's why tmp/argos/repo_tracking/hades.json and tmp/argos/repo_tracking/tyche.json passed test initially, then failed clippy/format/update with zero diagnostics (likely flaky/timing tests in hades or probabilistic tests in tyche).
+		* Second pass: if test_repo(...)?.0 discards the post-change test failure output and returns the mutating command's (usually empty) output—and never reverts the uncommitted changes, leaving a dirty tree that will break git pull on the next run.
+	- [ ] first_failed_command :: @src/repo/integrate/mod.rs stores the error output, not the command name.
+	- [ ] Typo in doc-test arg lookup :: @src/repo/integrate/doc_test.rs Calls get_repo_args(repo_config, "doc_test") (underscore) instead of "doc-test" (hyphen)
+	- [ ] Dockerfile & requires_ext lookup uses Cargo subcommand instead of Argos command name :: @src/repo/integrate/mod.rs doc-test and examples-test pass "test", and format passes "fmt", so ArgosCI/format/Dockerfile or doc-test.requires_ext will never match.
+	- [ ] Swallowed git errors:
+		* @src/repo/setup.rs let _ = git_clone(...) ignores clone errors, causing a confusing downstream error from latest_git_hash.
+		* @src/utils/git.rs git fetch exit status isn't checked, so SSH/network failures silently read the old origin/HEAD and look like "no updates".
+- [ ] Design Changes
+	- [ ] Move to a full CLI tool :: @tmp_rework/cli_design.md for more details
+	- [ ] Ignore the 1 minute sleep between repos 
+	- [ ] Ignore the git commit hash check if a repo should be tested

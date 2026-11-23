@@ -1,0 +1,37 @@
+{
+  "all_succeeded": true,
+  "build": {
+    "output": "",
+    "success": true
+  },
+  "clippy": {
+    "output": "",
+    "success": true
+  },
+  "doc": {
+    "output": "",
+    "success": true
+  },
+  "doc-test": {
+    "output": "\nrunning 35 tests\ntest src\/..\/README.md - (line 105) ... ok\ntest src\/..\/README.md - (line 115) ... ok\ntest src\/..\/README.md - (line 145) ... ok\ntest src\/..\/README.md - (line 180) ... ok\ntest src\/..\/README.md - (line 164) ... ok\ntest src\/..\/README.md - (line 193) ... ok\ntest src\/..\/README.md - (line 252) ... ok\ntest src\/..\/README.md - (line 130) ... ok\ntest src\/..\/README.md - (line 267) ... ok\ntest src\/..\/README.md - (line 288) ... ok\ntest src\/..\/README.md - (line 61) ... ok\ntest src\/..\/README.md - (line 78) ... ok\ntest src\/..\/README.md - (line 89) ... ok\ntest src\/lib.rs - Utc (line 21) ... ok\ntest src\/lib.rs - Utc (line 36) ... ok\ntest src\/date_time\/time.rs - date_time::time::Time::format (line 42) ... ok\ntest src\/date_time\/date.rs - date_time::date::Date::format (line 33) ... ok\ntest src\/lib.rs - Utc (line 43) ... ok\ntest src\/lib.rs - Utc::date (line 249) ... ok\ntest src\/lib.rs - Utc (line 28) ... ok\ntest src\/..\/README.md - (line 313) ... ok\ntest src\/lib.rs - Utc::format (line 270) ... ok\ntest src\/lib.rs - Utc::get_weeknumber (line 298) ... ok\ntest src\/lib.rs - Utc::from_ymd_hms_offset (line 200) ... ok\ntest src\/lib.rs - Utc::from_ymd_hms (line 130) ... ok\ntest src\/lib.rs - Utc::get_utc_offset (line 284) ... ok\ntest src\/lib.rs - Utc::from_ymd_hms_timezone (line 159) ... ok\ntest src\/lib.rs - Utc::from_timestamp (line 341) ... ok\ntest src\/lib.rs - Utc::now (line 58) ... ok\ntest src\/lib.rs - Utc::time (line 229) ... ok\ntest src\/lib.rs - Utc::unix_timestamp_u64 (line 327) ... ok\ntest src\/lib.rs - Utc::unix_timestamp (line 312) ... ok\ntest src\/lib.rs - Utc::with_utc_offset (line 91) ... ok\ntest src\/lib.rs - Utc::with_timezone (line 76) ... ok\ntest src\/lib.rs - Utc::with_auto_offset (line 106) ... ok\n\ntest result: ok. 35 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s\n\nall doctests ran in 0.25s; merged doctests compilation took 0.24s\n",
+    "success": true
+  },
+  "format": {
+    "output": "",
+    "success": true
+  },
+  "hash": "8378459a1801a2c5badcd8a810d9a1dbc94e46a8",
+  "last_run": 1774819343991,
+  "license": {
+    "output": "License is not MIT - skipping update",
+    "success": true
+  },
+  "test": {
+    "output": "\nrunning 4 tests\ntest time_zones::print_timezones ... ok\ntest date_time::from_timestamp ... ok\ntest time_zones::all_timezones ... ok\ntest time_zones::get_all_timezones_and_convert_to_string_and_back ... ok\n\ntest result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.10s\n\n\nrunning 2 tests\ntest negative ... ok\ntest positive ... ok\n\ntest result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s\n\n\nrunning 1 test\ntest main_creation_datetime_utc ... ok\n\ntest result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s\n\n\nrunning 8 tests\ntest add_to_datetime_no_rollover ... ok\ntest add_to_datetime_rollover_hms ... ok\ntest on_leap_day_minus ... ok\ntest rolling_from_leap_day ... ok\ntest on_leap_day_plus ... ok\ntest rolling_into_leap_day ... ok\ntest sub_from_datetime_no_rollover ... ok\ntest sub_from_datetime_rollover_hms ... ok\n\ntest result: ok. 8 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s\n\n\nrunning 5 tests\ntest formatter_time ... ok\ntest formatter_date ... ok\ntest formatter_utc ... ok\ntest formatter_weekday ... ok\ntest formatter_timezone ... ok\n\ntest result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s\n\n\nrunning 2 tests\ntest test_f64_interop ... ok\ntest test_system_time_interop ... ok\n\ntest result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s\n\n\nrunning 3 tests\ntest add_duration_utc ... ok\ntest sub_utc_duration ... ok\ntest sub_utc_utc ... ok\n\ntest result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 1.00s\n\n\nrunning 3 tests\ntest creation_time_performance ... ignored\ntest creation_datetime_utc_with_timezone ... ok\ntest from_ymd_hms_without_timezone ... ok\n\ntest result: ok. 2 passed; 0 failed; 1 ignored; 0 measured; 0 filtered out; finished in 0.00s\n\n\nrunning 1 test\ntest basics ... ok\n\ntest result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s\n\n\nrunning 9 tests\ntest from_ymd_hms_utc ... ok\ntest negative ... ok\ntest negative_rollover_day ... ok\ntest negative_rollover_month ... ok\ntest negative_rollover_year ... ok\ntest positive ... ok\ntest positive_rollover_day ... ok\ntest positive_rollover_month ... ok\ntest positive_rollover_year ... ok\n\ntest result: ok. 9 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s\n\n\nrunning 3 tests\ntest test_weeknumber_formatting ... ok\ntest test_weeknumber_timezone ... ok\ntest test_weeknumbers ... ok\n\ntest result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s\n\n\nrunning 35 tests\ntest src\/..\/README.md - (line 105) ... ok\ntest src\/..\/README.md - (line 130) ... ok\ntest src\/..\/README.md - (line 145) ... ok\ntest src\/..\/README.md - (line 115) ... ok\ntest src\/..\/README.md - (line 164) ... ok\ntest src\/..\/README.md - (line 180) ... ok\ntest src\/..\/README.md - (line 252) ... ok\ntest src\/..\/README.md - (line 193) ... ok\ntest src\/..\/README.md - (line 61) ... ok\ntest src\/..\/README.md - (line 89) ... ok\ntest src\/..\/README.md - (line 267) ... ok\ntest src\/..\/README.md - (line 288) ... ok\ntest src\/date_time\/time.rs - date_time::time::Time::format (line 42) ... ok\ntest src\/date_time\/date.rs - date_time::date::Date::format (line 33) ... ok\ntest src\/..\/README.md - (line 78) ... ok\ntest src\/lib.rs - Utc (line 21) ... ok\ntest src\/lib.rs - Utc (line 43) ... ok\ntest src\/lib.rs - Utc (line 36) ... ok\ntest src\/lib.rs - Utc::format (line 270) ... ok\ntest src\/lib.rs - Utc (line 28) ... ok\ntest src\/lib.rs - Utc::date (line 249) ... ok\ntest src\/lib.rs - Utc::from_timestamp (line 341) ... ok\ntest src\/lib.rs - Utc::from_ymd_hms (line 130) ... ok\ntest src\/lib.rs - Utc::from_ymd_hms_offset (line 200) ... ok\ntest src\/..\/README.md - (line 313) ... ok\ntest src\/lib.rs - Utc::get_utc_offset (line 284) ... ok\ntest src\/lib.rs - Utc::from_ymd_hms_timezone (line 159) ... ok\ntest src\/lib.rs - Utc::get_weeknumber (line 298) ... ok\ntest src\/lib.rs - Utc::time (line 229) ... ok\ntest src\/lib.rs - Utc::now (line 58) ... ok\ntest src\/lib.rs - Utc::unix_timestamp (line 312) ... ok\ntest src\/lib.rs - Utc::with_utc_offset (line 91) ... ok\ntest src\/lib.rs - Utc::with_timezone (line 76) ... ok\ntest src\/lib.rs - Utc::unix_timestamp_u64 (line 327) ... ok\ntest src\/lib.rs - Utc::with_auto_offset (line 106) ... ok\n\ntest result: ok. 35 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s\n\nall doctests ran in 0.24s; merged doctests compilation took 0.23s\n",
+    "success": true
+  },
+  "update": {
+    "output": "",
+    "success": true
+  }
+}

@@ -1,0 +1,37 @@
+{
+  "all_succeeded": true,
+  "build": {
+    "output": "",
+    "success": true
+  },
+  "clippy": {
+    "output": "",
+    "success": true
+  },
+  "doc": {
+    "output": "",
+    "success": true
+  },
+  "doc-test": {
+    "output": "\nrunning 30 tests\ntest src\/lib.rs - Fortuna::create_seeded_size_restricted (line 321) ... ok\ntest src\/lib.rs - Fortuna::create_seeded (line 289) ... ok\ntest src\/lib.rs - Fortuna::random_f32 (line 513) ... ok\ntest src\/lib.rs - Fortuna::new (line 226) ... ok\ntest src\/lib.rs - Fortuna::random_ascii_char (line 597) ... ok\ntest src\/lib.rs - Fortuna::create_size_restricted (line 258) ... ok\ntest src\/lib.rs - (line 23) ... ok\ntest src\/lib.rs - Fortuna (line 132) ... ok\ntest src\/lib.rs - Fortuna::random_f64 (line 536) ... ok\ntest src\/lib.rs - Fortuna::random_bool (line 634) ... ok\ntest src\/lib.rs - Fortuna::random_from_f32_range (line 732) ... ok\ntest src\/lib.rs - Fortuna::random_from_f64_range (line 770) ... ok\ntest src\/lib.rs - Fortuna::random_from_i64_range (line 834) ... ok\ntest src\/lib.rs - Fortuna::random_from_i32_range (line 801) ... ok\ntest src\/lib.rs - Fortuna::random_from_i_range (line 865) ... ok\ntest src\/lib.rs - Fortuna::random_from_u32_range (line 678) ... ok\ntest src\/lib.rs - Fortuna::random_from_u64_range (line 706) ... ok\ntest src\/lib.rs - Fortuna::random_from_range (line 652) ... ok\ntest src\/lib.rs - Fortuna::random_u32 (line 378) ... ok\ntest src\/lib.rs - Fortuna::random_u16 (line 358) ... ok\ntest src\/lib.rs - Fortuna::random_i8 (line 428) ... ok\ntest src\/lib.rs - Fortuna::random_i16 (line 445) ... ok\ntest src\/lib.rs - Fortuna::random_i32 (line 465) ... ok\ntest src\/lib.rs - Fortuna::random_latin_char (line 567) ... ok\ntest src\/lib.rs - Fortuna::random_index (line 896) ... ok\ntest src\/lib.rs - Fortuna::random_i64 (line 487) ... ok\ntest src\/lib.rs - Fortuna::random_u64 (line 402) ... ok\ntest src\/lib.rs - Fortuna::random_u8 (line 342) ... ok\ntest src\/lib.rs - Fortuna::random_with_ceiling (line 918) ... ok\ntest src\/lib.rs - Fortuna::random_with_floor (line 936) ... ok\n\ntest result: ok. 30 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.57s\n\nall doctests ran in 0.80s; merged doctests compilation took 0.23s\n",
+    "success": true
+  },
+  "format": {
+    "output": "",
+    "success": true
+  },
+  "hash": "36da69b9bb24edbd928ed9c35b477b4430364999",
+  "last_run": 1774819143746,
+  "license": {
+    "output": "License is not MIT - skipping update",
+    "success": true
+  },
+  "test": {
+    "output": "\nrunning 7 tests\ntest entropy_pool::tests::tests::all_bytes_generated ... ignored\ntest entropy_pool::tests::tests::create_and_use_restricted_1mil_bytes_small_size ... ignored\ntest entropy_pool::tests::tests::create_and_use_restricted_1mil_bytes_stupidly_large_size ... ignored\ntest entropy_pool::tests::tests::create_and_use_normal_1mil_bytes ... ok\ntest entropy_pool::tests::tests::create_and_use_restricted_1mil_bytes_very_large_size ... ok\ntest entropy_pool::tests::tests::create_and_use_restricted_1mil_bytes_large_size ... ok\ntest entropy_pool::tests::tests::create_and_use_restricted_1mil_bytes_medium_size ... ok\n\ntest result: ok. 4 passed; 0 failed; 3 ignored; 0 measured; 0 filtered out; finished in 1.45s\n\n\nrunning 11 tests\ntest custom_small_pool_with_1000_regenerations ... ignored\ntest custom_small_pool_with_100_regenerations ... ignored\ntest is_seeded_really_seeded ... ok\ntest seeded_completeness ... ok\ntest defaults ... ok\ntest custom_large_pool_without_regeneration ... ok\ntest custom_large_pool_with_regeneration ... ok\ntest seeded_complete ... ok\ntest custom_small_pool_with_10_regenerations ... ok\ntest custom_large_seeded_pool_with_regeneration ... ok\ntest custom_small_seeded_pool_with_10_regenerations ... ok\n\ntest result: ok. 9 passed; 0 failed; 2 ignored; 0 measured; 0 filtered out; finished in 5.15s\n\n\nrunning 30 tests\ntest src\/lib.rs - Fortuna::create_seeded_size_restricted (line 321) ... ok\ntest src\/lib.rs - Fortuna::create_seeded (line 289) ... ok\ntest src\/lib.rs - Fortuna::random_bool (line 634) ... ok\ntest src\/lib.rs - Fortuna::random_f32 (line 513) ... ok\ntest src\/lib.rs - Fortuna::new (line 226) ... ok\ntest src\/lib.rs - Fortuna::create_size_restricted (line 258) ... ok\ntest src\/lib.rs - Fortuna (line 132) ... ok\ntest src\/lib.rs - (line 23) ... ok\ntest src\/lib.rs - Fortuna::random_ascii_char (line 597) ... ok\ntest src\/lib.rs - Fortuna::random_f64 (line 536) ... ok\ntest src\/lib.rs - Fortuna::random_from_f64_range (line 770) ... ok\ntest src\/lib.rs - Fortuna::random_from_f32_range (line 732) ... ok\ntest src\/lib.rs - Fortuna::random_from_u32_range (line 678) ... ok\ntest src\/lib.rs - Fortuna::random_from_i32_range (line 801) ... ok\ntest src\/lib.rs - Fortuna::random_from_i64_range (line 834) ... ok\ntest src\/lib.rs - Fortuna::random_from_range (line 652) ... ok\ntest src\/lib.rs - Fortuna::random_from_i_range (line 865) ... ok\ntest src\/lib.rs - Fortuna::random_from_u64_range (line 706) ... ok\ntest src\/lib.rs - Fortuna::random_u32 (line 378) ... ok\ntest src\/lib.rs - Fortuna::random_i16 (line 445) ... ok\ntest src\/lib.rs - Fortuna::random_i32 (line 465) ... ok\ntest src\/lib.rs - Fortuna::random_i64 (line 487) ... ok\ntest src\/lib.rs - Fortuna::random_i8 (line 428) ... ok\ntest src\/lib.rs - Fortuna::random_index (line 896) ... ok\ntest src\/lib.rs - Fortuna::random_latin_char (line 567) ... ok\ntest src\/lib.rs - Fortuna::random_u16 (line 358) ... ok\ntest src\/lib.rs - Fortuna::random_u64 (line 402) ... ok\ntest src\/lib.rs - Fortuna::random_u8 (line 342) ... ok\ntest src\/lib.rs - Fortuna::random_with_ceiling (line 918) ... ok\ntest src\/lib.rs - Fortuna::random_with_floor (line 936) ... ok\n\ntest result: ok. 30 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.53s\n\nall doctests ran in 0.76s; merged doctests compilation took 0.23s\n",
+    "success": true
+  },
+  "update": {
+    "output": "",
+    "success": true
+  }
+}

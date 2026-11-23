@@ -1,0 +1,29 @@
+{
+  "git_root": "ssh:\/\/git@serverle:2222\/Xqhare\/",
+  "repos": [
+     "aequa",
+     "areia",
+     "argos",
+     "athena",
+     "brigid",
+     "eris",
+     "eshu",
+     "fortuna",
+     "hades",
+     "hermes",
+     "horae",
+     "ilmarinen",
+     "lasa",
+     "mawu",
+     "nabu",
+     "nemesis",
+     "nomos",
+     "nyx",
+     "ogma",
+     "shamash",
+     "talos",
+     "thoth",
+     "tyche",
+     "urd"
+  ]
+}

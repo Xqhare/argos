@@ -1,0 +1,37 @@
+{
+  "all_succeeded": true,
+  "build": {
+    "output": "",
+    "success": true
+  },
+  "clippy": {
+    "output": "",
+    "success": true
+  },
+  "doc": {
+    "output": "",
+    "success": true
+  },
+  "doc-test": {
+    "output": "\nrunning 0 tests\n\ntest result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s\n\n",
+    "success": true
+  },
+  "format": {
+    "output": "",
+    "success": true
+  },
+  "hash": "ea653134fe2f716520cf95ee7b0503d6e4ceffd6",
+  "last_run": 1774818933333,
+  "license": {
+    "output": "License year is already up to date",
+    "success": true
+  },
+  "test": {
+    "output": "\nrunning 44 tests\ntest tools::bit_flags::tests::test_generic_flag ... ok\ntest tools::byte_bit::parity::tests::test_ensure_even_parity ... ok\ntest tools::byte_bit::parity::tests::test_is_even_parity ... ok\ntest tools::byte_bit::reader::byte_bit_reader_basics ... ok\ntest tools::byte_bit::tests::tests::test_generic_bit_ops ... ok\ntest tools::byte_bit::tests::tests::test_u8_ops ... ok\ntest tools::byte_bit::writer::byte_bit_writer_all_u8 ... ok\ntest tools::byte_bit::writer::byte_bit_writer_basics ... ok\ntest tools::byte_bit::writer::writer_err ... ok\ntest tools::delta::tests::advanced_delta_decoding ... ok\ntest tools::delta::tests::advanced_delta_encoding ... ok\ntest tools::delta::tests::advanced_encoding_and_decoding ... ok\ntest tools::delta::tests::simple_delta_decoding ... ok\ntest tools::delta::tests::simple_delta_encoding ... ok\ntest tools::delta::tests::simple_encoding_and_decoding ... ok\ntest tools::leb128::bit_chain::tests::test_specific_examples ... ok\ntest tools::leb128::bit_chain::tests::test_version_bit_chain_serde ... ok\ntest tools::leb128::signed_v3::tests::test_signed_v3_serde ... ok\ntest tools::leb128::tests::signed::deser_err ... ok\ntest tools::leb128::tests::signed::deserialize_leb_signed ... ok\ntest tools::leb128::tests::signed::serde_all_the_numbers_i16 ... ok\ntest tools::leb128::tests::signed::serde_i128 ... ok\ntest tools::leb128::tests::signed::serialize_leb_signed ... ok\ntest tools::leb128::tests::unsigned::deser_err ... ok\ntest tools::leb128::tests::unsigned::serde_all_the_numbers_u24 ... ok\ntest tools::leb128::tests::unsigned::serde_u128 ... ok\ntest tools::leb128::tests::unsigned::serialize_leb_unsigned ... ok\ntest tools::run_length::tests::large_numbers ... ok\ntest tools::run_length::tests::serde_advanced ... ok\ntest tools::run_length::tests::serde_real_data ... ok\ntest tools::run_length::tests::serde_simple ... ok\ntest utils::checksum::crc32::crc32_quicktest ... ok\ntest utils::checksum::crc32::larger_test ... ok\ntest utils::compression::lzw::tests::compression_check ... ok\ntest utils::compression::lzw::tests::compression_decompression ... ok\ntest utils::compression::lzw::tests::used_to_panic_incorrect_decoding ... ok\ntest utils::process::unix::tests::ionice_with_invalid_priority ... ok\ntest utils::process::unix::tests::ionice_with_readback ... ok\ntest utils::process::unix::tests::set_cpu_scheduler ... ok\ntest utils::process::unix::tests::set_ionice ... ok\ntest utils::sorting::topological_sort::kahns::tests::rosetta_code ... ok\ntest utils::traits::tests::tests::test_signed_impls ... ok\ntest utils::traits::tests::tests::test_unsigned_bitwise ... ok\ntest utils::traits::tests::tests::test_unsigned_impls ... ok\n\ntest result: ok. 44 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 1.84s\n\n\nrunning 22 tests\ntest src\/tools\/bit_flags\/mod.rs - tools::bit_flags::BitFlag (line 9) ... ok\ntest src\/tools\/byte_bit\/parity.rs - tools::byte_bit::parity::ensure_even_parity (line 22) ... ok\ntest src\/tools\/byte_bit\/parity.rs - tools::byte_bit::parity::is_even_parity (line 4) ... ok\ntest src\/tools\/byte_bit\/reader.rs - tools::byte_bit::reader::byte_bit_reader (line 10) ... ok\ntest src\/tools\/byte_bit\/writer.rs - tools::byte_bit::writer::byte_bit_writer (line 10) ... ok\ntest src\/tools\/delta\/mod.rs - tools::delta::delta_decoder (line 40) ... ok\ntest src\/tools\/delta\/mod.rs - tools::delta::delta_encoder (line 11) ... ok\ntest src\/tools\/leb128\/bit_chain.rs - tools::leb128::bit_chain::deserialize_version_bit_chain (line 46) ... ok\ntest src\/tools\/leb128\/bit_chain.rs - tools::leb128::bit_chain::serialize_version_bit_chain (line 11) ... ok\ntest src\/tools\/leb128\/mod.rs - tools::leb128::deserialize_leb128_signed (line 132) ... ok\ntest src\/tools\/leb128\/mod.rs - tools::leb128::deserialize_leb128_unsigned (line 39) ... ok\ntest src\/tools\/leb128\/mod.rs - tools::leb128::deserialize_leb128_unsigned (line 49) ... ok\ntest src\/tools\/leb128\/mod.rs - tools::leb128::serialize_leb128_signed (line 204) ... ok\ntest src\/tools\/leb128\/mod.rs - tools::leb128::serialize_leb128_unsigned (line 86) ... ok\ntest src\/tools\/run_length\/mod.rs - tools::run_length::run_length_decoder (line 56) ... ok\ntest src\/tools\/run_length\/mod.rs - tools::run_length::run_length_encoder (line 15) ... ok\ntest src\/utils\/checksum\/crc32\/mod.rs - utils::checksum::crc32::crc32 (line 16) ... ok\ntest src\/utils\/checksum\/crc32\/mod.rs - utils::checksum::crc32::crc32_with_table (line 48) ... ok\ntest src\/utils\/compression\/lzw\/mod.rs - utils::compression::lzw::compress_lzw (line 78) ... ok\ntest src\/utils\/compression\/lzw\/mod.rs - utils::compression::lzw::compress_lzw_encode_leb128 (line 19) ... ok\ntest src\/utils\/compression\/lzw\/mod.rs - utils::compression::lzw::decompress_lzw (line 120) ... ok\ntest src\/utils\/compression\/lzw\/mod.rs - utils::compression::lzw::decompress_lzw_decode_leb128 (line 47) ... ok\n\ntest result: ok. 22 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.02s\n\nall doctests ran in 0.26s; merged doctests compilation took 0.23s\n",
+    "success": true
+  },
+  "update": {
+    "output": "",
+    "success": true
+  }
+}

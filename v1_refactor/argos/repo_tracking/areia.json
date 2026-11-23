@@ -1,0 +1,38 @@
+{
+  "all_succeeded": false,
+  "build": {
+    "output": "",
+    "success": true
+  },
+  "clippy": {
+    "output": "First testing pass failed - aborted.",
+    "success": false
+  },
+  "doc": {
+    "output": "",
+    "success": true
+  },
+  "doc-test": {
+    "output": "    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.01s\n   Doc-tests areia\nerror: doctest failed, to rerun pass `--doc`\n",
+    "success": false
+  },
+  "first_failed_command": "   Compiling areia v1.0.0 (\/app)\n    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.55s\n     Running unittests src\/lib.rs (target\/debug\/deps\/areia-79703e0a4f65abef)\n     Running tests\/autos.rs (target\/debug\/deps\/autos-1ed8897e02fcf452)\n     Running tests\/base.rs (target\/debug\/deps\/base-a6ac3e42999ab151)\nerror: test failed, to rerun pass `--test base`\n",
+  "format": {
+    "output": "First testing pass failed - aborted.",
+    "success": false
+  },
+  "hash": "f181f57597fd492b730a8d330045c3e2095ae840",
+  "last_run": 1774818899112,
+  "license": {
+    "output": "License year is already up to date",
+    "success": true
+  },
+  "test": {
+    "output": "   Compiling areia v1.0.0 (\/app)\n    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.55s\n     Running unittests src\/lib.rs (target\/debug\/deps\/areia-79703e0a4f65abef)\n     Running tests\/autos.rs (target\/debug\/deps\/autos-1ed8897e02fcf452)\n     Running tests\/base.rs (target\/debug\/deps\/base-a6ac3e42999ab151)\nerror: test failed, to rerun pass `--test base`\n",
+    "success": false
+  },
+  "update": {
+    "output": "First testing pass failed - aborted.",
+    "success": false
+  }
+}
