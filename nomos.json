@@ -1,0 +1,8 @@
+{
+  "task_files": [
+    "nomos.nomos",
+    "v1_refactor/tracking.nomos"
+  ],
+  "version": 1,
+  "default_prio_level": 5
+}

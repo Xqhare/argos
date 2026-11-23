@@ -1,6 +1,4 @@
 - [ ] Bug fixes
-	- [ ] (3) Fix automatic redeploy
-		* Should only be updating docker permissions (file perms for the repo)
 	- [ ] Json file read as xff :: @src/utils/mod.rs 
 	- [ ] Silent dependency skip + permanent stale state :: @src/repo/integrate/mod.rs
 		* areia failed. When argos (which requires areia) ran right after, setup_new_repo wrote {"hash": "..."} to argos.xff, then `check_for_failed_dependencies` returned Ok(false) without calling `save_results`
@@ -17,7 +15,26 @@
 	- [ ] Swallowed git errors:
 		* @src/repo/setup.rs let _ = git_clone(...) ignores clone errors, causing a confusing downstream error from latest_git_hash.
 		* @src/utils/git.rs git fetch exit status isn't checked, so SSH/network failures silently read the old origin/HEAD and look like "no updates".
+	- [ ] Hash & push lifecycle issues:
+		* was_updated persists the new hash before git_pull or integration runs—if setup/integration crashes or a dep fails, that commit is still marked "seen" and skipped for 5–10 days.
+		* When Argos commits and pushes (clippy/format/update/license), the stored hash isn't updated to the new HEAD, triggering an extra CI run on the next cycle for Argos's own commit.
+		* git_push runs after save_results (so a push failure triggers save_failed_integration and overwrites the entire run's results with setup_error), and runs even when one_failed is true.
+	- [ ] Stale dependency failure tracking:
+		* failed_repos only tracks failures from the current run. If areia failed yesterday and has no new commits today, today's run skips areia and returns true, so dependents think areia is green. Reading each dependency's last persisted all_succeeded state fixes this (and similarly, if a dependency was updated and passed today, consider re-testing its dependents).
+	- [ ] Non-portable archive filenames :: @src/repo/integrate/mod.rs horae::Utc::now().to_string() contains colons (:), which is why all the history files in tmp/argos/repo_tracking/*/ got 8.3-mangled into names like 2FZ4DC~4.XFF when copied off your server. Using a filename-safe format (e.g. 2026-03-29T21-13-49Z.xff) avoids mangling while keeping lexicographical pruning intact.
+	- [ ] Command execution order :: @src/repo/config.rs:76-136): deconstruct_advanced_config iterates the config.json object keys alphabetically (build, clippy, doc, doc-test, format, license, test, update), so clippy/format/license run before test when explicitly listed—contrary to the README note.
+- [ ] Performance
+	- [ ] Docker build context & image bloat :: @src/repo/integrate/mod.rs
+		* Currently runs docker build --pull -t argos-{repo}-{cmd} on every single command (up to ~15 builds per repo, including a dedicated argos-{repo}-clean image just for cargo clean), and passes &repo_env.repo_path as the build context every time.
+		* If a repo has no .dockerignore and a ~1–2 GB target/, Docker tars and sends gigabytes of target/ to the daemon over and over just to build the 3-line Dockerfile.default, creates ~200 duplicate images across 24 repos, and can trip Docker Hub's anonymous pull rate limit (100 pulls / 6h) with --pull on every command.
+		* Fix: Tag by Dockerfile source (argos-default, argos-{repo}, or argos-{repo}-{cmd} only when command-specific), build each unique image once per run, pass an empty directory as build context for Dockerfile.default, and optionally pull rust:latest once at the start of argos run.
+	- [ ] Redundant cargo test passes in run_test_and_commit
+		* Running test_repo before and after each of clippy, format, and update executes cargo test up to 7 times per repo (e.g., tyche's test suite takes ~42s per pass → ~5 minutes of redundant testing).
+		* If test already passed earlier in the pipeline, you don't need a pre-pass before every mutating step, and you only need the post-command cargo test if the command actually changed files (git status --porcelain is non-empty).
 - [ ] Design Changes
 	- [ ] Move to a full CLI tool :: @v1_refactor/cli_design.md for more details
 	- [ ] Ignore the 1 minute sleep between repos 
 	- [ ] Ignore the git commit hash check if a repo should be tested
+- [ ] Fixes on homelab
+	- [ ] (3) Fix automatic redeploy
+		* Should only be updating docker permissions (file perms for the repo)
