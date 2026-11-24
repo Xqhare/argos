@@ -50,7 +50,7 @@ pub fn integrate_repo(
 
     if !check_for_failed_dependencies(repo_config.dependencies.as_ref(), failed_repos) {
         results.insert("all_succeeded".to_string(), false);
-        let fails: Array = repo_config
+        let fails_ary: Vec<&String> = repo_config
             .dependencies
             .as_ref()
             .expect("Must be some if a dep failed")
@@ -63,7 +63,25 @@ pub fn integrate_repo(
                 }
             })
             .collect();
-        results.insert("Failed integration of dependencies", fails);
+        let fails = {
+            let mut str = "Tracked dependencies failed CI run.\nFailed deps:\n".to_string();
+            for fail in fails_ary {
+                str.push_str(&fail);
+                str.push_str("\n");
+            }
+            str
+        };
+        results.insert("first_failed_command", fails);
+        save_results(repo_env, &results)?;
+        return Ok(false);
+    }
+
+    let (init_test_success, message) = test_repo(env, repo_env, repo_config)?;
+    if !init_test_success {
+        results.insert(
+            "first_failed_command",
+            format!("Inital test of repo failed, no CI run. Error message: '{message}'"),
+        );
         save_results(repo_env, &results)?;
         return Ok(false);
     }
@@ -92,6 +110,34 @@ pub fn integrate_repo(
             one_failed = true;
             first_failed_output = Some((command.clone(), output.clone()));
             break;
+        }
+    }
+    let (second_test_success, second_message) = test_repo(env, repo_env, repo_config)?;
+    if second_test_success {
+        git_commit(
+            &repo_env.repo_path,
+            "All CI passes OK",
+            "Automated changes added & checked. All passing CI also.",
+        )?;
+    } else {
+        // What to do if the second test fails?
+        one_failed = true;
+        first_failed_output = Some((
+            "secondary repo integration test".to_string(),
+            second_message,
+        ));
+        // And reset repo changes?
+        let output = std::process::Command::new("git")
+            .arg("restore")
+            .arg(&repo_env.repo_path)
+            .arg(".")
+            .output()
+            .map_err(|e| ArgosError::Git(format!("Failed to restore repo: {e}")))?;
+        if !output.status.success() {
+            return Err(ArgosError::Git(format!(
+                "Failed to restore repo: {}",
+                String::from_utf8_lossy(&output.stderr)
+            )));
         }
     }
 
@@ -266,39 +312,17 @@ fn check_for_failed_dependencies(
 ///
 /// # Returns
 /// Returns a boolean indicating if the command was successful and a string containing the output
-pub fn run_test_and_commit(
+pub fn run_test(
     env: &Environment,
     repo_env: &RepoEnvironment,
     repo_config: &RepoConfig,
     cargo_command: &str,
     args: Vec<String>,
-    commit_msg: &str,
+    _commit_msg: &str,
 ) -> ArgosResult<(bool, String)> {
-    let (first_success, message) = test_repo(env, repo_env, repo_config)?;
-    if !first_success {
-        return Ok((false, message));
-    }
-
     let (success, output) = run_cargo_cmd(env, repo_env, repo_config, cargo_command, args)?;
-    if success {
-        let (second_test_success, second_message) = test_repo(env, repo_env, repo_config)?;
-        if second_test_success {
-            // All good
-            git_commit(&repo_env.repo_path, cargo_command, commit_msg)?;
-            Ok((true, output))
-        } else {
-            // Not all tests pass after running command
-            Ok((
-                false,
-                format!(
-                    "First testing pass OK.\nCargo command '{cargo_command}' execution OK.\nSecond tesing pass FAILED, message: '{second_message}'"
-                ),
-            ))
-        }
-    } else {
-        // Command failed
-        Ok((false, output))
-    }
+
+    Ok((success, output))
 }
 
 /// Runs `cargo {command}` on a repo

@@ -32,7 +32,7 @@ pub fn setup_repo(repo_env: &RepoEnvironment) -> ArgosResult<bool> {
 fn setup_new_repo(repo_env: &RepoEnvironment) -> ArgosResult<()> {
     let _ = git_clone(&repo_env.repo_git_url, &repo_env.repo_path)?;
     let latest_hash = latest_git_hash(&repo_env.repo_path)?;
-    let metadata = Object::from(vec![("hash".to_string(), XffValue::String(latest_hash))]);
+    let metadata = Object::from(vec![("hash".to_string(), latest_hash)]);
     nabu::serde::write(&repo_env.repo_tracking_xff, XffValue::from(metadata))
         .map_err(|e| ArgosError::Xff(e.to_string()))?;
     Ok(())

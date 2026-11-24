@@ -1,5 +1,5 @@
-use mawu::errors::MawuError;
 use nabu::error::NabuError;
+use nemesis::NemesisError;
 
 #[derive(Debug, Clone, PartialEq)]
 pub enum ArgosError {
@@ -34,8 +34,11 @@ impl std::fmt::Display for ArgosError {
     }
 }
 
-impl From<MawuError> for ArgosError {
-    fn from(e: MawuError) -> Self {
+// Assumes that only mawu returns nemesis directly (of course all my libs are slowly transitioning
+// to using nemesis, but should work for now without refactoring the entire error handling to be
+// nemesis based)
+impl From<NemesisError> for ArgosError {
+    fn from(e: NemesisError) -> Self {
         ArgosError::Json(e.to_string())
     }
 }

@@ -27,6 +27,7 @@ dependencies = [
  "horae",
  "mawu",
  "nabu",
+ "nemesis",
 ]
 
 [[package]]

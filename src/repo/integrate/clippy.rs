@@ -3,7 +3,7 @@ use crate::{
     error::ArgosResult,
     repo::{
         config::RepoConfig,
-        integrate::{get_repo_args, run_test_and_commit},
+        integrate::{get_repo_args, run_test},
     },
 };
 
@@ -42,7 +42,7 @@ pub fn clippy_repo(
     args.push("-W".to_string());
     args.push("clippy::pedantic".to_string());
 
-    run_test_and_commit(
+    run_test(
         env,
         repo_env,
         repo_config,
