@@ -1,6 +1,13 @@
 
 # UX
 
+For the CLI I will be using eshu as the arg parser. 
+
+Eshu's readme is inside v1_refactor/ but it supports: 
+`$ tool_name [-a] [-bC] [-d required_arg] [-e [optional_arg]] [-f=required_arg] [-g[=optional_arg]] [-h arg0] [-h argN] [-i key=value] [--long-flags] [--long-flag[=optional_arg]] [--long-flag=required_arg] [--flag_with=key=value] [-- optional_positional_args] [subcommand] [subcommand_args_and_flags]`
+
+Thus `$ argos run projectname1 name2` would immediately error with `unknown subcommand 'projectname1'`.
+
 Running argos by itself would check the current service status, and check if the local files are correctly setup (first run).
 
 For example
@@ -35,80 +42,91 @@ Tracking file contains default git-root. Update by calling `argos config git-roo
 ```
 ## Subcommands
 
-### Server / Service
+### Run
+
+Run the full CI-Pipeline.
 
 #### Locking & atomic writes:
 
 Add a lockfile (e.g. argos.lock) around argos run so a manual run and the systemd timer can't clobber each other, and write repo_list.json / tracking files via temp file + rename so argos status never reads a half-written file.
 
-Really just symlink like with the webserver; updating symlinks remains atomic (and lockfile the access of course)
-
-##### Flags
-
-Unsure if anything besides `--no-idle` will actually be implemented. Would be nice to have though I think
-
-###### --no-idle / --system-defaults
-
-Will *not* set the scheduler to `SCHED_IDLE` and IO_NICE_CLASS to `IONICE_IDLE`.
-Nothing else, system defaults.
+#### Specific Projects
 
 ```bash
-$ argos server --no-idle
+$ argos run -p Project1 Project2
+$ argos run --project Project1 Project2
 ```
-
-###### --io-nice
-
-With key=values:
-
-```bash
-$ argos server --io-nice=class=[realtime | best-effort] --io-nice=data=[0..=7 (0 == Max prio)]
-```
-
-###### --scheduler
-
-With key=values:
-
-```bash
-$ argos server --scheduler=policy=[standard | batch] --scheduler=prio=[-20..=19 (-20 = Max prio)]
-```
-
-###### --force & -f
-
-Ignores the git commit hashes for all repos
-
-###### --no-sleep
-
-If I don't remove the sleep between repos, make it optional at least
-
-### Run
-
-To have argos just run (without touching the server itself; Spinning up another argos instance / process handle)
 
 #### Flags
 
-###### --force & -f
+###### --idle
 
-Ignores the git commit hashes for all repos
+Use `SCHED_IDLE` and IO_NICE_CLASS `IONICE_IDLE`.
 
-###### --sleep
+(While the `.service` file already does exactly that, I added it to that file for 'completeness' and future reference if I need it. Also, doubling up shouldn't hurt in any sense, it just violates DRY a bit.) 
 
-How long to sleep between repos, in seconds.
+###### --skip-unchanged 
 
-```bash
+Reads the git hashes and skips if no changes were made.
 
-$ argos run --sleep=60 -f
+`argos run` is 'reserved' for manual and `argos run --idle --skip-unchanged` for the service file.
 
-```
+###### --dry-run
+
+Loads repo_list.json, computes the Kahn dependency order, evaluates --skip-unchanged (hashes + periodic timer), and prints what would run / what would be skipped and why—without pulling, building Docker images, or pushing.
+Great for verifying requires ordering and debugging skip logic safely.
+
+###### --no-commit
+
+Runs the full pipeline locally without committing or pushing clippy/fmt/update/license changes back to your git server. Very handy while testing Argos v1 or debugging a flaky repo.
+
+###### --steps
+
+E.g. `argos run --steps test clippy -p areia` to re-run just one or two integration steps on a failing repo without sitting through doc, update, format, etc.
 
 ### Clean
 
-Cleans out the caches (keeping all data relevant for argos to work, just deleting the code)
+Data deletion. Needs to be explicitly told what to do, bare running doesnt do shit.
+
+With an interactive `Y/N` interrupt (with -y flag overwrite)
 
 #### Flags
 
+##### --repos
+
+Clears all cloned repos and their contained `/target`
+
+##### --shared-cache
+
+Clears `cargo_cache`
+
+##### --docker-images
+
+Deletes the docker images only
+
+##### --history
+
+Clears `repo_tracking` subdirs
+
+##### --tracking
+
+Clears all data from `repo_tracking`
+
 ##### --purge
 
-Deletes everything (repos, data, whatever; an uninstall of sorts)
+Deletes everything but:
+
+- repo_list.json
+- Dockerfile.default
+- repo_tracking/
+
+##### --purge-all
+
+Deletes everything.
+
+##### --dry-run
+
+Lists exactly which directories/images would be removed and how much disk space would be reclaimed before deleting anything.
 
 ### Status
 
@@ -130,13 +148,8 @@ Passing: 20 | Failing: 15 | Skipped: 7
 
 Options:
 ```bash
-A:
-$ argos status -- PROJECTNAME ANOTHERPROJECT
-
-B:
-$ argos status -p PROJECTNAME -p ANOTHERPROJECT
-B (alt):
-$ argos status --project PROJECTNAME --project ANOTHERPROJECT
+$ argos status -p PROJECTNAME ANOTHERPROJECT
+$ argos status --project PROJECTNAME ANOTHERPROJECT
 ```
 
 ##### ServerStatus
@@ -144,32 +157,23 @@ $ argos status --project PROJECTNAME --project ANOTHERPROJECT
 Confirmed to work without sudo on the homelab:
 
 ```bash
-master@serverle:~$ systemctl status argos
-× argos.service - Argos CI Pipeline
-     Loaded: loaded (/etc/systemd/system/argos.service; static)
-     Active: failed (Result: exit-code) since Mon 2026-11-23 08:45:05 CET; 9h ago
- Invocation: 7d8f01d0dad242028548e707302ba2e1
-TriggeredBy: ● argos.timer
-    Process: 1539423 ExecStart=/usr/bin/argos (code=exited, status=1/FAILURE)
-   Main PID: 1539423 (code=exited, status=1/FAILURE)
-   Mem peak: 1.8M
-        CPU: 14ms
-
-Nov 23 08:45:05 serverle argos[1539423]: Error: Xff("No such file or directory (os error 2)")
+master@serverle:~$ systemctl show argos.service --no-pager -p LoadState -p ActiveState -p SubState -p Result -p ExecMainStartTimestamp -p ExecMainExitTimestamp -p MemoryPeak -p CPUUsageNSec
+Result=exit-code
+ExecMainStartTimestamp=Mon 2026-11-23 18:41:24 CET
+ExecMainExitTimestamp=Mon 2026-11-23 18:41:24 CET
+MemoryPeak=1830912
+CPUUsageNSec=9417000
+LoadState=loaded
+ActiveState=failed
+SubState=failed
 ```
+If `ActiveState=failed`, fetch the last few log lines via `journalctl -u argos.service -n 5 --no-pager -o cat` (and handle permission errors gracefully if the user isn't in systemd-journal)
 
-Really only the `Active: …` line is needed (if it contains 'failed', the last line would be also nice. The rest I dunno yet.)
-
-Mem peak and CPU time would be nice too now that I am looking at it.
+query `systemctl show argos.timer -p NextElapseUSecRealtime` to display when the next run is scheduled
 
 ##### Flags
 
 ###### --full
-
-Alternate names (from: https://web.mit.edu/gnu/doc/html/standards_18.html)
-`verbose`: Print more information about progress. Many programs support this.
-`all`:'-a' in du, ls, nm, stty, uname, and unexpand. 
-`show-all`: '-A' in cat.
 
 ```bash
 
@@ -178,8 +182,9 @@ $ argos status --full
 Server: [ServerStatus]
 Git Root: [URI]
 Tracking: 42 repositories
+Last run: YYYY-MM-DDTHH:MM:SSZ
 
-Passing: 20 | Failing: 15 | Skipped: 7
+Passing: 20 | Failing: 15 | Skipped: 5 | Never run: 2
 
 [Each repo tracked via repo_list]:
 Passing: [True | False]
@@ -200,13 +205,16 @@ Uses `--full` output, if that flag is present or not.
 
 All output is recorded into a single file.
 
+Cannot be used together with `--directory`.
+
 ```bash
 
-$ argos status --file a/path/file.[txt | md]
+$ argos status --file a/path/file.[txt | md | toml | json | csv | xff]
 
 ```
 
-TODO: Consider output file type. TOML, JSON, and CSV would also be possible with mawu.
+Filetype detection by passed in file extension.
+Overwritten if `--format` is used.
 
 ###### --directory
 
@@ -214,14 +222,36 @@ Uses `--full` output, if that flag is present or not.
 
 All output is recorded into a single directory with one file per tracked repo and one general file (the short status output).
 
+Cannot be used together with `--file`.
+
 ```bash
 
 $ argos status --directory a/path/
 
 ```
 
-TODO: Consider output file type. TOML, JSON, and CSV would also be possible with mawu.
+Defaults to text output (markdown files).
 
+###### --format
+
+Overwrite the file format for both `--file` and `--directory`
+
+```bash
+
+$ argos status --directory a/path/ --format=[txt | md | toml | json | csv | xff]
+
+```
+
+###### --history[=N]
+
+Right now Argos maintains a 100-run .xff archive per repo (repo_tracking/{repo}/\*.xff), yet nothing ever
+reads it!
+Showing a compact timeline (`argos status --history=5 -- hades` → timestamp, short hash, pass/fail, failed
+steps) finally makes that archive useful—especially for spotting flaky tests like hades / tyche.
+
+###### --check (or -q / --quiet)
+
+Exits 0 if all tracked repos pass (and service isn't failed), 1 otherwise. Useful if you ever wire Argos into an SSH MOTD, healthcheck, or notification script.
 
 ### Config
 
@@ -231,7 +261,7 @@ If the supplied name is already tracked, output 'NAME is already tracked! No cha
 
 ```bash
 
-$ argos config track PROJECTNAME
+$ argos config --track PROJECTNAME NAME2
 
 ```
 
@@ -241,41 +271,31 @@ If the supplied name is not tracked, output 'NAME not tracked! No changes made.'
 
 ```bash
 
-$ argos config untrack PROJECTNAME
+$ argos config --untrack PROJECTNAME Name2
 
 ```
 
 #### Gitroot
 
-Sets the git-root with no checking if it works (because I don't know how)
+Sets the git-root with no checking if it works.
 
 ```bash
 
-$ argos config git-root ssh:git@server:2222/user/
+$ argos config --git-root ssh:git@server:2222/user/
 
 ```
+Local URL format + trailing / normalization: RepoEnvironment::new builds URLs as format!("{}{}.git", env.git_root_url, repo). If someone passes ssh://git@serverle:2222/Xqhare without a trailing /, every single repo URL silently breaks (.../Xqhareargos.git).
+Validate the scheme (ssh://, https://, http://, or user@host:) and check for trailing /.
 
-Well, managed to fail2ban myself while playing around with ways of using ssh to confirm the link
+### Deps
 
-However, I found this interesting behaviour in `git clone`
-
+Prints the resolved Kahn execution order and dependency edges across all tracked repos, flagging missing/untracked dependencies or cycles
 ```bash
-xqhare@xqhare-desktop ~/A/P/r/argos (v1) [1]> g clone ssh://git@serverle:2222/Xqhare/
-Cloning into 'Xqhare'...
-error:
-error: Invalid repo name
-error:
-fatal: Could not read from remote repository.
 
-Please make sure you have the correct access rights
-and the repository exists.
-xqhare@xqhare-desktop ~/A/P/r/argos (v1) [128]> g clone ssh://git@no_exist:2222/Xqhare
-Cloning into 'Xqhare'...
-ssh: Could not resolve hostname no_exist: Name or service not known
-fatal: Could not read from remote repository.
+$ argos deps
 
-Please make sure you have the correct access rights
-and the repository exists.
 ```
 
-So just a `.contains(Could not resolve hostname)` could work?
+### Logs (e.g. argos logs -n 50 / argos logs --full)
+
+Thin wrapper around journalctl -u argos.service so you don't have to remember the systemd flags when checking why a scheduled run failed.
