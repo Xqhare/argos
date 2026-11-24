@@ -41,12 +41,18 @@ pub fn git_pull(repo_path: &Path) -> ArgosResult<String> {
 
 /// Runs git fetch and returns the latest commit hash
 pub fn latest_git_hash(repo_path: &Path) -> ArgosResult<String> {
-    std::process::Command::new("git")
+    let output = std::process::Command::new("git")
         .arg("-C")
         .arg(repo_path)
         .arg("fetch")
         .output()
         .map_err(|e| ArgosError::Git(format!("Failed to fetch repo: {e}")))?;
+    if !output.status.success() {
+        return Err(ArgosError::Git(format!(
+            "Failed to fetch git repo: {}",
+            String::from_utf8_lossy(&output.stderr)
+        )));
+    }
     let output = std::process::Command::new("git")
         .arg("-C")
         .arg(repo_path)

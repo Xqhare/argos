@@ -1,28 +1,31 @@
-- [ ] Bug fixes
-	- [ ] Json file read as xff :: @src/utils/mod.rs 
-	- [ ] Silent dependency skip + permanent stale state :: @src/repo/integrate/mod.rs
+- [/] Bug fixes
+	- [x] Json file read as xff :: @src/utils/mod.rs 
+	- [x] Silent dependency skip + permanent stale state :: @src/repo/integrate/mod.rs
 		* areia failed. When argos (which requires areia) ran right after, setup_new_repo wrote {"hash": "..."} to argos.xff, then `check_for_failed_dependencies` returned Ok(false) without calling `save_results`
-	- [ ] In `was_updated` when last_run is missing, overwrite stays false :: so on future runs latest_hash == previous_hash causes them to be skipped as "up to date" (and treated as passing) until they receive a new commit of their own.
-	- [ ] Test failure details go to stdout, but Argos only saves stderr on failure :: @src/repo/integrate/mod.rs
+	- [x] In `was_updated` when last_run is missing, overwrite stays false :: so on future runs latest_hash == previous_hash causes them to be skipped as "up to date" (and treated as passing) until they receive a new commit of their own.
+	- [x] Test failure details go to stdout, but Argos only saves stderr on failure :: @src/repo/integrate/mod.rs
 		* cargo writes compilation progress and error: test failed, to rerun pass --test base to stderr, while Rust's test harness (libtest) writes the actual failing test names, panic messages, and assertion diffs to stdout.
 		*  Fix: Capture and store both stdout and stderr (either combined or as separate fields). Keeping stderr on success is also handy if you ever want compiler/clippy warnings.
-	- [ ] run_test_and_commit throws away the test output :: @src/repo/integrate/mod.rs
+	- [x] run_test_and_commit throws away the test output :: @src/repo/integrate/mod.rs
 		* First pass: let (first_success, _) = test_repo(...) discards the output and replaces it with "First testing pass failed aborted.". That's why tmp/argos/repo_tracking/hades.json and tmp/argos/repo_tracking/tyche.json passed test initially, then failed clippy/format/update with zero diagnostics (likely flaky/timing tests in hades or probabilistic tests in tyche).
 		* Second pass: if test_repo(...)?.0 discards the post-change test failure output and returns the mutating command's (usually empty) output—and never reverts the uncommitted changes, leaving a dirty tree that will break git pull on the next run.
-	- [ ] first_failed_command :: @src/repo/integrate/mod.rs stores the error output, not the command name.
-	- [ ] Typo in doc-test arg lookup :: @src/repo/integrate/doc_test.rs Calls get_repo_args(repo_config, "doc_test") (underscore) instead of "doc-test" (hyphen)
-	- [ ] Dockerfile & requires_ext lookup uses Cargo subcommand instead of Argos command name :: @src/repo/integrate/mod.rs doc-test and examples-test pass "test", and format passes "fmt", so ArgosCI/format/Dockerfile or doc-test.requires_ext will never match.
-	- [ ] Swallowed git errors:
+	- [x] first_failed_command :: @src/repo/integrate/mod.rs stores the error output, not the command name.
+	- [x] Typo in doc-test arg lookup :: @src/repo/integrate/doc_test.rs Calls get_repo_args(repo_config, "doc_test") (underscore) instead of "doc-test" (hyphen)
+	- [/] Dockerfile & requires_ext lookup uses Cargo subcommand instead of Argos command name :: @src/repo/integrate/mod.rs doc-test and examples-test pass "test", and format passes "fmt", so ArgosCI/format/Dockerfile or doc-test.requires_ext will never match.
+		* Should be fixed I think?
+	- [x] Swallowed git errors:
 		* @src/repo/setup.rs let _ = git_clone(...) ignores clone errors, causing a confusing downstream error from latest_git_hash.
 		* @src/utils/git.rs git fetch exit status isn't checked, so SSH/network failures silently read the old origin/HEAD and look like "no updates".
-	- [ ] Hash & push lifecycle issues:
-		* was_updated persists the new hash before git_pull or integration runs—if setup/integration crashes or a dep fails, that commit is still marked "seen" and skipped for 5–10 days.
-		* When Argos commits and pushes (clippy/format/update/license), the stored hash isn't updated to the new HEAD, triggering an extra CI run on the next cycle for Argos's own commit.
-		* git_push runs after save_results (so a push failure triggers save_failed_integration and overwrites the entire run's results with setup_error), and runs even when one_failed is true.
+	- [/] Hash & push lifecycle issues:
+		- [ ] was_updated ::  persists the new hash before git_pull or integration runs—if setup/integration crashes or a dep fails, that commit is still marked "seen" and skipped for 5–10 days.
+			* Requires some work on return of was updated I think
+		- [ ] (9) Dropping new git hash :: When Argos commits and pushes (clippy/format/update/license), the stored hash isn't updated to the new HEAD, triggering an extra CI run on the next cycle for Argos's own commit.
+			* Non critical really; Bit of wasted compute but the home lab isnt doing much anyways
+		- [x] git_push runs after save_results :: (so a push failure triggers save_failed_integration and overwrites the entire run's results with setup_error), and runs even when one_failed is true.
 	- [ ] Stale dependency failure tracking:
 		* failed_repos only tracks failures from the current run. If areia failed yesterday and has no new commits today, today's run skips areia and returns true, so dependents think areia is green. Reading each dependency's last persisted all_succeeded state fixes this (and similarly, if a dependency was updated and passed today, consider re-testing its dependents).
-	- [ ] Non-portable archive filenames :: @src/repo/integrate/mod.rs horae::Utc::now().to_string() contains colons (:), which is why all the history files in tmp/argos/repo_tracking/*/ got 8.3-mangled into names like 2FZ4DC~4.XFF when copied off your server. Using a filename-safe format (e.g. 2026-03-29T21-13-49Z.xff) avoids mangling while keeping lexicographical pruning intact.
-	- [ ] Command execution order :: @src/repo/config.rs:76-136): deconstruct_advanced_config iterates the config.json object keys alphabetically (build, clippy, doc, doc-test, format, license, test, update), so clippy/format/license run before test when explicitly listed—contrary to the README note.
+	- [x] Non-portable archive filenames :: @src/repo/integrate/mod.rs horae::Utc::now().to_string() contains colons (:), which is why all the history files in tmp/argos/repo_tracking/*/ got 8.3-mangled into names like 2FZ4DC~4.XFF when copied off your server. Using a filename-safe format (e.g. 2026-03-29T21-13-49Z.xff) avoids mangling while keeping lexicographical pruning intact.
+	- [x] Command execution order :: @src/repo/config.rs:76-136): deconstruct_advanced_config iterates the config.json object keys alphabetically (build, clippy, doc, doc-test, format, license, test, update), so clippy/format/license run before test when explicitly listed—contrary to the README note.
 - [ ] Performance
 	- [ ] Docker build context & image bloat :: @src/repo/integrate/mod.rs
 		* Currently runs docker build --pull -t argos-{repo}-{cmd} on every single command (up to ~15 builds per repo, including a dedicated argos-{repo}-clean image just for cargo clean), and passes &repo_env.repo_path as the build context every time.

@@ -22,7 +22,7 @@ pub fn sort_repo_list(repo_list: &Array, env: &Environment) -> ArgosResult<Array
         let repo_env = RepoEnvironment::new(&repo, env)?;
         let mut dependencies = Vec::new();
         if repo_env.repo_advanced_config_path.exists() {
-            let config_data = nabu::serde::read(&repo_env.repo_advanced_config_path)
+            let config_data = mawu::read::json(&repo_env.repo_advanced_config_path)
                 .map_err(|e| ArgosError::Xff(e.to_string()))?
                 .into_object()
                 .ok_or(ArgosError::XffValue(
@@ -121,6 +121,8 @@ pub fn was_updated(repo_env: &RepoEnvironment) -> ArgosResult<bool> {
         if last_run + Duration::from_mins(spreadder_mins) <= now {
             overwrite = true;
         }
+    } else {
+        overwrite = true;
     }
     if &latest_hash == previous_hash && !overwrite {
         return Ok(false);

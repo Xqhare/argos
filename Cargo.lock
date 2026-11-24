@@ -4,13 +4,19 @@ version = 4
 
 [[package]]
 name = "aequa"
-version = "0.1.0"
-source = "git+https://github.com/xqhare/aequa#aa5399a14c9c6905fb4730a6ad160d36cbc561e3"
+version = "1.3.1"
+source = "git+https://github.com/xqhare/aequa#f23b613d9c83f02d4a7ba22a5cbece747f75fefe"
+dependencies = [
+ "nemesis",
+]
 
 [[package]]
 name = "areia"
-version = "1.0.0"
-source = "git+https://github.com/xqhare/areia#b81e0e3598e7cf4f05d8fc0bd3d44d1e79b8369d"
+version = "1.2.0"
+source = "git+https://github.com/xqhare/areia#fdc5d3d4c142738b348d59dc8a3c53e3c941db49"
+dependencies = [
+ "nemesis",
+]
 
 [[package]]
 name = "argos"
@@ -25,36 +31,58 @@ dependencies = [
 
 [[package]]
 name = "athena"
-version = "1.3.0"
-source = "git+https://github.com/xqhare/athena#cb641d7e7d98b7023d0a3a60f412d3571fa3e61b"
+version = "2.2.0"
+source = "git+https://github.com/xqhare/athena#b2bb70f84168ad9a828acf961aa5a4ac1b613986"
 dependencies = [
  "aequa",
  "libc",
+ "nemesis",
 ]
 
 [[package]]
 name = "horae"
-version = "1.1.1"
-source = "git+https://github.com/xqhare/horae#ad74f00b841325d5b884fcfc47d68c2f2a87fc43"
+version = "1.4.1"
+source = "git+https://github.com/xqhare/horae#3ea51e922a125a5651cde7b954a5f1b5e001334f"
+dependencies = [
+ "aequa",
+ "nemesis",
+]
 
 [[package]]
 name = "libc"
-version = "0.2.183"
+version = "0.2.191"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "b5b646652bf6661599e1da8901b3b9522896f01e736bad5f723fe7a3a27f899d"
+checksum = "65cd87c9a6d60536580b316ad985726104730a5151c99845f2490428ef91240a"
 
 [[package]]
 name = "mawu"
-version = "1.0.0"
-source = "git+https://github.com/xqhare/mawu#3847ae92d1fd9c8030b16bb607d5758d245053db"
+version = "2.0.0"
+source = "git+https://github.com/xqhare/mawu#41f2cb052db8c30e82effeeb8edc7f415531ab23"
 dependencies = [
  "athena",
+ "horae",
+ "nemesis",
+ "thoth",
 ]
 
 [[package]]
 name = "nabu"
-version = "3.0.0"
-source = "git+https://github.com/xqhare/nabu#dee4e84d30ed2c6cb2ca3b9b9e4ba8f5924706d2"
+version = "4.1.0"
+source = "git+https://github.com/xqhare/nabu#91e7503ef5780558862a3feee12ddaba401bcd0b"
 dependencies = [
  "athena",
+ "nemesis",
+]
+
+[[package]]
+name = "nemesis"
+version = "1.0.0"
+source = "git+https://github.com/xqhare/nemesis#8bb94ecc2355caa7427f73424963f0ed9bb3147a"
+
+[[package]]
+name = "thoth"
+version = "1.0.0"
+source = "git+https://github.com/Xqhare/thoth#a10f03fdf183cb221529b1102405a77a4256e4ac"
+dependencies = [
+ "nemesis",
 ]

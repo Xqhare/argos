@@ -1,4 +1,4 @@
-use nabu::{Object, XffValue};
+use nabu::{Array, Object, XffValue};
 
 use crate::{
     env::{Environment, RepoEnvironment},
@@ -43,13 +43,30 @@ pub fn integrate_repo(
     repo_config: &RepoConfig,
     failed_repos: &[String],
 ) -> ArgosResult<bool> {
+    let mut one_failed = false;
+    // in format (failed_cmd_name, failed_output)
+    let mut first_failed_output: Option<(String, String)> = None;
+    let mut results = Object::new();
+
     if !check_for_failed_dependencies(repo_config.dependencies.as_ref(), failed_repos) {
+        results.insert("all_succeeded".to_string(), false);
+        let fails: Array = repo_config
+            .dependencies
+            .as_ref()
+            .expect("Must be some if a dep failed")
+            .iter()
+            .filter_map(|dep| {
+                if failed_repos.contains(dep) {
+                    Some(dep)
+                } else {
+                    None
+                }
+            })
+            .collect();
+        results.insert("Failed integration of dependencies", fails);
+        save_results(repo_env, &results)?;
         return Ok(false);
     }
-
-    let mut one_failed = false;
-    let mut first_failed_output: Option<String> = None;
-    let mut results = Object::new();
 
     for command in &repo_config.commands {
         let (success, output) = match command.as_str() {
@@ -73,18 +90,24 @@ pub fn integrate_repo(
         results.insert(command.clone(), out);
         if !success && !one_failed {
             one_failed = true;
-            first_failed_output = Some(output.clone());
+            first_failed_output = Some((command.clone(), output.clone()));
+            break;
         }
     }
 
     results.insert("all_succeeded".to_string(), !one_failed);
     if let Some(output) = first_failed_output {
-        results.insert("first_failed_command".to_string(), output);
+        results.insert(
+            "first_failed_command".to_string(),
+            format!("Execution of command '{}' failed.\n{}", output.0, output.1),
+        );
+    }
+
+    if !one_failed {
+        git_push(&repo_env.repo_path)?;
     }
 
     save_results(repo_env, &results)?;
-
-    git_push(&repo_env.repo_path)?;
 
     // Handle cleanup
     let target_path = repo_env.repo_path.join("target");
@@ -94,7 +117,7 @@ pub fn integrate_repo(
         clean_repo(env, repo_env, repo_config)?;
     }
 
-    if one_failed { Ok(false) } else { Ok(true) }
+    Ok(!one_failed)
 }
 
 /// Saves a failed integration that occurred before the command pipeline started
@@ -154,7 +177,7 @@ fn save_latest_run(results: &Object, repo_env: &RepoEnvironment) -> ArgosResult<
 // repo_env.repo_history_dir (repo_tracking/{repo}/)
 // Then use datetime as filename , xff only
 fn save_100_run_archive(results: &Object, repo_env: &RepoEnvironment) -> ArgosResult<()> {
-    let now = horae::Utc::now().to_string();
+    let now = horae::Utc::now().format("%yyyy-%mm-%ddT%HH-%MM-%SSZ");
     let save100 = nabu::serde::write(
         repo_env.repo_history_dir.join(now),
         XffValue::from(results.clone()),
@@ -251,20 +274,26 @@ pub fn run_test_and_commit(
     args: Vec<String>,
     commit_msg: &str,
 ) -> ArgosResult<(bool, String)> {
-    let (first_success, _) = test_repo(env, repo_env, repo_config)?;
+    let (first_success, message) = test_repo(env, repo_env, repo_config)?;
     if !first_success {
-        return Ok((false, "First testing pass failed - aborted.".to_string()));
+        return Ok((false, message));
     }
 
     let (success, output) = run_cargo_cmd(env, repo_env, repo_config, cargo_command, args)?;
     if success {
-        if test_repo(env, repo_env, repo_config)?.0 {
+        let (second_test_success, second_message) = test_repo(env, repo_env, repo_config)?;
+        if second_test_success {
             // All good
             git_commit(&repo_env.repo_path, cargo_command, commit_msg)?;
             Ok((true, output))
         } else {
             // Not all tests pass after running command
-            Ok((false, output))
+            Ok((
+                false,
+                format!(
+                    "First testing pass OK.\nCargo command '{cargo_command}' execution OK.\nSecond tesing pass FAILED, message: '{second_message}'"
+                ),
+            ))
         }
     } else {
         // Command failed
@@ -299,11 +328,16 @@ pub fn execute_in_docker(
     repo_env: &RepoEnvironment,
     repo_config: &RepoConfig,
 ) -> ArgosResult<(bool, String)> {
+    let cargo_command = match cargo_command {
+        "format" => "fmt",
+        "doc-test" => "test --doc",
+        "examples-test" => "test --examples",
+        _ => cargo_command,
+    };
     let requires_ext = get_repo_requires_ext(repo_config, cargo_command);
     let dockerfile = find_dockerfile(cargo_command, env, repo_env, requires_ext)?;
     let image_tag = format!("argos-{}-{}", repo_env.repo, cargo_command);
 
-    // 1. Build the image
     let build_status = std::process::Command::new("docker")
         .arg("build")
         .arg("--pull")
@@ -325,7 +359,6 @@ pub fn execute_in_docker(
         ));
     }
 
-    // 2. Run the container
     let host_user = crate::utils::get_uid_gid()?;
     let repo_path = repo_env
         .repo_path
@@ -366,12 +399,16 @@ pub fn execute_in_docker(
         .output()
         .map_err(|e| ArgosError::IntegrateRepoTest(e.to_string()))?;
 
+    let message = format!(
+        "Stdout: {}\n\nStderr: {}",
+        String::from_utf8_lossy(&output.stdout),
+        String::from_utf8_lossy(&output.stderr)
+    );
+
     if output.status.success() {
-        let output = String::from_utf8_lossy(&output.stdout).to_string();
-        Ok((true, output))
+        Ok((true, message))
     } else {
-        let error_reason = String::from_utf8_lossy(&output.stderr).to_string();
-        Ok((false, error_reason))
+        Ok((false, message))
     }
 }
 

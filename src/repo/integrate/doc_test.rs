@@ -21,7 +21,7 @@ pub fn doc_test_repo(
     repo_env: &RepoEnvironment,
     repo_config: &RepoConfig,
 ) -> ArgosResult<(bool, String)> {
-    let mut args = get_repo_args(repo_config, "doc_test");
+    let mut args = get_repo_args(repo_config, "doc-test");
 
     if args.contains(&"--doc".to_string()) {
         if args[0] != "--doc" {

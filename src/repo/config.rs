@@ -73,8 +73,8 @@ fn deconstruct_advanced_config(advanced_config: &XffValue) -> ArgosResult<RepoCo
         let mut cmd_args = Object::new();
         let mut cmd_requires_ext = Object::new();
         let mut all = false;
+        let mut final_commands = vec![];
         for (key, value) in config {
-            // No chaining because of the compiler
             let key = key.to_lowercase();
             let key = key.as_str();
             if key == "requires" {
@@ -97,7 +97,11 @@ fn deconstruct_advanced_config(advanced_config: &XffValue) -> ArgosResult<RepoCo
                 continue;
             }
             if all_commands.contains(&key.to_owned()) {
-                commands.push(key.to_string());
+                if key == "clippy" || key == "format" || key == "license" {
+                    final_commands.push(key.to_string());
+                } else {
+                    commands.push(key.to_string());
+                }
                 if let Some(inner_data) = value.as_object() {
                     for (inner_key, inner_value) in inner_data {
                         let inner_key = inner_key.to_lowercase();
@@ -129,11 +133,16 @@ fn deconstruct_advanced_config(advanced_config: &XffValue) -> ArgosResult<RepoCo
         }
         if all {
             for command in all_commands {
-                if !commands.contains(&command) {
-                    commands.push(command);
+                if !commands.contains(&command) && !final_commands.contains(&command) {
+                    if command == "clippy" || command == "format" || command == "license" {
+                        final_commands.push(command.to_string());
+                    } else {
+                        commands.push(command.to_string());
+                    }
                 }
             }
         }
+        commands.extend(final_commands);
         Ok(RepoConfig {
             commands,
             dependencies: Some(dependencies),
