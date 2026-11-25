@@ -7,6 +7,7 @@ use crate::{
     utils::git::latest_git_commit_year,
 };
 
+// TODO: update docstring
 /// Updates the year inside the license file.
 /// Only supports MIT licenses. It searches for either `LICENSE` or `LICENSE-MIT` files, prefering the
 /// latter.
@@ -232,6 +233,15 @@ mod tests {
         assert_eq!(after, "\n\nSome license text");
     }
 
+    #[test]
+    fn full_text_handling_up_to_date() {
+        let text = "MIT License\n\nCopyright (c) 2022-2025\n\nSome license text";
+        let new_txt = handle_license_text(text, "2025", &dummy_repo_env(), true);
+        assert!(new_txt.is_ok());
+        let new_txt = new_txt.unwrap().1;
+        let expected_text = "License year is already up to date";
+        assert_eq!(new_txt, expected_text)
+    }
     #[test]
     fn full_text_handling_hyphen() {
         let text = "MIT License\n\nCopyright (c) 2022-2025\n\nSome license text";

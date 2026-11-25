@@ -11,8 +11,7 @@
 		* Second pass: if test_repo(...)?.0 discards the post-change test failure output and returns the mutating command's (usually empty) output—and never reverts the uncommitted changes, leaving a dirty tree that will break git pull on the next run.
 	- [x] first_failed_command :: @src/repo/integrate/mod.rs stores the error output, not the command name.
 	- [x] Typo in doc-test arg lookup :: @src/repo/integrate/doc_test.rs Calls get_repo_args(repo_config, "doc_test") (underscore) instead of "doc-test" (hyphen)
-	- [/] Dockerfile & requires_ext lookup uses Cargo subcommand instead of Argos command name :: @src/repo/integrate/mod.rs doc-test and examples-test pass "test", and format passes "fmt", so ArgosCI/format/Dockerfile or doc-test.requires_ext will never match.
-		* Should be fixed I think?
+	- [x] Dockerfile & requires_ext lookup uses Cargo subcommand instead of Argos command name :: @src/repo/integrate/mod.rs doc-test and examples-test pass "test", and format passes "fmt", so ArgosCI/format/Dockerfile or doc-test.requires_ext will never match.
 	- [x] Swallowed git errors:
 		* @src/repo/setup.rs let _ = git_clone(...) ignores clone errors, causing a confusing downstream error from latest_git_hash.
 		* @src/utils/git.rs git fetch exit status isn't checked, so SSH/network failures silently read the old origin/HEAD and look like "no updates".
