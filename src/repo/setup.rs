@@ -1,10 +1,8 @@
-use nabu::{Object, XffValue};
-
 use crate::{
     env::RepoEnvironment,
-    error::{ArgosError, ArgosResult},
+    error::ArgosResult,
     utils::{
-        git::{git_clone, git_pull, latest_git_hash},
+        git::{git_clone, git_pull},
         was_updated,
     },
 };
@@ -25,15 +23,11 @@ pub fn setup_repo(repo_env: &RepoEnvironment) -> ArgosResult<bool> {
         git_pull(&repo_env.repo_path)?;
     } else {
         setup_new_repo(repo_env)?;
-    }
+    };
     Ok(true)
 }
 
 fn setup_new_repo(repo_env: &RepoEnvironment) -> ArgosResult<()> {
     let _ = git_clone(&repo_env.repo_git_url, &repo_env.repo_path)?;
-    let latest_hash = latest_git_hash(&repo_env.repo_path)?;
-    let metadata = Object::from(vec![("hash".to_string(), latest_hash)]);
-    nabu::serde::write(&repo_env.repo_tracking_xff, XffValue::from(metadata))
-        .map_err(|e| ArgosError::Xff(e.to_string()))?;
     Ok(())
 }

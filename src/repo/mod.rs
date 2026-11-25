@@ -4,6 +4,7 @@ use crate::{
         integrate::{integrate_repo, save_failed_integration},
         setup::setup_repo,
     },
+    utils::{git::latest_git_hash, persist_new_hash},
 };
 
 mod config;
@@ -22,8 +23,8 @@ pub fn continuously_integrate_repo(env: &Environment, repo: &str, failed_repos: 
         }
     };
     match setup_repo(&repo_env) {
-        Ok(updated) => {
-            if !updated {
+        Ok(was_updated) => {
+            if !was_updated {
                 return true;
             }
         }
@@ -31,7 +32,7 @@ pub fn continuously_integrate_repo(env: &Environment, repo: &str, failed_repos: 
             let _ = save_failed_integration(&repo_env, &e.to_string());
             return false;
         }
-    }
+    };
     let repo_config = match config::RepoConfig::new(&repo_env) {
         Ok(c) => c,
         Err(e) => {
@@ -50,9 +51,17 @@ pub fn continuously_integrate_repo(env: &Environment, repo: &str, failed_repos: 
             return false;
         }
     }
+    let latest_hash = match latest_git_hash(&repo_env.repo_path) {
+        Ok(hash) => hash,
+        Err(e) => {
+            let _ = save_failed_integration(&repo_env, &e.to_string());
+            return false;
+        }
+    };
+    if let Err(e) = persist_new_hash(&latest_hash, &repo_env) {
+        let _ = save_failed_integration(&repo_env, &e.to_string());
+        return false;
+    }
 
-    // Sleep for 1 minute - overkill, but if any other process wants I/O I yield to
-    // them here
-    std::thread::sleep(std::time::Duration::from_secs(60));
     true
 }

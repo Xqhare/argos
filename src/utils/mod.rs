@@ -3,7 +3,7 @@ pub mod git;
 use std::time::Duration;
 
 use athena::sorting::kahns_managed;
-use nabu::{Array, XffValue};
+use nabu::{Array, Object, XffValue, xff};
 
 use crate::{
     env::{Environment, RepoEnvironment},
@@ -60,7 +60,7 @@ pub fn sort_repo_list(repo_list: &Array, env: &Environment) -> ArgosResult<Array
 
 pub fn was_updated(repo_env: &RepoEnvironment) -> ArgosResult<bool> {
     let latest_hash = latest_git_hash(&repo_env.repo_path)?;
-    let mut repo_metadata = match nabu::serde::read(&repo_env.repo_tracking_xff) {
+    let repo_metadata = match nabu::serde::read(&repo_env.repo_tracking_xff) {
         Ok(xff) => {
             if xff.is_object() {
                 xff.into_object().unwrap()
@@ -127,10 +127,22 @@ pub fn was_updated(repo_env: &RepoEnvironment) -> ArgosResult<bool> {
     if &latest_hash == previous_hash && !overwrite {
         return Ok(false);
     }
-    repo_metadata.insert("hash", latest_hash);
-    nabu::serde::write(&repo_env.repo_tracking_xff, XffValue::from(repo_metadata))
-        .map_err(|e| ArgosError::Xff(e.to_string()))?;
     Ok(true)
+}
+
+pub fn persist_new_hash(latest_hash: &str, repo_env: &RepoEnvironment) -> ArgosResult<()> {
+    let mut repo_metadata = if let Ok(value) = nabu::serde::read(&repo_env.repo_tracking_xff)
+        .map_err(|err| ArgosError::Xff(err.to_string()))
+    {
+        value.into_object().ok_or(ArgosError::XffValue(
+            "Repo metadata XFF must be an object.".to_string(),
+        ))?
+    } else {
+        Object::new()
+    };
+    let _ = repo_metadata.insert("hash", latest_hash);
+    nabu::serde::write(&repo_env.repo_tracking_xff, xff!(repo_metadata))
+        .map_err(|e| ArgosError::Xff(e.to_string()))
 }
 
 /// Recursively calculates the size of a directory in bytes
