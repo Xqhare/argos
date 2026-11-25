@@ -21,6 +21,23 @@ pub fn git_clone(repo_git_url: &str, repo_path: &Path) -> ArgosResult<String> {
     Ok(String::from_utf8_lossy(&output.stdout).to_string())
 }
 
+pub fn git_restore(repo_path: &Path) -> ArgosResult<()> {
+    let output = std::process::Command::new("git")
+        .arg("-C")
+        .arg(repo_path)
+        .arg("restore")
+        .arg(".")
+        .output()
+        .map_err(|e| ArgosError::Git(format!("Failed to restore repo: {e}")))?;
+    if !output.status.success() {
+        Err(ArgosError::Git(format!(
+            "Failed to restore repo: {}",
+            String::from_utf8_lossy(&output.stderr)
+        )))
+    } else {
+        Ok(())
+    }
+}
 pub fn git_pull(repo_path: &Path) -> ArgosResult<String> {
     let command = "pull";
     let output = std::process::Command::new("git")

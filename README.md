@@ -124,9 +124,9 @@ For more control, use `config.json` inside the `ArgosCI` directory:
 - `clippy` - Runs `cargo clippy --fix`. Note: This command always enforces `clippy::all` and `clippy::pedantic` lints.
 - `format` - Runs `cargo fmt`
 - `update` - Runs `cargo update`
-- `license` (**Local**): Updates MIT license years based on git history. Supports `LICENSE` and `LICENSE-MIT` files.
+- `license` (**Local**): Updates MIT license years based on git history. Supports files called `LICENSE` and `LICENSE-MIT`. Only works with MIT licenses.
 
-> **Note on `clippy`, `format` and `update`**: These commands are run after the test pipeline. Changes are only committed and pushed if the tests pass after the modification.
+> **Note on `clippy`, `format`, `license` and `update`**: These commands are run after the test pipeline. Changes are only committed and pushed if the tests pass after the modification.
 
 ### Automatic Cleanup
 

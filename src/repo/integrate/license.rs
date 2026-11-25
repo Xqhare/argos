@@ -4,7 +4,7 @@ use crate::{
     env::RepoEnvironment,
     error::{ArgosError, ArgosResult},
     repo::config::RepoConfig,
-    utils::git::{git_commit, latest_git_commit_year},
+    utils::git::latest_git_commit_year,
 };
 
 /// Updates the year inside the license file.
@@ -71,7 +71,6 @@ pub fn license_repo(
             &all_text_after_last_year,
         );
         save_license_file(repo_env, &license_text)?;
-        git_commit(&repo_env.repo_path, "License", "Updated license year")?;
         Ok((true, "Updated license year".to_string()))
     }
 }

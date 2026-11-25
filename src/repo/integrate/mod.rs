@@ -13,7 +13,7 @@ use crate::{
     },
     utils::{
         get_dir_size,
-        git::{git_commit, git_push},
+        git::{git_commit, git_push, git_restore},
     },
 };
 
@@ -112,47 +112,35 @@ pub fn integrate_repo(
             break;
         }
     }
-    let (second_test_success, second_message) = test_repo(env, repo_env, repo_config)?;
-    if second_test_success {
-        git_commit(
-            &repo_env.repo_path,
-            "All CI passes OK",
-            "Automated changes added & tested.",
-        )?;
-    } else {
-        // What to do if the second test fails?
-        one_failed = true;
-        first_failed_output = Some((
-            "secondary repo integration test".to_string(),
-            second_message,
-        ));
-        // And reset repo changes?
-        let output = std::process::Command::new("git")
-            .arg("-C")
-            .arg(&repo_env.repo_path)
-            .arg("restore")
-            .arg(".")
-            .output()
-            .map_err(|e| ArgosError::Git(format!("Failed to restore repo: {e}")))?;
-        if !output.status.success() {
-            return Err(ArgosError::Git(format!(
-                "Failed to restore repo: {}",
-                String::from_utf8_lossy(&output.stderr)
-            )));
+
+    if !one_failed {
+        let (second_test_success, second_message) = test_repo(env, repo_env, repo_config)?;
+        if second_test_success {
+            git_commit(
+                &repo_env.repo_path,
+                "All CI passes OK",
+                "Automated changes added & tested.",
+            )?;
+            git_push(&repo_env.repo_path)?;
+        } else {
+            // What to do if the second test fails?
+            one_failed = true;
+            first_failed_output = Some((
+                "secondary repo integration test".to_string(),
+                second_message,
+            ));
+            // And reset repo changes?
+            git_restore(&repo_env.repo_path)?;
+        }
+        if let Some(output) = first_failed_output {
+            results.insert(
+                "first_failed_command".to_string(),
+                format!("Execution of command '{}' failed.\n{}", output.0, output.1),
+            );
         }
     }
 
     results.insert("all_succeeded".to_string(), !one_failed);
-    if let Some(output) = first_failed_output {
-        results.insert(
-            "first_failed_command".to_string(),
-            format!("Execution of command '{}' failed.\n{}", output.0, output.1),
-        );
-    }
-
-    if !one_failed {
-        git_push(&repo_env.repo_path)?;
-    }
 
     save_results(repo_env, &results)?;
 

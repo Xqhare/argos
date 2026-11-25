@@ -65,6 +65,8 @@ fn deconstruct_basic_config(basic_config: &XffValue) -> ArgosResult<RepoConfig> 
     }
 }
 
+const FINAL_CMDS: [&str; 4] = ["clippy", "format", "license", "update"];
+
 fn deconstruct_advanced_config(advanced_config: &XffValue) -> ArgosResult<RepoConfig> {
     if let Some(config) = advanced_config.as_object() {
         let all_commands = all_commands();
@@ -97,7 +99,7 @@ fn deconstruct_advanced_config(advanced_config: &XffValue) -> ArgosResult<RepoCo
                 continue;
             }
             if all_commands.contains(&key.to_owned()) {
-                if key == "clippy" || key == "format" || key == "license" {
+                if FINAL_CMDS.contains(&key) {
                     final_commands.push(key.to_string());
                 } else {
                     commands.push(key.to_string());
@@ -134,7 +136,7 @@ fn deconstruct_advanced_config(advanced_config: &XffValue) -> ArgosResult<RepoCo
         if all {
             for command in all_commands {
                 if !commands.contains(&command) && !final_commands.contains(&command) {
-                    if command == "clippy" || command == "format" || command == "license" {
+                    if FINAL_CMDS.contains(&command.as_str()) {
                         final_commands.push(command.to_string());
                     } else {
                         commands.push(command.to_string());
