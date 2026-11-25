@@ -53,25 +53,38 @@ pub fn license_repo(
             return Ok((false, format!("Could not read license file: {e}")));
         }
     };
-    if !is_mit_license(&license_text) {
+    let last_commit_year = latest_git_commit_year(&repo_env.repo_path)?;
+    handle_license_text(&license_text, &last_commit_year, repo_env, false)
+}
+
+fn handle_license_text(
+    license_text: &str,
+    last_commit_year: &str,
+    repo_env: &RepoEnvironment,
+    testing_mode: bool,
+) -> ArgosResult<(bool, String)> {
+    if !is_mit_license(license_text) {
         return Ok((true, "License is not MIT - skipping update".to_string()));
     }
     let (license_last_year, all_text_to_last_year, all_text_after_last_year) =
-        match parse_license_text(&license_text) {
+        match parse_license_text(license_text) {
             Ok(data) => data,
             Err(e) => return Ok((false, e.to_string())),
         };
-    let last_commit_year = latest_git_commit_year(&repo_env.repo_path)?;
+    let license_text = build_license_text(
+        &last_commit_year,
+        &all_text_to_last_year,
+        &all_text_after_last_year,
+    );
     if last_commit_year == license_last_year {
         Ok((true, "License year is already up to date".to_string()))
     } else {
-        let license_text = build_license_text(
-            &last_commit_year,
-            &all_text_to_last_year,
-            &all_text_after_last_year,
-        );
-        save_license_file(repo_env, &license_text)?;
-        Ok((true, "Updated license year".to_string()))
+        if testing_mode {
+            Ok((true, license_text))
+        } else {
+            save_license_file(repo_env, &license_text)?;
+            Ok((true, "Updated license year".to_string()))
+        }
     }
 }
 
@@ -187,6 +200,19 @@ fn save_license_file(repo_env: &RepoEnvironment, license_text: &str) -> ArgosRes
 #[cfg(test)]
 mod tests {
     use super::*;
+    fn dummy_repo_env() -> RepoEnvironment {
+        RepoEnvironment {
+            repo: Default::default(),
+            repo_git_url: Default::default(),
+            repo_path: Default::default(),
+            repo_tracking_xff: Default::default(),
+            repo_tracking_json: Default::default(),
+            repo_history_dir: Default::default(),
+            repo_config_dir_path: Default::default(),
+            repo_basic_config_path: Default::default(),
+            repo_advanced_config_path: Default::default(),
+        }
+    }
 
     #[test]
     fn test_parse_license_text() {
@@ -204,5 +230,44 @@ mod tests {
         assert_eq!(year, "2025");
         assert_eq!(to, "MIT License\n\nCopyright (c) 2022-2025");
         assert_eq!(after, "\n\nSome license text");
+    }
+
+    #[test]
+    fn full_text_handling_hyphen() {
+        let text = "MIT License\n\nCopyright (c) 2022-2025\n\nSome license text";
+        let new_txt = handle_license_text(text, "2026", &dummy_repo_env(), true);
+        assert!(new_txt.is_ok());
+        let new_txt = new_txt.unwrap().1;
+        let expected_text = "MIT License\n\nCopyright (c) 2022-2026\n\nSome license text";
+        assert_eq!(new_txt, expected_text)
+    }
+    #[test]
+    fn full_text_handling_hyphen_non_sequential() {
+        let text = "MIT License\n\nCopyright (c) 2022-2024\n\nSome license text";
+        let new_txt = handle_license_text(text, "2026", &dummy_repo_env(), true);
+        assert!(new_txt.is_ok());
+        let new_txt = new_txt.unwrap().1;
+        let expected_text = "MIT License\n\nCopyright (c) 2022-2024, 2026\n\nSome license text";
+        assert_eq!(new_txt, expected_text)
+    }
+    #[test]
+    fn full_text_handling_hyphen_non_sequential_continuation() {
+        let text = "MIT License\n\nCopyright (c) 2022-2024, 2026\n\nSome license text";
+        let new_txt = handle_license_text(text, "2027", &dummy_repo_env(), true);
+        assert!(new_txt.is_ok());
+        let new_txt = new_txt.unwrap().1;
+        let expected_text =
+            "MIT License\n\nCopyright (c) 2022-2024, 2026-2027\n\nSome license text";
+        assert_eq!(new_txt, expected_text)
+    }
+    #[test]
+    fn full_text_handling_commas() {
+        let text = "MIT License\n\nCopyright (c) 2022, 2024, 2025\n\nSome license text";
+        let new_txt = handle_license_text(text, "2026", &dummy_repo_env(), true);
+        assert!(new_txt.is_ok());
+        let new_txt = new_txt.unwrap().1;
+        let expected_text =
+            "MIT License\n\nCopyright (c) 2022, 2024, 2025, 2026\n\nSome license text";
+        assert_eq!(new_txt, expected_text)
     }
 }

@@ -34,11 +34,13 @@
 	- [x] Redundant cargo test passes in run_test_and_commit
 		* Running test_repo before and after each of clippy, format, and update executes cargo test up to 7 times per repo (e.g., tyche's test suite takes ~42s per pass → ~5 minutes of redundant testing).
 		* If test already passed earlier in the pipeline, you don't need a pre-pass before every mutating step, and you only need the post-command cargo test if the command actually changed files (git status --porcelain is non-empty).
-- [ ] Tests
-	- [ ] License text building :: Does it do what it says in the doc? No tests to confirm
+- [/] Tests
+	- [ ] Test more :: everywhere
+	- [x] License text building :: Does it do what it says in the doc? No tests to confirm
 - [ ] Design Changes
 	- [ ] Move to a full CLI tool :: @v1_refactor/cli_design.md for more details
 	- [ ] Ignore the 1 minute sleep between repos 
+	- [ ] License text :: Would probably be best to focus on one way of handling the years. Probably usinging hypens, instead of trying to detect between two styles and continuing them
 	- [ ] Ignore the git commit hash check if a repo should be tested
 - [ ] Fixes on homelab
 	- [ ] (3) Fix automatic redeploy
