@@ -36,10 +36,10 @@
 - [/] Tests
 	- [ ] Test more :: everywhere
 	- [x] License text building :: Does it do what it says in the doc? No tests to confirm
-- [ ] Design Changes
+- [/] Design Changes
 	- [ ] Move to a full CLI tool :: @v1_refactor/cli_design.md for more details
 	- [ ] Ignore the 1 minute sleep between repos 
-	- [ ] License text :: Would probably be best to focus on one way of handling the years. Probably usinging hypens, instead of trying to detect between two styles and continuing them
+	- [x] License text :: Would probably be best to focus on one way of handling the years. Probably usinging hypens, instead of trying to detect between two styles and continuing them
 	- [ ] Ignore the git commit hash check if a repo should be tested
 - [ ] Fixes on homelab
 	- [ ] (3) Fix automatic redeploy

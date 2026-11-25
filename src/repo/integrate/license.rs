@@ -7,39 +7,40 @@ use crate::{
     utils::git::latest_git_commit_year,
 };
 
-// TODO: update docstring
 /// Updates the year inside the license file.
-/// Only supports MIT licenses. It searches for either `LICENSE` or `LICENSE-MIT` files, prefering the
-/// latter.
+/// Only supports MIT licenses. It searches for either `LICENSE` or `LICENSE-MIT` files, preferring the latter.
 ///
 /// To validate, it only checks if the license file starts with `MIT License`.
 ///
 /// Only updates the year if a commit was made during it.
 ///
-/// It is very simple:
+/// The generated text defaults to using '-' to mark continuous years of copyright, and ',' if more than one year without commits is observed.
 ///
-/// 1. Find the LAST 4 character number
-/// 2. Insert ", {year}" after that number
-/// 3. Save
+/// For example, if the current year is '2026':
 ///
-/// # Notes
+/// "MIT License\n\nCopyright (c) 2022-2024\n\nSome license text"
+/// Transforms into:
+/// "MIT License\n\nCopyright (c) 2022-2024, 2026\n\nSome license text"
 ///
-/// The parser supports these kind of listings:
 ///
-/// `2022, 2024, 2025`
-/// `2022, 2024-2025`
+/// "MIT License\n\nCopyright (c) 2021-2023, 2025\n\nSome license text"
+/// Transforms into:
+/// "MIT License\n\nCopyright (c) 2021-2023, 2025-2026\n\nSome license text"
 ///
-/// Adding a new year (e.g. 2026) would look like:
-///
-/// `2022, 2024, 2025, 2026`
-/// `2022, 2024-2025, 2026`
+/// "MIT License\n\nCopyright (c) 2022-2025\n\nSome license text"
+/// Transforms into:
+/// "MIT License\n\nCopyright (c) 2022-2026\n\nSome license text"
 ///
 /// # Arguments
 /// * `repo_env` - Repo environment
-/// * `repo_config` - Repo config
+/// * `repo_config` - Repo config (unused; For unified function calling in 'integrate/mod.rs')
 ///
 /// # Returns
 /// Returns a boolean indicating if the license was successful and a string containing the output
+///
+/// # Notes
+///
+/// Assumes years only consist of ASCII letters and are *always* 4 characters long.
 pub fn license_repo(
     repo_env: &RepoEnvironment,
     _repo_config: &RepoConfig,
@@ -72,14 +73,16 @@ fn handle_license_text(
             Ok(data) => data,
             Err(e) => return Ok((false, e.to_string())),
         };
-    let license_text = build_license_text(
-        &last_commit_year,
-        &all_text_to_last_year,
-        &all_text_after_last_year,
-    );
+
     if last_commit_year == license_last_year {
         Ok((true, "License year is already up to date".to_string()))
     } else {
+        let license_text = build_license_text(
+            &last_commit_year,
+            &license_last_year,
+            &all_text_to_last_year,
+            &all_text_after_last_year,
+        )?;
         if testing_mode {
             Ok((true, license_text))
         } else {
@@ -91,15 +94,54 @@ fn handle_license_text(
 
 fn build_license_text(
     year: &str,
+    license_last_year: &str,
     all_text_to_last_year: &str,
     all_text_after_last_year: &str,
-) -> String {
-    let separator = if all_text_to_last_year.contains('-') && !all_text_to_last_year.contains(',') {
-        "-"
-    } else {
-        ", "
+) -> ArgosResult<String> {
+    let year_delta = {
+        let year_u16: u16 = year.parse().map_err(|err| {
+            ArgosError::IntegrateRepoLicense(format!(
+                "Unable to cast year '{year}' into a valid u16 integer!\nError: {err}"
+            ))
+        })?;
+        let last_license_year_u16: u16 = license_last_year.parse().map_err(|err| {
+            ArgosError::IntegrateRepoLicense(format!(
+                "Unable to cast year '{license_last_year}' into a valid u16 integer!\nError: {err}"
+            ))
+        })?;
+        year_u16.saturating_sub(last_license_year_u16)
     };
-    format!("{all_text_to_last_year}{separator}{year}{all_text_after_last_year}")
+    assert!(
+        year_delta != 0,
+        "'build_license_text' called, but no change needed. 'handle_license_text' (caller) must handle this for correct reporting up the callstack."
+    );
+    let previous_hypen_con = {
+        // Assuming ASCII characters and 4 # long years only
+        match all_text_to_last_year
+            .chars()
+            .nth(all_text_to_last_year.len().saturating_sub(5))
+            .ok_or({
+                ArgosError::IntegrateRepoLicense(format!(
+                    "'build_license_text' encountered string with fewer chars then its own length - 5"
+                ))
+            })? {
+            '-' => true,
+            _ => false,
+        }
+    };
+    let separator = if year_delta == 1 { "-" } else { ", " };
+    let all_text_to_last_year = if previous_hypen_con && year_delta == 1 {
+        let mutated_text: Vec<char> = all_text_to_last_year
+            .chars()
+            .take(all_text_to_last_year.len().saturating_sub(5))
+            .collect();
+        &String::from_iter(mutated_text)
+    } else {
+        all_text_to_last_year
+    };
+    Ok(format!(
+        "{all_text_to_last_year}{separator}{year}{all_text_after_last_year}"
+    ))
 }
 
 /// Returns a tuple of (year, `all_text_to_last_year`, `all_text_after_last_year`)
@@ -277,7 +319,7 @@ mod tests {
         assert!(new_txt.is_ok());
         let new_txt = new_txt.unwrap().1;
         let expected_text =
-            "MIT License\n\nCopyright (c) 2022, 2024, 2025, 2026\n\nSome license text";
+            "MIT License\n\nCopyright (c) 2022, 2024, 2025-2026\n\nSome license text";
         assert_eq!(new_txt, expected_text)
     }
 }
