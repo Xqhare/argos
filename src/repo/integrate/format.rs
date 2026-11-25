@@ -22,5 +22,5 @@ pub fn format_repo(
     repo_config: &RepoConfig,
 ) -> ArgosResult<(bool, String)> {
     let args = get_repo_args(repo_config, "format");
-    run_test(env, repo_env, repo_config, "fmt", args, "ran cargo fmt")
+    run_test(env, repo_env, repo_config, "fmt", "format", args)
 }

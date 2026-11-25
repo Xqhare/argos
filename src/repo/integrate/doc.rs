@@ -27,5 +27,5 @@ pub fn doc_repo(
         args.push("--no-deps".to_string());
     }
 
-    run_cargo_cmd(env, repo_env, repo_config, "doc", args)
+    run_cargo_cmd(env, repo_env, repo_config, "doc", "doc", args)
 }

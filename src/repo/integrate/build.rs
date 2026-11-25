@@ -22,5 +22,5 @@ pub fn build_repo(
     repo_config: &RepoConfig,
 ) -> ArgosResult<(bool, String)> {
     let args = get_repo_args(repo_config, "build");
-    run_cargo_cmd(env, repo_env, repo_config, "build", args)
+    run_cargo_cmd(env, repo_env, repo_config, "build", "build", args)
 }

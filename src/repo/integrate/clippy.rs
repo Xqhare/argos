@@ -42,12 +42,5 @@ pub fn clippy_repo(
     args.push("-W".to_string());
     args.push("clippy::pedantic".to_string());
 
-    run_test(
-        env,
-        repo_env,
-        repo_config,
-        "clippy",
-        args,
-        "made clippy happy",
-    )
+    run_test(env, repo_env, repo_config, "clippy", "clippy", args)
 }

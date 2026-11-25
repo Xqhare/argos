@@ -23,5 +23,5 @@ pub fn examples_test_repo(
 ) -> ArgosResult<(bool, String)> {
     let mut args = vec!["--examples".to_string()];
     args.extend(get_repo_args(repo_config, "examples-test"));
-    run_cargo_cmd(env, repo_env, repo_config, "test", args)
+    run_cargo_cmd(env, repo_env, repo_config, "test", "examples-test", args)
 }

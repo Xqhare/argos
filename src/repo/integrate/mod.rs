@@ -1,4 +1,4 @@
-use nabu::{Array, Object, XffValue};
+use nabu::{Object, XffValue};
 
 use crate::{
     env::{Environment, RepoEnvironment},
@@ -117,7 +117,7 @@ pub fn integrate_repo(
         git_commit(
             &repo_env.repo_path,
             "All CI passes OK",
-            "Automated changes added & checked. All passing CI also.",
+            "Automated changes added & tested.",
         )?;
     } else {
         // What to do if the second test fails?
@@ -128,8 +128,9 @@ pub fn integrate_repo(
         ));
         // And reset repo changes?
         let output = std::process::Command::new("git")
-            .arg("restore")
+            .arg("-C")
             .arg(&repo_env.repo_path)
+            .arg("restore")
             .arg(".")
             .output()
             .map_err(|e| ArgosError::Git(format!("Failed to restore repo: {e}")))?;
@@ -257,7 +258,7 @@ fn clean_repo(
     repo_env: &RepoEnvironment,
     repo_config: &RepoConfig,
 ) -> ArgosResult<()> {
-    execute_in_docker("clean", Vec::new(), env, repo_env, repo_config)?;
+    execute_in_docker("clean", "clean", Vec::new(), env, repo_env, repo_config)?;
     Ok(())
 }
 
@@ -317,10 +318,17 @@ pub fn run_test(
     repo_env: &RepoEnvironment,
     repo_config: &RepoConfig,
     cargo_command: &str,
+    argos_command: &str,
     args: Vec<String>,
-    _commit_msg: &str,
 ) -> ArgosResult<(bool, String)> {
-    let (success, output) = run_cargo_cmd(env, repo_env, repo_config, cargo_command, args)?;
+    let (success, output) = run_cargo_cmd(
+        env,
+        repo_env,
+        repo_config,
+        cargo_command,
+        argos_command,
+        args,
+    )?;
 
     Ok((success, output))
 }
@@ -338,28 +346,31 @@ pub fn run_cargo_cmd(
     env: &Environment,
     repo_env: &RepoEnvironment,
     repo_config: &RepoConfig,
-    command: &str,
+    cargo_command: &str,
+    argos_command: &str,
     args: Vec<String>,
 ) -> ArgosResult<(bool, String)> {
-    execute_in_docker(command, args, env, repo_env, repo_config)
+    execute_in_docker(
+        cargo_command,
+        argos_command,
+        args,
+        env,
+        repo_env,
+        repo_config,
+    )
 }
 
 /// Executes a command in a docker container
 pub fn execute_in_docker(
     cargo_command: &str,
+    argos_command: &str,
     cargo_args: Vec<String>,
     env: &Environment,
     repo_env: &RepoEnvironment,
     repo_config: &RepoConfig,
 ) -> ArgosResult<(bool, String)> {
-    let cargo_command = match cargo_command {
-        "format" => "fmt",
-        "doc-test" => "test --doc",
-        "examples-test" => "test --examples",
-        _ => cargo_command,
-    };
-    let requires_ext = get_repo_requires_ext(repo_config, cargo_command);
-    let dockerfile = find_dockerfile(cargo_command, env, repo_env, requires_ext)?;
+    let requires_ext = get_repo_requires_ext(repo_config, argos_command);
+    let dockerfile = find_dockerfile(argos_command, env, repo_env, requires_ext)?;
     let image_tag = format!("argos-{}-{}", repo_env.repo, cargo_command);
 
     let build_status = std::process::Command::new("docker")
