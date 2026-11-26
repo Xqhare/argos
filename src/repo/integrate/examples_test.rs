@@ -17,7 +17,7 @@ use crate::{
 /// # Returns
 /// Returns a boolean indicating if the test was successful and a string containing the output
 pub fn examples_test_repo(
-    env: &Environment,
+    env: &mut Environment,
     repo_env: &RepoEnvironment,
     repo_config: &RepoConfig,
 ) -> ArgosResult<(bool, String)> {

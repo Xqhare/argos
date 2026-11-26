@@ -17,7 +17,7 @@ use crate::{
 /// # Returns
 /// Returns a boolean indicating if the build was successful and a string containing the output
 pub fn build_repo(
-    env: &Environment,
+    env: &mut Environment,
     repo_env: &RepoEnvironment,
     repo_config: &RepoConfig,
 ) -> ArgosResult<(bool, String)> {

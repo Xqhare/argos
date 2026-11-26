@@ -1,3 +1,4 @@
+use std::collections::HashSet;
 use std::fs::create_dir_all;
 use std::path::PathBuf;
 
@@ -61,6 +62,8 @@ pub struct Environment {
     pub argos_cargo_registry_path: PathBuf,
     pub argos_cargo_git_path: PathBuf,
     pub default_dockerfile_path: PathBuf,
+    pub docker_empty_context_path: PathBuf,
+    pub built_images: HashSet<String>,
 }
 
 impl Environment {
@@ -74,8 +77,9 @@ impl Environment {
         let argos_cargo_registry_path = argos_cargo_cache_path.join("registry");
         let argos_cargo_git_path = argos_cargo_cache_path.join("git");
         let default_dockerfile_path = argos_root_path.join("Dockerfile.default");
+        let docker_empty_context_path = argos_root_path.join("docker_context");
 
-        // Ensure root, tracking and cache directories exist
+        // Ensure root, tracking, cache and empty docker context directories exist
         create_dir_all(&argos_root_path).map_err(|e| {
             ArgosError::Environment(format!("Failed to create argos root directory: {e}"))
         })?;
@@ -90,6 +94,11 @@ impl Environment {
         })?;
         create_dir_all(&argos_cargo_git_path).map_err(|e| {
             ArgosError::Environment(format!("Failed to create cargo git directory: {e}"))
+        })?;
+        create_dir_all(&docker_empty_context_path).map_err(|e| {
+            ArgosError::Environment(format!(
+                "Failed to create empty docker context directory: {e}"
+            ))
         })?;
 
         let repo_list_path = {
@@ -130,6 +139,8 @@ impl Environment {
             argos_cargo_registry_path,
             argos_cargo_git_path,
             default_dockerfile_path,
+            docker_empty_context_path,
+            built_images: HashSet::new(),
         })
     }
 }
