@@ -73,7 +73,9 @@ pub fn was_updated(repo_env: &RepoEnvironment) -> ArgosResult<bool> {
                 ));
             }
         }
-        Err(e) => return Err(ArgosError::Xff(e.to_string())),
+        // A brand-new repo that fails on its first run gets permanently stuck if I return
+        // an error -> Just try and integrate it
+        Err(_) => return Ok(true),
     };
     let previous_hash = match repo_metadata.get("hash") {
         Some(x) => match x.as_string() {
@@ -83,7 +85,8 @@ pub fn was_updated(repo_env: &RepoEnvironment) -> ArgosResult<bool> {
             }
         },
         None => {
-            return Err(ArgosError::XffValue("Hash must be present.".to_string()));
+            // A brand-new, but failing repo can get stuck here too.
+            return Ok(true);
         }
     };
     let mut overwrite = false;
@@ -131,21 +134,6 @@ pub fn was_updated(repo_env: &RepoEnvironment) -> ArgosResult<bool> {
         return Ok(false);
     }
     Ok(true)
-}
-
-pub fn persist_new_hash(latest_hash: &str, repo_env: &RepoEnvironment) -> ArgosResult<()> {
-    let mut repo_metadata = if let Ok(value) = nabu::serde::read(&repo_env.repo_tracking_xff)
-        .map_err(|err| ArgosError::Xff(err.to_string()))
-    {
-        value.into_object().ok_or(ArgosError::XffValue(
-            "Repo metadata XFF must be an object.".to_string(),
-        ))?
-    } else {
-        Object::new()
-    };
-    let _ = repo_metadata.insert("hash", latest_hash);
-    nabu::serde::write(&repo_env.repo_tracking_xff, xff!(repo_metadata))
-        .map_err(|e| ArgosError::Xff(e.to_string()))
 }
 
 /// Recursively calculates the size of a directory in bytes

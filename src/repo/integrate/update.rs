@@ -3,7 +3,7 @@ use crate::{
     error::ArgosResult,
     repo::{
         config::RepoConfig,
-        integrate::{get_repo_args, run_test},
+        integrate::{get_repo_args, run_cargo_cmd},
     },
 };
 
@@ -22,5 +22,5 @@ pub fn update_repo(
     repo_config: &RepoConfig,
 ) -> ArgosResult<(bool, String)> {
     let args = get_repo_args(repo_config, "update");
-    run_test(env, repo_env, repo_config, "update", "update", args)
+    run_cargo_cmd(env, repo_env, repo_config, "update", "update", args)
 }

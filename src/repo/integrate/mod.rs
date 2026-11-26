@@ -13,7 +13,7 @@ use crate::{
     },
     utils::{
         get_dir_size,
-        git::{git_commit, git_push, git_restore},
+        git::{git_commit, git_push, git_restore, latest_git_hash},
     },
 };
 
@@ -78,9 +78,10 @@ pub fn integrate_repo(
 
     let (init_test_success, message) = test_repo(env, repo_env, repo_config)?;
     if !init_test_success {
+        results.insert("all_succeeded", false);
         results.insert(
             "first_failed_command",
-            format!("Inital test of repo failed, no CI run. Error message: '{message}'"),
+            format!("Initial test of repo failed, no CI run. Error message: '{message}'"),
         );
         save_results(repo_env, &results)?;
         return Ok(false);
@@ -122,6 +123,7 @@ pub fn integrate_repo(
                 "Automated changes added & tested.",
             )?;
             git_push(&repo_env.repo_path)?;
+            results.insert("hash", latest_git_hash(&repo_env.repo_path)?);
         } else {
             // What to do if the second test fails?
             one_failed = true;
@@ -132,12 +134,14 @@ pub fn integrate_repo(
             // And reset repo changes?
             git_restore(&repo_env.repo_path)?;
         }
-        if let Some(output) = first_failed_output {
-            results.insert(
-                "first_failed_command".to_string(),
-                format!("Execution of command '{}' failed.\n{}", output.0, output.1),
-            );
-        }
+    } else {
+        git_restore(&repo_env.repo_path)?;
+    }
+    if let Some(output) = first_failed_output {
+        results.insert(
+            "first_failed_command".to_string(),
+            format!("Execution of command '{}' failed.\n{}", output.0, output.1),
+        );
     }
 
     results.insert("all_succeeded".to_string(), !one_failed);
@@ -287,38 +291,6 @@ fn check_for_failed_dependencies(
         }
     }
     true
-}
-
-/// Runs a cargo command and commits on success after ensuring all tests pass.
-///
-/// # Arguments
-/// * `env` - Environment
-/// * `repo_env` - Repo environment
-/// * `repo_config` - Repo config
-/// * `cargo_command` - Cargo command
-/// * `args` - Command arguments
-/// * `commit_msg` - Git commit message
-///
-/// # Returns
-/// Returns a boolean indicating if the command was successful and a string containing the output
-pub fn run_test(
-    env: &Environment,
-    repo_env: &RepoEnvironment,
-    repo_config: &RepoConfig,
-    cargo_command: &str,
-    argos_command: &str,
-    args: Vec<String>,
-) -> ArgosResult<(bool, String)> {
-    let (success, output) = run_cargo_cmd(
-        env,
-        repo_env,
-        repo_config,
-        cargo_command,
-        argos_command,
-        args,
-    )?;
-
-    Ok((success, output))
 }
 
 /// Runs `cargo {command}` on a repo

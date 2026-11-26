@@ -4,7 +4,7 @@ use crate::{
         integrate::{integrate_repo, save_failed_integration},
         setup::setup_repo,
     },
-    utils::{git::latest_git_hash, persist_new_hash, read_all_succeeded},
+    utils::read_all_succeeded,
 };
 
 mod config;
@@ -56,17 +56,6 @@ pub fn continuously_integrate_repo(env: &Environment, repo: &str, failed_repos: 
             let _ = save_failed_integration(&repo_env, &e.to_string());
             return false;
         }
-    }
-    let latest_hash = match latest_git_hash(&repo_env.repo_path) {
-        Ok(hash) => hash,
-        Err(e) => {
-            let _ = save_failed_integration(&repo_env, &e.to_string());
-            return false;
-        }
-    };
-    if let Err(e) = persist_new_hash(&latest_hash, &repo_env) {
-        let _ = save_failed_integration(&repo_env, &e.to_string());
-        return false;
     }
 
     true
