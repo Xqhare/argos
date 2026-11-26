@@ -297,6 +297,18 @@ mod tests {
         let expected_text = "MIT License\n\nCopyright (c) 2025-2026\n\nSome license text";
         assert_eq!(new_txt, expected_text)
     }
+    #[cfg(not(debug_assertions))]
+    #[test]
+    fn build_license_text_up_to_date() {
+        let text = "MIT License\n\nCopyright (c) 2022-2025\n\nSome license text";
+        let (year, to, after) = parse_license_text(text).unwrap();
+        let last_license_year_u16: u16 = year.parse().unwrap();
+        let new_txt = build_license_text(2025, last_license_year_u16, &to, &after);
+        assert!(new_txt.is_ok());
+        let new_txt = new_txt.unwrap();
+        let expected_text = "MIT License\n\nCopyright (c) 2022-2025\n\nSome license text";
+        assert_eq!(new_txt, expected_text)
+    }
     #[test]
     fn full_text_handling_up_to_date() {
         let text = "MIT License\n\nCopyright (c) 2022-2025\n\nSome license text";
