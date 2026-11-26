@@ -1,5 +1,7 @@
 use std::path::PathBuf;
 
+use thoth::Thoth;
+
 use crate::{
     env::RepoEnvironment,
     error::{ArgosError, ArgosResult},
@@ -40,7 +42,7 @@ use crate::{
 ///
 /// # Notes
 ///
-/// Assumes years only consist of ASCII letters and are *always* 4 characters long.
+/// Assumes years are *always* 4 characters long and only ',' & '-' are used for year separation.
 pub fn license_repo(
     repo_env: &RepoEnvironment,
     _repo_config: &RepoConfig,
@@ -111,29 +113,26 @@ fn build_license_text(
         })?;
         year_u16.saturating_sub(last_license_year_u16)
     };
-    assert!(
-        year_delta != 0,
-        "'build_license_text' called, but no change needed. 'handle_license_text' (caller) must handle this for correct reporting up the callstack."
-    );
+    // NOTE: If every bit of performance is needed, load thoth once and reuse the utf tables instead of reloading them on every build_license call && run on the read &[u8] directly
+    let graphemes = Thoth::grapheme_segmentation(all_text_to_last_year).map_err(|err| {
+        ArgosError::Environment(format!("Thoth cannot segment text into graphemes: '{err}'"))
+    })?;
     let previous_hypen_con = {
-        // Assuming ASCII characters and 4 # long years only
-        match all_text_to_last_year
-            .chars()
-            .nth(all_text_to_last_year.len().saturating_sub(5))
-            .ok_or({
-                ArgosError::IntegrateRepoLicense(format!(
-                    "'build_license_text' encountered string with fewer chars then its own length - 5"
-                ))
-            })? {
-            '-' => true,
+        // Assuming 4 # long years only
+        match graphemes.get(graphemes.len().saturating_sub(5)).ok_or({
+            ArgosError::IntegrateRepoLicense(format!(
+                "'build_license_text' encountered string with fewer chars then its own length - 5"
+            ))
+        })?.as_str() {
+            "-" => true,
             _ => false,
         }
     };
     let separator = if year_delta == 1 { "-" } else { ", " };
     let all_text_to_last_year = if previous_hypen_con && year_delta == 1 {
-        let mutated_text: Vec<char> = all_text_to_last_year
-            .chars()
-            .take(all_text_to_last_year.len().saturating_sub(5))
+        let mutated_text: Vec<String> = graphemes[..graphemes.len().saturating_sub(5)]
+            .iter()
+            .cloned()
             .collect();
         &String::from_iter(mutated_text)
     } else {

@@ -28,6 +28,7 @@ dependencies = [
  "mawu",
  "nabu",
  "nemesis",
+ "thoth",
 ]
 
 [[package]]
@@ -83,7 +84,7 @@ source = "git+https://github.com/xqhare/nemesis#8bb94ecc2355caa7427f73424963f0ed
 [[package]]
 name = "thoth"
 version = "1.0.0"
-source = "git+https://github.com/Xqhare/thoth#a10f03fdf183cb221529b1102405a77a4256e4ac"
+source = "git+https://github.com/xqhare/thoth#a10f03fdf183cb221529b1102405a77a4256e4ac"
 dependencies = [
  "nemesis",
 ]

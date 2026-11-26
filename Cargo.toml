@@ -10,3 +10,4 @@ horae = { git = "https://github.com/xqhare/horae" }
 mawu = { git = "https://github.com/xqhare/mawu" }
 nabu = { git = "https://github.com/xqhare/nabu" }
 nemesis = { git = "https://github.com/xqhare/nemesis" }
+thoth = { git = "https://github.com/xqhare/thoth" }
