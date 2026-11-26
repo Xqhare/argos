@@ -121,13 +121,20 @@ fn build_license_text(
         // Assuming 4 # long years only
         match graphemes.get(graphemes.len().saturating_sub(5)).ok_or({
             ArgosError::IntegrateRepoLicense(format!(
-                "'build_license_text' encountered string with fewer chars then its own length - 5"
+                "'build_license_text' encountered string with fewer items then its own length - 5"
             ))
         })?.as_str() {
             "-" => true,
             _ => false,
         }
     };
+    if year_delta == 0 {
+        debug_assert!(
+            false,
+            "'build_license_text' called with new_year already present in file. This must be cought by the caller prior to calling for correct reporting."
+        );
+        return Ok(format!("{all_text_to_last_year}{all_text_after_last_year}"));
+    }
     let separator = if year_delta == 1 { "-" } else { ", " };
     let all_text_to_last_year = if previous_hypen_con && year_delta == 1 {
         let mutated_text: Vec<String> = graphemes[..graphemes.len().saturating_sub(5)]
