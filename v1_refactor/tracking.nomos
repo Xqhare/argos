@@ -15,10 +15,10 @@
 	- [x] Swallowed git errors:
 		* @src/repo/setup.rs let _ = git_clone(...) ignores clone errors, causing a confusing downstream error from latest_git_hash.
 		* @src/utils/git.rs git fetch exit status isn't checked, so SSH/network failures silently read the old origin/HEAD and look like "no updates".
-	- [/] Hash & push lifecycle issues:
-		- [ ] was_updated ::  persists the new hash before git_pull or integration runs—if setup/integration crashes or a dep fails, that commit is still marked "seen" and skipped for 5–10 days.
+	- [x] Hash & push lifecycle issues:
+		- [x] was_updated ::  persists the new hash before git_pull or integration runs—if setup/integration crashes or a dep fails, that commit is still marked "seen" and skipped for 5–10 days.
 			* Requires some work on return of was_updated I think
-		- [ ] (9) Dropping new git hash :: When Argos commits and pushes (clippy/format/update/license), the stored hash isn't updated to the new HEAD, triggering an extra CI run on the next cycle for Argos's own commit.
+		- [x] (9) Dropping new git hash :: When Argos commits and pushes (clippy/format/update/license), the stored hash isn't updated to the new HEAD, triggering an extra CI run on the next cycle for Argos's own commit.
 			* Non critical really; Bit of wasted compute but the home lab isnt doing much anyways
 		- [x] git_push runs after save_results :: (so a push failure triggers save_failed_integration and overwrites the entire run's results with setup_error), and runs even when one_failed is true.
 	- [ ] Stale dependency failure tracking:
