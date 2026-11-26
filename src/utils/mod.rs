@@ -165,6 +165,23 @@ pub fn get_dir_size(path: &std::path::Path) -> std::io::Result<u64> {
     Ok(size)
 }
 
+pub fn read_all_succeeded(repo_env: &RepoEnvironment) -> ArgosResult<bool> {
+    nabu::serde::read(&repo_env.repo_tracking_xff)
+        .map_err(|err| ArgosError::Xff(err.to_string()))?
+        .as_object()
+        .ok_or(ArgosError::XffValue(
+            "Repo metadata XFF must be an object.".to_string(),
+        ))?
+        .get("all_succeeded")
+        .ok_or(ArgosError::XffValue(
+            "Repo metadata object must contain key 'all_succeeded'.".to_string(),
+        ))?
+        .into_boolean()
+        .ok_or(ArgosError::XffValue(
+            "Repo metadata object key 'all_succeeded' stores not a boolean!".to_string(),
+        ))
+}
+
 /// Gets the uid and gid of the current user
 ///
 /// Returns a string of the form `{uid}:{gid}`

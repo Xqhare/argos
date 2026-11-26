@@ -1,4 +1,4 @@
-- [/] Bug fixes
+- [x] Bug fixes
 	- [x] Json file read as xff :: @src/utils/mod.rs 
 	- [x] Silent dependency skip + permanent stale state :: @src/repo/integrate/mod.rs
 		* areia failed. When argos (which requires areia) ran right after, setup_new_repo wrote {"hash": "..."} to argos.xff, then `check_for_failed_dependencies` returned Ok(false) without calling `save_results`
@@ -21,7 +21,7 @@
 		- [x] (9) Dropping new git hash :: When Argos commits and pushes (clippy/format/update/license), the stored hash isn't updated to the new HEAD, triggering an extra CI run on the next cycle for Argos's own commit.
 			* Non critical really; Bit of wasted compute but the home lab isnt doing much anyways
 		- [x] git_push runs after save_results :: (so a push failure triggers save_failed_integration and overwrites the entire run's results with setup_error), and runs even when one_failed is true.
-	- [ ] Stale dependency failure tracking:
+	- [x] Stale dependency failure tracking:
 		* failed_repos only tracks failures from the current run. If areia failed yesterday and has no new commits today, today's run skips areia and returns true, so dependents think areia is green. Reading each dependency's last persisted all_succeeded state fixes this (and similarly, if a dependency was updated and passed today, consider re-testing its dependents).
 	- [x] Non-portable archive filenames :: @src/repo/integrate/mod.rs horae::Utc::now().to_string() contains colons (:), which is why all the history files in tmp/argos/repo_tracking/*/ got 8.3-mangled into names like 2FZ4DC~4.XFF when copied off your server. Using a filename-safe format (e.g. 2026-03-29T21-13-49Z.xff) avoids mangling while keeping lexicographical pruning intact.
 	- [x] Command execution order :: @src/repo/config.rs:76-136): deconstruct_advanced_config iterates the config.json object keys alphabetically (build, clippy, doc, doc-test, format, license, test, update), so clippy/format/license run before test when explicitly listed—contrary to the README note.
@@ -34,11 +34,11 @@
 		* Running test_repo before and after each of clippy, format, and update executes cargo test up to 7 times per repo (e.g., tyche's test suite takes ~42s per pass → ~5 minutes of redundant testing).
 		* If test already passed earlier in the pipeline, you don't need a pre-pass before every mutating step, and you only need the post-command cargo test if the command actually changed files (git status --porcelain is non-empty).
 - [/] Tests
-	- [ ] Test more :: everywhere
+	- [ ] Test more :: everywhere (without touching the system really (no docker running etc))
 	- [x] License text building :: Does it do what it says in the doc? No tests to confirm
 - [/] Design Changes
 	- [ ] Move to a full CLI tool :: @v1_refactor/cli_design.md for more details
-	- [ ] Ignore the 1 minute sleep between repos 
+	- [x] Ignore the 1 minute sleep between repos 
 	- [x] License text :: Would probably be best to focus on one way of handling the years. Probably usinging hypens, instead of trying to detect between two styles and continuing them
 	- [ ] Ignore the git commit hash check if a repo should be tested
 - [ ] Fixes on homelab
