@@ -2,7 +2,10 @@ pub mod git;
 
 use std::time::Duration;
 
-use athena::sorting::kahns_managed;
+use athena::{
+    sorting::kahns_managed,
+    system::{get_gid, get_uid},
+};
 use nabu::{Array, Object, XffValue, xff};
 
 use crate::{
@@ -167,20 +170,6 @@ pub fn get_dir_size(path: &std::path::Path) -> std::io::Result<u64> {
 /// Returns a string of the form `{uid}:{gid}`
 #[allow(clippy::similar_names)]
 pub fn get_uid_gid() -> ArgosResult<String> {
-    let output_uid = std::process::Command::new("id")
-        .arg("-u")
-        .output()
-        .map_err(|e| ArgosError::IntegrateRepoTest(e.to_string()))?;
-    let output_uid = String::from_utf8_lossy(&output_uid.stdout)
-        .trim()
-        .to_string();
-    let output_gid = std::process::Command::new("id")
-        .arg("-g")
-        .output()
-        .map_err(|e| ArgosError::IntegrateRepoTest(e.to_string()))?;
-    let output_gid = String::from_utf8_lossy(&output_gid.stdout)
-        .trim()
-        .to_string();
-    let output = format!("{output_uid}:{output_gid}");
+    let output = format!("{}:{}", get_uid(), get_gid());
     Ok(output)
 }
