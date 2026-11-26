@@ -173,7 +173,9 @@ fn save_results(repo_env: &RepoEnvironment, results: &Object) -> ArgosResult<()>
     // Read existing metadata to preserve hash
     if let Ok(xff) = nabu::serde::read(&repo_env.repo_tracking_xff) {
         if let Some(obj) = xff.into_object() {
-            if let Some(hash) = obj.get("hash") {
+            if let Some(hash) = obj.get("hash")
+                && !results_with_metadata.contains_key("hash")
+            {
                 results_with_metadata.insert("hash".to_string(), hash.clone());
             }
         }
@@ -514,10 +516,8 @@ mod tests {
     }
 
     fn unique_temp_dir(name: &str) -> PathBuf {
-        let dir = std::env::temp_dir().join(format!(
-            "argos_docker_test_{name}_{}",
-            std::process::id()
-        ));
+        let dir =
+            std::env::temp_dir().join(format!("argos_docker_test_{name}_{}", std::process::id()));
         let _ = fs::remove_dir_all(&dir);
         fs::create_dir_all(&dir).unwrap();
         dir

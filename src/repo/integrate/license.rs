@@ -70,18 +70,28 @@ fn handle_license_text(
     if !is_mit_license(license_text) {
         return Ok((true, "License is not MIT - skipping update".to_string()));
     }
-    let (license_last_year, all_text_to_last_year, all_text_after_last_year) =
+    let (last_license_year, all_text_to_last_year, all_text_after_last_year) =
         match parse_license_text(license_text) {
             Ok(data) => data,
             Err(e) => return Ok((false, e.to_string())),
         };
 
-    if last_commit_year == license_last_year {
+    let last_commit_year_u16: u16 = last_commit_year.parse().map_err(|err| {
+        ArgosError::IntegrateRepoLicense(format!(
+            "Unable to cast year '{last_commit_year}' into a valid u16 integer!\nError: {err}"
+        ))
+    })?;
+    let last_license_year_u16: u16 = last_license_year.parse().map_err(|err| {
+        ArgosError::IntegrateRepoLicense(format!(
+            "Unable to cast year '{last_license_year}' into a valid u16 integer!\nError: {err}"
+        ))
+    })?;
+    if last_commit_year_u16 <= last_license_year_u16 {
         Ok((true, "License year is already up to date".to_string()))
     } else {
         let license_text = build_license_text(
-            &last_commit_year,
-            &license_last_year,
+            last_commit_year_u16,
+            last_license_year_u16,
             &all_text_to_last_year,
             &all_text_after_last_year,
         )?;
@@ -95,24 +105,12 @@ fn handle_license_text(
 }
 
 fn build_license_text(
-    year: &str,
-    license_last_year: &str,
+    last_commit_year_u16: u16,
+    last_license_year_u16: u16,
     all_text_to_last_year: &str,
     all_text_after_last_year: &str,
 ) -> ArgosResult<String> {
-    let year_delta = {
-        let year_u16: u16 = year.parse().map_err(|err| {
-            ArgosError::IntegrateRepoLicense(format!(
-                "Unable to cast year '{year}' into a valid u16 integer!\nError: {err}"
-            ))
-        })?;
-        let last_license_year_u16: u16 = license_last_year.parse().map_err(|err| {
-            ArgosError::IntegrateRepoLicense(format!(
-                "Unable to cast year '{license_last_year}' into a valid u16 integer!\nError: {err}"
-            ))
-        })?;
-        year_u16.saturating_sub(last_license_year_u16)
-    };
+    let year_delta = { last_commit_year_u16.saturating_sub(last_license_year_u16) };
     // NOTE: If every bit of performance is needed, load thoth once and reuse the utf tables instead of reloading them on every build_license call && run on the read &[u8] directly
     let graphemes = Thoth::grapheme_segmentation(all_text_to_last_year).map_err(|err| {
         ArgosError::Environment(format!("Thoth cannot segment text into graphemes: '{err}'"))
@@ -146,7 +144,7 @@ fn build_license_text(
         all_text_to_last_year
     };
     Ok(format!(
-        "{all_text_to_last_year}{separator}{year}{all_text_after_last_year}"
+        "{all_text_to_last_year}{separator}{last_commit_year_u16}{all_text_after_last_year}"
     ))
 }
 
@@ -281,6 +279,24 @@ mod tests {
         assert_eq!(after, "\n\nSome license text");
     }
 
+    #[test]
+    fn full_text_handling_one_year_non_seq() {
+        let text = "MIT License\n\nCopyright (c) 2024\n\nSome license text";
+        let new_txt = handle_license_text(text, "2026", &dummy_repo_env(), true);
+        assert!(new_txt.is_ok());
+        let new_txt = new_txt.unwrap().1;
+        let expected_text = "MIT License\n\nCopyright (c) 2024, 2026\n\nSome license text";
+        assert_eq!(new_txt, expected_text)
+    }
+    #[test]
+    fn full_text_handling_one_year_seq() {
+        let text = "MIT License\n\nCopyright (c) 2025\n\nSome license text";
+        let new_txt = handle_license_text(text, "2026", &dummy_repo_env(), true);
+        assert!(new_txt.is_ok());
+        let new_txt = new_txt.unwrap().1;
+        let expected_text = "MIT License\n\nCopyright (c) 2025-2026\n\nSome license text";
+        assert_eq!(new_txt, expected_text)
+    }
     #[test]
     fn full_text_handling_up_to_date() {
         let text = "MIT License\n\nCopyright (c) 2022-2025\n\nSome license text";

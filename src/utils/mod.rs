@@ -6,7 +6,7 @@ use athena::{
     sorting::kahns_managed,
     system::{get_gid, get_uid},
 };
-use nabu::{Array, Object, XffValue, xff};
+use nabu::{Array, XffValue};
 
 use crate::{
     env::{Environment, RepoEnvironment},
